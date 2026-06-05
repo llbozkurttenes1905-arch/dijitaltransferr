@@ -1,79 +1,56 @@
-# 🚀 Futbol Dijital İkiz — Web Sitesi Olarak Yayınlama
+# 🚀 Futbol Dijital İkiz — Vercel'de Yayınlama
 
-## ❗ Önce: Neden Vercel değil?
-**Streamlit, Vercel'de çalışmaz.** Vercel; Next.js / statik siteler ve kısa süreli "serverless"
-fonksiyonlar içindir. Streamlit ise **sürekli açık kalan bir Python sunucusu** (Tornado + WebSocket)
-gerektirir. Bu yüzden aşağıdaki **ücretsiz** ve Streamlit için yapılmış servisi kullan.
+Bu proje artık **Streamlit kullanmıyor**. Mimari Vercel'e uygundur:
+
+```
+index.html          → sitenin görünen yüzü (statik)
+api/analyze.py      → Vercel Serverless Function (veri çekme + simülasyon)
+vercel.json         → fonksiyon ayarı (maxDuration)
+requirements.txt    → boş (fonksiyon sadece Python stdlib kullanır)
+```
+
+API anahtarı **koda yazılmaz**; Vercel'de **ortam değişkeni (env)** olarak eklenir.
 
 ---
 
-## ✅ Önerilen: Streamlit Community Cloud (ücretsiz, en kolay)
+## 1) GitHub'a yükle
+(Aşağıdaki git komutlarını çalıştır — repo: `dijitaltransferr`.)
 
-Sonuçta `https://<kullanıcı-adın>-<repo>.streamlit.app` gibi gerçek bir web sitesi linkin olur.
+## 2) Vercel'e bağla
+1. **vercel.com** → giriş yap (GitHub ile) → **Add New… → Project**
+2. `dijitaltransferr` deposunu **Import** et
+3. **Framework Preset:** *Other* (otomatik algılar; değiştirme)
+4. **Deploy**'a basmadan önce ↓ ortam değişkenini ekle
 
-### 1. Projeyi GitHub'a yükle
-Yeni bir GitHub deposu (repo) oluştur ve şu iki dosyayı içine koy (yeterli):
-```
-app.py
-requirements.txt
-```
-Terminalden:
-```bash
-cd /Users/Ethem/Desktop/colab
-git init
-git add app.py requirements.txt .gitignore
-git commit -m "Futbol Dijital Ikiz web app"
-git branch -M main
-git remote add origin https://github.com/<kullanıcı-adın>/<repo-adı>.git
-git push -u origin main
-```
+## 3) ⭐ API anahtarını env olarak ekle (en önemli adım)
+**Settings → Environment Variables** (veya import ekranındaki Environment Variables bölümü):
 
-### 2. Streamlit Cloud'a bağlan
-1. **share.streamlit.io** adresine gir, GitHub ile giriş yap.
-2. **"Create app" / "New app"** → deponu, `main` dalını ve **Main file path = app.py** seç.
+| Name | Value |
+|------|-------|
+| `API_KEY` | `senin_api_football_anahtarın` |
 
-### 3. API anahtarını SECRET olarak ekle  ⭐ (en önemli adım)
-Dağıtım ekranında **"Advanced settings → Secrets"** kutusuna şunu yapıştır:
-```toml
-API_KEY = "SENIN_API_FOOTBALL_ANAHTARIN"
-```
-> Kod, anahtarı bu secret'tan otomatik okur (`st.secrets["API_KEY"]`). Kullanıcıya hiç sorulmaz,
-> kimse anahtarı göremez.
+Kaydet. (Kod bunu `os.environ["API_KEY"]` ile okur; tarayıcıya hiç gitmez.)
 
-### 4. Deploy'a bas
-Birkaç dakikada site yayında olur. Linki paylaşabilirsin. 🎉
+## 4) Deploy
+Birkaç dakikada site yayında: `https://dijitaltransferr.vercel.app` gibi. 🎉
+
+> Env değişkenini Deploy'dan **sonra** eklediysen: **Deployments → ... → Redeploy** yap ki yeni değişkeni alsın.
 
 ---
 
-## 🖥️ Yerel test (kendi bilgisayarında)
-İki yoldan biri:
-
-**A) Ortam değişkeniyle:**
+## 🖥️ Yerel test (isteğe bağlı)
 ```bash
-API_KEY="senin_anahtarin" python3 -m streamlit run app.py
+npm i -g vercel
+# proje klasöründe .env dosyası oluştur:  API_KEY=senin_anahtarin
+vercel dev
 ```
-
-**B) Secrets dosyasıyla:**
-`.streamlit/secrets.toml.example` dosyasını `.streamlit/secrets.toml` olarak kopyala, anahtarını yaz, sonra:
-```bash
-python3 -m streamlit run app.py
-```
-
----
-
-## 🔁 Alternatif servisler (istersen)
-| Servis | Not |
-|--------|-----|
-| **Hugging Face Spaces** | "Streamlit" template seç, secret olarak `API_KEY` ekle |
-| **Render.com** | Web Service, Start command: `streamlit run app.py --server.port $PORT` |
-| **Railway** | Benzer; ortam değişkeni `API_KEY` |
-
-> Hepsinde mantık aynı: `API_KEY` adında bir **ortam değişkeni / secret** tanımla, gerisini kod halleder.
+Tarayıcıda `http://localhost:3000` açılır.
 
 ---
 
 ## 📝 Notlar
-- **Geçmiş Futbolcular** listesi artık her ziyaretçiye özeldir (oturum bazlı); sayfa yenilenince sıfırlanır.
-  Bu, public sitede ziyaretçilerin geçmişlerinin karışmaması için bilinçli bir tercihtir.
-- Ücretsiz API planı **günde 100 istek** ile sınırlıdır; çok sayıda ziyaretçi olursa kota dolabilir.
-  Yoğun kullanım için API planını yükseltmen gerekir.
+- **Geçmiş Futbolcular** listesi tarayıcıda (localStorage) tutulur → her ziyaretçiye özel, kalıcı.
+- **Ücretsiz API limiti:** dakikada ~10 istek. Bir analiz ~8 istek harcar; arka arkaya çok hızlı analiz yapma.
+- Hız sınırı nedeniyle maç-maç reyting çekimi yapılmaz; performans dalgalanması tipik bir varsayılan değerle modellenir.
+  Çekirdek çıktılar (uyum skoru, gol+asist projeksiyonu, sakatlık riski) gerçek veriyle hesaplanır.
+- `Bitirme_Projesi_Raporu.docx` ve `rapor_*` dosyaları siteyle ilgisizdir; `.vercelignore` ile dağıtıma dahil edilmez.

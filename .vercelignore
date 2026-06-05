@@ -1,0 +1,11 @@
+# Vercel'e GEREKMEYEN yerel dosyalar (web sitesi için lazım değil):
+venv/
+.claude/
+build_report.py
+rapor_assets.py
+dijital_ikiz.py
+app.py
+Bitirme_Projesi_Raporu.docx
+rapor_gorseller/
+requirements-dev.txt
+DEPLOY.md

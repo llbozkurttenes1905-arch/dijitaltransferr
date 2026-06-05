@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⚽ Futbol Dijital İkiz</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--yesil:#10b981;--gold:#fbbf24;--bg:#0b0f14;}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',system-ui,Arial,sans-serif;}
+body{background:radial-gradient(1200px 600px at 20% -10%,#15323b 0%,#0b0f14 55%);color:#e2e8f0;min-height:100vh;padding:18px;}
+.layout{display:flex;gap:18px;max-width:1280px;margin:0 auto;align-items:flex-start;}
+.sidebar{width:330px;flex-shrink:0;background:rgba(8,12,16,.7);border:1px solid rgba(255,255,255,.07);
+  border-radius:18px;padding:18px;position:sticky;top:18px;}
+.main{flex:1;min-width:0;}
+@media(max-width:820px){.layout{flex-direction:column;}.sidebar{width:auto;position:static;}body{padding:12px;}}
+
+h3.logo{font-size:20px;font-weight:900;}
+.cap{color:#94a3b8;font-size:12.5px;margin-bottom:14px;}
+label{display:block;font-size:12.5px;color:#94a3b8;margin:10px 0 4px;font-weight:600;}
+input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.04);color:#f1f5f9;font-size:14px;outline:none;}
+input:focus{border-color:var(--yesil);}
+button.go{width:100%;margin-top:14px;padding:11px;border:0;border-radius:12px;cursor:pointer;font-weight:800;
+  color:#fff;font-size:14px;background:linear-gradient(90deg,#10b981,#059669);}
+button.go:hover{filter:brightness(1.08);} button.go:disabled{opacity:.6;cursor:wait;}
+.hr{height:1px;background:rgba(255,255,255,.08);margin:16px 0;}
+.hist-title{font-size:13px;font-weight:700;color:#cbd5e1;margin-bottom:8px;}
+.hist-item{width:100%;text-align:left;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);
+  color:#e2e8f0;border-radius:10px;padding:9px 11px;margin-bottom:7px;cursor:pointer;font-size:13px;font-weight:600;}
+.hist-item:hover{background:rgba(16,185,129,.18);}
+.hist-clear{background:none;border:0;color:#64748b;font-size:12px;cursor:pointer;text-decoration:underline;}
+
+.hero-title{font-size:clamp(26px,5vw,44px);font-weight:900;letter-spacing:-1px;
+  background:linear-gradient(90deg,#10b981,#34d399,#fbbf24);-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;}
+.hero-sub{color:#94a3b8;font-size:clamp(13px,2.5vw,15px);margin:4px 0 18px;}
+
+.grid3{display:grid;grid-template-columns:1.1fr 1fr 1.1fr;gap:14px;}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:14px;}
+.grid2{display:grid;grid-template-columns:1fr 1.05fr;gap:14px;margin-top:14px;}
+@media(max-width:820px){.grid3,.grid4,.grid2{grid-template-columns:1fr;}}
+@media(max-width:520px){.grid4{grid-template-columns:1fr 1fr;}}
+
+.card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px 18px;}
+.row{display:flex;gap:12px;align-items:center;}
+.row img{width:60px;height:60px;border-radius:10px;object-fit:cover;background:#1f2937;}
+.name-big{font-size:clamp(18px,3.5vw,24px);font-weight:800;color:#f1f5f9;}
+.muted{color:#94a3b8;font-size:12.5px;}
+.pills{margin-top:10px;}
+.pill{display:inline-block;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  border-radius:999px;padding:4px 11px;font-size:12px;color:#cbd5e1;margin:0 5px 5px 0;}
+.metric-t{color:#94a3b8;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.metric-v{font-size:clamp(22px,4vw,30px);font-weight:900;line-height:1.1;margin-top:3px;}
+.metric-s{color:#64748b;font-size:11.5px;margin-top:2px;}
+
+.gaugeWrap{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;}
+.gauge{width:165px;height:165px;border-radius:50%;display:grid;place-items:center;position:relative;
+  background:conic-gradient(var(--c) calc(var(--p)*1%),#1f2937 0);}
+.gauge::before{content:"";position:absolute;inset:14px;border-radius:50%;background:#0d1117;}
+.gauge .val{position:relative;font-size:34px;font-weight:900;color:#f1f5f9;}
+.badge{padding:7px 16px;border-radius:999px;font-weight:800;font-size:14px;}
+
+.chart-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px 16px;}
+.chart-box h4{font-size:14px;margin-bottom:8px;color:#e2e8f0;}
+canvas{max-height:240px;}
+details{margin-top:14px;color:#94a3b8;font-size:13px;}
+summary{cursor:pointer;color:#cbd5e1;}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;vertical-align:-3px;margin-right:6px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.msg{background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.15);border-radius:14px;padding:22px;color:#94a3b8;}
+.err{border-color:#ef4444;color:#fca5a5;background:rgba(239,68,68,.08);}
+.imza{position:fixed;right:14px;bottom:12px;z-index:50;font-size:12.5px;color:#cbd5e1;background:rgba(8,12,16,.7);
+  padding:5px 14px;border-radius:999px;border:1px solid rgba(16,185,129,.35);backdrop-filter:blur(6px);}
+.imza b{background:linear-gradient(90deg,#10b981,#fbbf24);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+</style>
+</head>
+<body>
+<div class="layout">
+  <!-- SOL PANEL -->
+  <aside class="sidebar">
+    <h3 class="logo">⚽ Dijital İkiz</h3>
+    <div class="cap">Transfer Uyum Simülatörü</div>
+    <label>Oyuncu</label>
+    <input id="oyuncu" placeholder="ör. Lautaro Martinez" value="Lautaro Martinez">
+    <label>Hedef Takım</label>
+    <input id="hedef" placeholder="ör. Fenerbahce" value="Fenerbahce">
+    <button class="go" id="goBtn" onclick="analiz()">🚀 ANALİZ ET</button>
+    <div class="cap" style="margin-top:8px">Veri API-Football'dan çekilir; birkaç saniye sürebilir.</div>
+    <div class="hr"></div>
+    <div class="hist-title">📋 Geçmiş Futbolcular</div>
+    <div id="histList"></div>
+    <button class="hist-clear" id="histClear" onclick="histClear()" style="display:none">🗑️ Geçmişi temizle</button>
+  </aside>
+
+  <!-- ANA ALAN -->
+  <main class="main">
+    <div class="hero-title">⚽ Futbol Dijital İkiz</div>
+    <div class="hero-sub">Gerçek API verisi + Monte Carlo ile transfer uyum & performans projeksiyonu</div>
+    <div id="dash">
+      <div class="msg">👈 Soldan <b>oyuncu</b> ve <b>hedef takımı</b> gir, <b>ANALİZ ET</b>'e bas.
+      Analiz ettiğin oyuncular soldaki <b>Geçmiş Futbolcular</b> listesine eklenir; tıklayınca anında tekrar açılır.</div>
+    </div>
+  </main>
+</div>
+<div class="imza">⚽ by <b>Enes Bozkurt</b></div>
+
+<script>
+const $ = id => document.getElementById(id);
+let chC=null, chH=null;
+
+// ---------- GEÇMİŞ (tarayıcı localStorage — ziyaretçiye özel, kalıcı) ----------
+const HKEY='dt_gecmis';
+function histLoad(){ try{return JSON.parse(localStorage.getItem(HKEY)||'[]')}catch(e){return[]} }
+function histSave(h){ localStorage.setItem(HKEY, JSON.stringify(h)); }
+function histAdd(d){
+  let h=histLoad(); const key=(d.oyuncu.isim+'|'+d.hedef.takim).toLowerCase();
+  h=h.filter(x=>x.key!==key); h.unshift({key, d}); h=h.slice(0,12); histSave(h); histRender();
+}
+function histClear(){ localStorage.removeItem(HKEY); histRender(); }
+function histRender(){
+  const h=histLoad(), box=$('histList');
+  $('histClear').style.display = h.length? 'inline':'none';
+  if(!h.length){ box.innerHTML='<div class="cap">Henüz analiz yok.</div>'; return; }
+  box.innerHTML='';
+  h.forEach(it=>{
+    const u=it.d.uyum, dot=u>=.8?'🟢':u>=.55?'🟡':'🔴';
+    const b=document.createElement('button'); b.className='hist-item';
+    b.textContent=`${dot} ${it.d.oyuncu.isim} → ${it.d.hedef.takim}  ·  %${Math.round(u*100)}`;
+    b.onclick=()=>render(it.d);
+    box.appendChild(b);
+  });
+}
+
+// ---------- ANALİZ İSTEĞİ ----------
+async function analiz(){
+  const oyuncu=$('oyuncu').value.trim(), hedef=$('hedef').value.trim();
+  if(!oyuncu||!hedef){ alert('Oyuncu ve hedef takımı gir.'); return; }
+  const btn=$('goBtn'); btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Analiz ediliyor...';
+  $('dash').innerHTML='<div class="msg"><span class="spinner"></span> Veri çekiliyor ve simülasyon çalışıyor... (~5-15 sn)</div>';
+  try{
+    const res=await fetch(`/api/analyze?oyuncu=${encodeURIComponent(oyuncu)}&hedef=${encodeURIComponent(hedef)}`);
+    const d=await res.json();
+    if(!d.ok){ throw new Error(d.error||'Bilinmeyen hata'); }
+    render(d); histAdd(d);
+  }catch(e){
+    $('dash').innerHTML=`<div class="msg err">⚠️ ${e.message}</div>`;
+  }finally{
+    btn.disabled=false; btn.innerHTML='🚀 ANALİZ ET';
+  }
+}
+
+// ---------- DASHBOARD ÇİZ ----------
+function render(d){
+  const o=d.oyuncu, h=d.hedef, s=d.sim, U=d.uyum;
+  const renk = U>=.75?'#10b981':U>=.55?'#fbbf24':'#ef4444';
+  const v = U>=.80?['MÜKEMMEL UYUM','#10b981']:U>=.65?['İYİ UYUM','#34d399']:U>=.50?['ORTA DÜZEY','#fbbf24']:['RİSKLİ','#ef4444'];
+  const foto = o.foto?`<img src="${o.foto}" onerror="this.style.display='none'">`:'';
+  const logo = h.logo?`<img src="${h.logo}" onerror="this.style.display='none'">`:'';
+  $('dash').innerHTML = `
+    <div class="grid3">
+      <div class="card"><div class="row">${foto}<div>
+        <div class="name-big">${o.isim}</div>
+        <div class="muted">${o.uyruk||''} · ${o.yas||'?'} yaş · ${o.pozisyon||''}</div>
+        <div class="muted">${o.takim||''} · ${o.lig||''} ${o.sezon||''}</div></div></div>
+        <div class="pills">
+          <span class="pill">⚽ ${o.gol} gol</span><span class="pill">🅰️ ${o.asist} asist</span>
+          <span class="pill">⭐ ${(+o.ort_rating).toFixed(2)} reyting</span><span class="pill">🎯 ${o.ga90} G+A/90</span>
+        </div></div>
+      <div class="card"><div class="gaugeWrap">
+        <div class="gauge" style="--p:${(U*100).toFixed(1)};--c:${renk}"><div class="val">%${(U*100).toFixed(1)}</div></div>
+        <span class="badge" style="background:${v[1]}22;color:${v[1]};border:1px solid ${v[1]}55">${v[0]}</span>
+      </div></div>
+      <div class="card"><div class="row">${logo}<div>
+        <div class="name-big">${h.takim}</div>
+        <div class="muted">${h.ulke||''} · ${h.lig||''} ${h.sezon||''}</div>
+        <div class="muted">Diziliş: ${h.dizilis||'—'}</div></div></div>
+        <div class="pills">
+          <span class="pill">🥅 ${h.atilan_gol} gol</span><span class="pill">📈 ${h.gol_basina_mac} gol/maç</span>
+        </div></div>
+    </div>
+    <div class="grid4">
+      ${mc('Beklenen Gol+Asist', s.ga_med, `aralık ${s.ga_lo}–${s.ga_hi}`, '#10b981')}
+      ${mc('Sakatlık Riski', s.kacan_ort.toFixed(1)+' maç', 'sezonda (ort.)', '#fbbf24')}
+      ${mc('20+ G+A Olasılığı', '%'+Math.round(s.p20*100), '30+ için %'+Math.round(s.p30*100), '#34d399')}
+      ${mc('Sağlamlık', '%'+Math.round(s.saglam*100), '32+ maç oynama', '#60a5fa')}
+    </div>
+    <div class="grid2">
+      <div class="chart-box"><h4>🧩 Uyum Bileşenleri</h4><canvas id="cComp"></canvas></div>
+      <div class="chart-box"><h4>📊 Gol+Asist Dağılımı (Monte Carlo)</h4><canvas id="cHist"></canvas></div>
+    </div>
+    <details><summary>🔬 Hesaplanan parametreler (gerçek veriden)</summary>
+      <p style="margin-top:8px">S_base: ${d.param.S.toFixed(3)} · sigma: ${d.param.sigma[0]}/${d.param.sigma[1]} (varsayılan)
+      · Sakatlık: ${d.param.episode} dönem / ${d.param.toplam_mac} maç → %${(d.param.p*100).toFixed(1)}/maç,
+      dönem başına ${d.param.lam.toFixed(1)} maç · Medyan performans %${Math.round(s.perf*100)}</p>
+    </details>`;
+  drawCharts(d);
+}
+function mc(t,v,s,c){return `<div class="card"><div class="metric-t">${t}</div><div class="metric-v" style="color:${c}">${v}</div><div class="metric-s">${s}</div></div>`;}
+
+function drawCharts(d){
+  const tick='#64748b', grid='rgba(255,255,255,.06)';
+  if(chC) chC.destroy(); if(chH) chH.destroy();
+  const b=d.bilesen;
+  chC=new Chart($('cComp'),{type:'bar',
+    data:{labels:['Kalite','Gol Üretimi','Stil Uyumu'],
+      datasets:[{data:[b.kalite*100,b.verim*100,b.stil*100],
+      backgroundColor:['#10b981','#0d9488','#3b82f6'],borderRadius:6}]},
+    options:{indexAxis:'y',plugins:{legend:{display:false}},
+      scales:{x:{max:110,ticks:{color:tick,callback:v=>v+'%'},grid:{color:grid}},
+              y:{ticks:{color:'#e2e8f0'},grid:{display:false}}}}});
+  const hh=d.sim.hist;
+  chH=new Chart($('cHist'),{type:'bar',
+    data:{labels:hh.labels,datasets:[{data:hh.counts,backgroundColor:'#10b981',
+      barPercentage:1.0,categoryPercentage:1.0}]},
+    options:{plugins:{legend:{display:false}},
+      scales:{x:{title:{display:true,text:'Sezonluk Gol+Asist',color:tick},ticks:{color:tick,maxTicksLimit:8},grid:{display:false}},
+              y:{ticks:{color:tick},grid:{color:grid}}}}});
+}
+
+histRender();
+</script>
+</body>
+</html>
