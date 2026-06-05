@@ -1,2 +1,0 @@
-# Web uygulaması (Vercel) yalnızca Python standart kütüphanesini kullanır — ek paket gerekmez.
-# (Yerel rapor araçları için: requirements-dev.txt)

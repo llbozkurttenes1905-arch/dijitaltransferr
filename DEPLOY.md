@@ -4,10 +4,10 @@ Bu proje artık **Streamlit kullanmıyor**. Mimari Vercel'e uygundur:
 
 ```
 index.html          → sitenin görünen yüzü (statik)
-api/analyze.py      → Vercel Serverless Function (veri çekme + simülasyon)
-vercel.json         → fonksiyon ayarı (maxDuration)
-requirements.txt    → boş (fonksiyon sadece Python stdlib kullanır)
+api/analyze.js      → Vercel Serverless Function (Node.js) — veri çekme + simülasyon
 ```
+> Not: Fonksiyon **Node.js** ile yazıldı (Vercel'in doğal çalışma ortamı). Ek paket / requirements.txt /
+> vercel.json gerekmez; Vercel `api/*.js` dosyasını otomatik tanır.
 
 API anahtarı **koda yazılmaz**; Vercel'de **ortam değişkeni (env)** olarak eklenir.
 
