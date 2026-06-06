@@ -1,11 +1,22 @@
-__pycache__/
-*.pyc
-.venv/
-venv/
-env/
+# bağımlılıklar / derleme
+node_modules/
+dist/
+.vercel
+
+# ortam değişkenleri (API anahtarı ASLA yüklenmez)
 .env
 .env*.local
-.vercel
-.DS_Store
+
+# yerel arşiv (rapor, scriptler — web'e gerekmez)
+_arsiv/
+
+# python sanal ortam (varsa)
+venv/
+.venv/
+env/
+__pycache__/
+
+# editör / sistem
 .claude/
+.DS_Store
 gecmis.json

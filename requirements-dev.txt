@@ -1,5 +1,0 @@
-# Sadece YEREL rapor/grafik araçları için (web sitesi bunları kullanmaz):
-#   python3 -m pip install -r requirements-dev.txt
-numpy
-matplotlib
-python-docx

@@ -181,7 +181,7 @@ function runModel(oyuncu, sakatliklar, toplamMac, hedef, N = 5000, macSayisi = 3
   };
 }
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   const oyuncu = ((req.query && req.query.oyuncu) || "").toString().trim();
   const hedef = ((req.query && req.query.hedef) || "").toString().trim();
   try {
@@ -192,4 +192,4 @@ module.exports = async (req, res) => {
   } catch (e) {
     res.status(200).json({ ok: false, error: e.message });
   }
-};
+}
