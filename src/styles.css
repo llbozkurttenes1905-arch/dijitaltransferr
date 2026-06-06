@@ -153,6 +153,30 @@ body{
 .pick-n{font-weight:800;font-size:14.5px;line-height:1.2;}
 .pick-m{color:var(--muted);font-size:12px;margin-top:3px;}
 
+/* ---- ısı haritası ---- */
+.pitch{width:100%;height:auto;display:block;border-radius:10px;}
+.heat-tag{margin-top:10px;text-align:center;font-size:12.5px;color:var(--muted);
+  background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:10px;padding:9px;}
+.heat-tag b{color:#fbbf24;}
+
+/* ---- radar ---- */
+.radar{width:100%;height:auto;display:block;}
+.radar-leg{display:flex;justify-content:center;gap:18px;margin-top:4px;font-size:12px;color:var(--muted);}
+.radar-leg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px;}
+
+/* ---- takıma kattığı değer ---- */
+.katki{margin-top:14px;display:flex;align-items:center;gap:20px;border-radius:var(--radius);
+  padding:16px 22px;border:1px solid;animation:fadeUp .5s both;}
+.katki.pos{background:linear-gradient(90deg,rgba(16,185,129,.16),rgba(16,185,129,.03));border-color:rgba(16,185,129,.4);}
+.katki.neg{background:linear-gradient(90deg,rgba(239,68,68,.14),rgba(239,68,68,.03));border-color:rgba(239,68,68,.4);}
+.katki-ic{display:flex;flex-direction:column;align-items:center;min-width:120px;}
+.katki-n{font-family:'Sora',sans-serif;font-weight:800;font-size:40px;line-height:1;}
+.katki.pos .katki-n{color:#10b981;} .katki.neg .katki-n{color:#ef4444;}
+.katki-u{font-size:11px;color:var(--muted);margin-top:3px;}
+.katki-t{font-size:13px;color:#cbd5e1;line-height:1.55;}
+.katki-t b{color:#fff;}
+@media(max-width:560px){.katki{flex-direction:column;text-align:center;gap:10px;}}
+
 /* ---- durum kutuları ---- */
 .state{background:var(--card);border:1px dashed var(--line);border-radius:var(--radius);padding:30px 24px;
   color:var(--muted);font-size:14.5px;line-height:1.6;animation:fadeUp .5s both;}

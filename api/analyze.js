@@ -1,7 +1,7 @@
 // Vercel Serverless Function (Node.js) — Futbol Dijital İkiz.
-// API_KEY ortam değişkeninden okunur. Sadece Node stdlib + global fetch.
-//   GET /api/analyze?ara=<isim>            → aday oyuncu listesi
-//   GET /api/analyze?pid=<id>&hedef=<takim> → tam analiz
+// API_KEY ortam değişkeninden. Sadece Node stdlib + global fetch.
+//   GET /api/analyze?ara=<isim>             → aday oyuncu listesi
+//   GET /api/analyze?pid=<id>&hedef=<takim>  → tam analiz
 
 const API_KEY = process.env.API_KEY || "";
 const BASE = "https://v3.football.api-sports.io";
@@ -35,7 +35,6 @@ function benzerlik(aday, isim) {
 }
 function ga90(s) { const dk = s.games.minutes || 0; return dk > 0 ? ((s.goals.total || 0) + (s.goals.assists || 0)) * 90 / dk : 0; }
 
-// ---- Türkçeleştirme ----
 const POZ = { Goalkeeper: "Kaleci", Defender: "Defans", Midfielder: "Orta Saha", Attacker: "Forvet", Forward: "Forvet" };
 const ULKE = {
   Nigeria: "Nijerya", Argentina: "Arjantin", Turkey: "Türkiye", Brazil: "Brezilya", France: "Fransa",
@@ -53,7 +52,6 @@ const ULKE = {
 const trUlke = u => ULKE[u] || u || "";
 const trPoz = p => POZ[p] || p || "";
 
-// ---- rastgele (seed'li) ----
 function mulberry32(a) { return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 function hashStr(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
 function gauss(rng, mean, sd) { let u = 0, v = 0; while (u === 0) u = rng(); while (v === 0) v = rng(); return mean + sd * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
@@ -62,7 +60,30 @@ function poisson(rng, lam) { if (lam <= 0) return 0; const L = Math.exp(-Math.mi
 const NON_INJURY = new Set(["Red Card", "Yellow Cards", "Yellow Card", "National selection",
   "International duty", "Rest", "Inactive", "Suspended", "Coach's decision", "Personal reasons", "Other"]);
 
-// ---- ARAMA: aday oyuncuları getir ----
+// gerçek istatistiklerden 6 boyutlu radar (0-100)
+function radarHesapla(main) {
+  const dk = main.games.minutes || 1;
+  const p90 = x => ((x || 0) * 90) / dk;
+  const ga = (main.goals.total || 0) + (main.goals.assists || 0);
+  const passAcc = (main.passes && main.passes.accuracy != null) ? Number(main.passes.accuracy) : 0;
+  const duelW = (main.duels && main.duels.total) ? (main.duels.won || 0) / main.duels.total * 100 : 0;
+  const drib = main.dribbles ? p90(main.dribbles.success) : 0;
+  const pres = p90(((main.tackles && main.tackles.total) || 0) + ((main.tackles && main.tackles.interceptions) || 0));
+  const cap = x => Math.max(0, Math.min(100, Math.round(x)));
+  return {
+    labels: ["Gol Katkısı", "Topla Buluşma", "Dribling", "Pas İsabeti", "İkili Mücadele", "Pres Gücü"],
+    oyuncu: [
+      cap(p90(ga) / 1.2 * 100),
+      cap(p90(main.passes && main.passes.total) / 55 * 100),
+      cap(drib / 4 * 100),
+      cap(passAcc),
+      cap(duelW),
+      cap(pres / 4 * 100)
+    ],
+    ortalama: [52, 58, 42, 76, 50, 40]
+  };
+}
+
 async function searchPlayers(isim) {
   let kokler = [];
   if (isim.includes(" ")) { const son = isim.trim().split(/\s+/).pop(); kokler.push(son, sade(son)); }
@@ -83,7 +104,6 @@ async function searchPlayers(isim) {
   return adaylar.map(a => ({ id: a.player.id, isim: a.player.name, foto: a.player.photo, uyruk: trUlke(a.player.nationality), yas: a.player.age }));
 }
 
-// ---- ANALİZ: oyuncu id + hedef takım ----
 async function analyzeById(pid, hedefAdi) {
   const cs = (await apiGet("players/seasons", { player: pid })).sort((a, b) => b - a);
   if (!cs.length) throw new Error("Oyuncunun sezon verisi bulunamadı.");
@@ -118,10 +138,10 @@ async function analyzeById(pid, hedefAdi) {
   for (const l of ligler) if (l.league.type === "League") for (const s of l.seasons) ls.push([s.year, l.league.id, l.league.name]);
   if (!ls.length) for (const l of ligler) for (const s of l.seasons) ls.push([s.year, l.league.id, l.league.name]);
   ls.sort((a, b) => b[0] - a[0]);
-  let ts = null, hlig = null, hsez = null;
+  let ts = null, hl = null, hlig = null, hsez = null;
   for (const [yil, lid, lad] of ls.slice(0, 3)) {
     const r = await apiGet("teams/statistics", { team: htid, league: lid, season: yil });
-    if (r && !Array.isArray(r) && ((r.fixtures && r.fixtures.played && r.fixtures.played.total) || 0) > 0) { ts = r; hlig = lad; hsez = yil; break; }
+    if (r && !Array.isArray(r) && ((r.fixtures && r.fixtures.played && r.fixtures.played.total) || 0) > 0) { ts = r; hl = lid; hlig = lad; hsez = yil; break; }
   }
   if (!ts) throw new Error("Hedef takımın istatistik verisi bulunamadı.");
   const mac = ts.fixtures.played.total, atilan = (ts.goals.for.total.total) || 0;
@@ -130,10 +150,27 @@ async function analyzeById(pid, hedefAdi) {
     gol_basina_mac: Math.round(atilan / Math.max(mac, 1) * 100) / 100,
     dizilis: (ts.lineups && ts.lineups[0]) ? ts.lineups[0].formation : "—"
   };
-  return runModel(oyuncu, sakatliklar, toplamMac, hedef);
+
+  // hedef takımın mevcut en iyi forveti (rol uyumu + katkı değeri için)
+  let incGa = 0, incIsim = "";
+  const kadro = await apiGet("players", { team: htid, league: hl, season: hsez, page: 1 });
+  for (const pl of kadro) {
+    const st = pl.statistics && pl.statistics[0];
+    if (st && (st.games.position === "Attacker" || st.games.position === "Forward") && (st.games.minutes || 0) >= 300) {
+      const g = ga90(st); if (g > incGa) { incGa = g; incIsim = pl.player.name; }
+    }
+  }
+  const rol = incGa > 0 ? Math.min(oyuncu.ga90 / Math.max(incGa, 0.1), 1.3) / 1.3 : null;
+
+  const result = runModel(oyuncu, sakatliklar, toplamMac, hedef, rol);
+  result.radar = radarHesapla(main);
+  result.heat = oyuncu.pozisyon;
+  result.incumbent = incGa > 0 ? { isim: incIsim, ga90: Math.round(incGa * 1000) / 1000 } : null;
+  result.katki = incGa > 0 ? result.sim.ga_med - Math.round(incGa * 34) : null;
+  return result;
 }
 
-function runModel(oyuncu, sakatliklar, toplamMac, hedef, N = 5000, macSayisi = 38) {
+function runModel(oyuncu, sakatliklar, toplamMac, hedef, rol, N = 5000, macSayisi = 38) {
   const inj = sakatliklar.filter(r => r.tip === "Missing Fixture" && !NON_INJURY.has(r.neden));
   const gunler = inj.map(r => new Date(r.tarih)).sort((a, b) => a - b);
   let kacan = gunler.length, episode = 0, prev = null;
@@ -144,7 +181,9 @@ function runModel(oyuncu, sakatliklar, toplamMac, hedef, N = 5000, macSayisi = 3
   const sf = 0.060, sm = 0.045;
   const p = episode / Math.max(toplamMac, 1), lam = episode ? kacan / episode : 0;
   const kal = S, ver = Math.min(g90 / 1.0, 1.0), stil = Math.min(hedef.gol_basina_mac / 2.6, 1.0);
-  const UYUM = 0.50 * kal + 0.25 * ver + 0.25 * stil;
+  let UYUM, bilesen;
+  if (rol != null) { UYUM = 0.40 * kal + 0.20 * ver + 0.20 * stil + 0.20 * rol; bilesen = { kalite: kal, verim: ver, stil: stil, rol: rol }; }
+  else { UYUM = 0.50 * kal + 0.25 * ver + 0.25 * stil; bilesen = { kalite: kal, verim: ver, stil: stil }; }
   const rng = mulberry32(hashStr((oyuncu.isim + "|" + hedef.takim).toLowerCase()) || 42);
   let Pl = [], Kl = [], G = [];
   for (let i = 0; i < N; i++) {
@@ -171,7 +210,7 @@ function runModel(oyuncu, sakatliklar, toplamMac, hedef, N = 5000, macSayisi = 3
   for (let i = 0; i < nb; i++) labels.push(Math.round(lo + w * (i + 0.5)));
   for (const x of G) { let idx = Math.floor((x - lo) / w); idx = idx >= nb ? nb - 1 : (idx < 0 ? 0 : idx); counts[idx]++; }
   return {
-    oyuncu, hedef, uyum: UYUM, bilesen: { kalite: kal, verim: ver, stil: stil },
+    oyuncu, hedef, uyum: UYUM, bilesen,
     sim: { ga_med, ga_lo, ga_hi, kacan_ort, p20, p30, saglam, perf, hist: { labels, counts } },
     param: { S, sigma: [sf, sm], p, lam, episode, kacan, toplam_mac: toplamMac }
   };

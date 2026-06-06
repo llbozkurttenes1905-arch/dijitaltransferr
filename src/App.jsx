@@ -35,6 +35,7 @@ function Bars({ bilesen, anim }) {
     { k: 'Gol Üretimi', v: bilesen.verim, c: '#14b8a6' },
     { k: 'Stil Uyumu', v: bilesen.stil, c: '#3b82f6' },
   ]
+  if (bilesen.rol != null) items.push({ k: 'Rol Uyumu', v: bilesen.rol, c: '#a78bfa' })
   return (
     <div className="chart">
       <h4>🧩 Uyum Bileşenleri</h4>
@@ -82,6 +83,91 @@ function MonteCarlo({ hist, med, lo, hi, anim }) {
         <span>{lo}<small> (%10)</small></span>
         <span className="mc-med">◆ medyan {med}</span>
         <span>{hi}<small> (%90)</small></span>
+      </div>
+    </div>
+  )
+}
+
+/* taktiksel ısı haritası (pozisyona göre) */
+function HeatMap({ pozisyon, isim }) {
+  const zones = {
+    'Forvet': [[80, 50, 1], [88, 38, .9], [90, 60, .85], [70, 52, .6], [60, 44, .45]],
+    'Orta Saha': [[52, 50, 1], [62, 40, .8], [44, 60, .75], [66, 55, .6], [38, 46, .5]],
+    'Defans': [[26, 50, 1], [30, 35, .8], [22, 62, .8], [40, 50, .5]],
+    'Kaleci': [[9, 50, 1], [13, 42, .7], [13, 58, .7]],
+  }
+  const pts = zones[pozisyon] || zones['Forvet']
+  const hot = pts[0]
+  const bolge = pozisyon === 'Forvet' ? 'Hücum üçlüsü / Ceza sahası önü'
+    : pozisyon === 'Orta Saha' ? 'Orta saha / Hücum geçiş bölgesi'
+      : pozisyon === 'Defans' ? 'Kendi yarı sahası / Stoper bölgesi'
+        : pozisyon === 'Kaleci' ? 'Ceza sahası' : 'Hücum bölgesi'
+  return (
+    <div className="chart">
+      <h4>🔥 Taktiksel Konum ve Isı Haritası</h4>
+      <svg className="pitch" viewBox="0 0 100 64">
+        <defs>
+          <radialGradient id="heat">
+            <stop offset="0%" stopColor="#ff2d2d" stopOpacity=".9" />
+            <stop offset="35%" stopColor="#ff8c00" stopOpacity=".7" />
+            <stop offset="62%" stopColor="#ffe600" stopOpacity=".4" />
+            <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+          </radialGradient>
+          <filter id="hb"><feGaussianBlur stdDeviation="2.4" /></filter>
+        </defs>
+        <rect x="1" y="1" width="98" height="62" rx="2" fill="#0c241b" stroke="#2dd4bf" strokeWidth=".4" opacity=".9" />
+        <line x1="50" y1="1" x2="50" y2="63" stroke="#2dd4bf" strokeWidth=".35" opacity=".5" />
+        <circle cx="50" cy="32" r="8" fill="none" stroke="#2dd4bf" strokeWidth=".35" opacity=".5" />
+        <rect x="1" y="20" width="12" height="24" fill="none" stroke="#2dd4bf" strokeWidth=".35" opacity=".5" />
+        <rect x="87" y="20" width="12" height="24" fill="none" stroke="#2dd4bf" strokeWidth=".35" opacity=".5" />
+        <g filter="url(#hb)">
+          {pts.map((p, i) => <circle key={i} cx={p[0]} cy={p[1] * 0.64} r={7 + 7 * p[2]} fill="url(#heat)" opacity={p[2]} />)}
+        </g>
+        <text x={hot[0]} y={hot[1] * 0.64 - 9} textAnchor="middle" fontSize="5" fontWeight="800" fill="#fff" stroke="#000" strokeWidth=".3" paintOrder="stroke">{isim.split(' ').pop()}</text>
+      </svg>
+      <div className="heat-tag">Yüksek Etkinlik Bölgeleri: <b>{bolge}</b></div>
+    </div>
+  )
+}
+
+/* çok boyutlu performans radarı (gerçek istatistikler) */
+function Radar({ radar, isim, anim }) {
+  const cx = 125, cy = 105, R = 70, n = radar.labels.length
+  const ang = i => (-90 + i * (360 / n)) * Math.PI / 180
+  const pt = (val, i, r = R) => [cx + r * (val / 100) * Math.cos(ang(i)), cy + r * (val / 100) * Math.sin(ang(i))]
+  const lblPt = i => [cx + (R + 16) * Math.cos(ang(i)), cy + (R + 16) * Math.sin(ang(i))]
+  const poly = arr => arr.map((v, i) => pt(v, i).join(',')).join(' ')
+  const ringPts = f => radar.labels.map((_, i) => pt(100 * f, i).join(',')).join(' ')
+  return (
+    <div className="chart">
+      <h4>📡 Çok Boyutlu Performans Analizi</h4>
+      <svg className="radar" viewBox="0 0 250 210">
+        {[0.25, 0.5, 0.75, 1].map((f, k) => <polygon key={k} points={ringPts(f)} fill="none" stroke="rgba(255,255,255,.08)" strokeWidth="1" />)}
+        {radar.labels.map((_, i) => { const [x, y] = pt(100, i); return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke="rgba(255,255,255,.08)" /> })}
+        <polygon points={poly(radar.ortalama)} fill="rgba(148,163,184,.12)" stroke="#94a3b8" strokeWidth="1.4" strokeDasharray="3 3" />
+        <polygon points={poly(radar.oyuncu)} fill="rgba(251,191,36,.28)" stroke="#fbbf24" strokeWidth="2"
+          style={{ opacity: anim ? 1 : 0, transform: anim ? 'scale(1)' : 'scale(.5)', transformOrigin: cx + 'px ' + cy + 'px', transition: 'all .8s cubic-bezier(.2,.7,.2,1)' }} />
+        {radar.labels.map((lab, i) => { const [x, y] = lblPt(i); return <text key={i} x={x} y={y} fontSize="7.5" fill="#cbd5e1" textAnchor={x < cx - 4 ? 'end' : x > cx + 4 ? 'start' : 'middle'} dominantBaseline="middle">{lab}</text> })}
+      </svg>
+      <div className="radar-leg"><span><i style={{ background: '#fbbf24' }} />{isim.split(' ').pop()}</span><span><i style={{ background: '#94a3b8' }} />Ortalama Atakçı</span></div>
+    </div>
+  )
+}
+
+/* takıma kattığı değer */
+function Katki({ data }) {
+  if (data.katki == null || !data.incumbent) return null
+  const k = data.katki, pos = k >= 0
+  return (
+    <div className={'katki ' + (pos ? 'pos' : 'neg')}>
+      <div className="katki-ic">
+        <span className="katki-n">{pos ? '+' : ''}{k}</span>
+        <span className="katki-u">gol+asist / sezon</span>
+      </div>
+      <div className="katki-t">
+        <b>Takıma Kattığı Değer</b> — {data.oyuncu.isim}, hedef takımın mevcut en iyi forveti
+        <b> {data.incumbent.isim}</b> ({data.incumbent.ga90} G+A/90) ile kıyaslandığında sezonda
+        <b> {pos ? '+' : ''}{k} gol+asist</b> {pos ? 'fazla' : 'fark'} üretmesi beklenir.
       </div>
     </div>
   )
@@ -139,6 +225,13 @@ function Dashboard({ data }) {
         <Metric t="Sakatlık Riski" v={<><CountUp value={s.kacan_ort} dec={1} /> maç</>} s="sezonda (ortalama)" c="#fbbf24" />
         <Metric t="20+ Gol+Asist İhtimali" v={<>%<CountUp value={s.p20 * 100} /></>} s={'30+ için %' + Math.round(s.p30 * 100)} c="#34d399" />
         <Metric t="Sağlamlık" v={<>%<CountUp value={s.saglam * 100} /></>} s="32+ maç oynama" c="#60a5fa" />
+      </div>
+
+      <Katki data={data} />
+
+      <div className="g2">
+        <HeatMap pozisyon={o.pozisyon} isim={o.isim} />
+        <Radar radar={data.radar} isim={o.isim} anim={anim} />
       </div>
 
       <div className="g2">
