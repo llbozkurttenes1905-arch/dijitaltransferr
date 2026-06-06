@@ -160,7 +160,8 @@ async function analyzeById(pid, hedefAdi) {
       const g = ga90(st); if (g > incGa) { incGa = g; incIsim = pl.player.name; }
     }
   }
-  const rol = incGa > 0 ? Math.min(oyuncu.ga90 / Math.max(incGa, 0.1), 1.3) / 1.3 : null;
+  const refGa = incGa > 0 ? incGa : 0.50;            // gerçek forvet yoksa lig-ortalaması referans
+  const rol = Math.min(oyuncu.ga90 / Math.max(refGa, 0.1), 1.3) / 1.3;
 
   const result = runModel(oyuncu, sakatliklar, toplamMac, hedef, rol);
   result.radar = radarHesapla(main);

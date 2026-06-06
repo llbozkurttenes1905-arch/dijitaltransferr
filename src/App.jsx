@@ -12,18 +12,33 @@ function CountUp({ value, dec = 0 }) {
   return <>{v.toFixed(dec)}</>
 }
 
-/* animasyonlu gauge */
-function Gauge({ value, anim }) {
-  const r = 72, c = 2 * Math.PI * r
+/* yarım daire gauge — kırmızı→turuncu→sarı→yeşil skala */
+function Gauge({ value }) {
   const pct = Math.max(0, Math.min(1, value))
-  const color = pct >= 0.75 ? '#10b981' : pct >= 0.55 ? '#fbbf24' : '#ef4444'
+  const R = 90, cx = 110, cy = 110
+  const color = pct >= 0.75 ? '#10b981' : pct >= 0.55 ? '#fbbf24' : pct >= 0.40 ? '#f59e0b' : '#ef4444'
+  const mx = cx - R * Math.cos(pct * Math.PI)
+  const my = cy - R * Math.sin(pct * Math.PI)
+  const [an, setAn] = useState(false)
+  useEffect(() => { setAn(false); const t = setTimeout(() => setAn(true), 80); return () => clearTimeout(t) }, [value])
   return (
     <div className="gauge">
-      <svg viewBox="0 0 170 170">
-        <circle className="g-bg" cx="85" cy="85" r={r} />
-        <circle className="g-fg" cx="85" cy="85" r={r} style={{ stroke: color, color, strokeDasharray: c, strokeDashoffset: anim ? c * (1 - pct) : c }} />
+      <svg viewBox="0 0 220 134">
+        <defs>
+          <linearGradient id="ggrad" gradientUnits="userSpaceOnUse" x1="20" y1="0" x2="200" y2="0">
+            <stop offset="0%" stopColor="#ef4444" /><stop offset="38%" stopColor="#f59e0b" />
+            <stop offset="60%" stopColor="#fbbf24" /><stop offset="82%" stopColor="#34d399" /><stop offset="100%" stopColor="#10b981" />
+          </linearGradient>
+        </defs>
+        <path d="M20 110 A90 90 0 0 1 200 110" fill="none" stroke="rgba(255,255,255,.07)" strokeWidth="15" strokeLinecap="round" />
+        <path d="M20 110 A90 90 0 0 1 200 110" fill="none" stroke="url(#ggrad)" strokeWidth="15" strokeLinecap="round"
+          pathLength="1" style={{ strokeDasharray: 1, strokeDashoffset: an ? 0 : 1, transition: 'stroke-dashoffset 1.2s ease' }} />
+        <circle cx={mx} cy={my} r="7" fill="#0b0f14" stroke={color} strokeWidth="3.5"
+          style={{ opacity: an ? 1 : 0, transition: 'opacity .4s .9s ease' }} />
+        <text x="15" y="128" fontSize="10" fill="#64748b">0</text>
+        <text x="193" y="128" fontSize="10" fill="#64748b">100</text>
       </svg>
-      <div className="g-val" style={{ color }}><CountUp value={pct * 100} dec={1} />%</div>
+      <div className="g-val2" style={{ color }}><CountUp value={pct * 100} dec={1} />%</div>
     </div>
   )
 }
@@ -49,36 +64,60 @@ function Bars({ bilesen, anim }) {
   )
 }
 
-/* gelişmiş Monte Carlo alan grafiği */
+/* gelişmiş Monte Carlo alan grafiği (yumuşak eğri + tooltip) */
 function MonteCarlo({ hist, med, lo, hi, anim }) {
   const counts = hist.counts, labels = hist.labels, n = counts.length
   const maxC = Math.max(...counts, 1)
-  const W = 320, H = 150, b = 20
+  const total = counts.reduce((a, b) => a + b, 0) || 1
+  const W = 320, H = 150, b = 22
   const X = i => (i / (n - 1)) * W
   const Y = c => (H - b) - (c / maxC) * (H - b - 8)
-  let top = ''
-  counts.forEach((c, i) => { top += (i === 0 ? 'M' : ' L') + ' ' + X(i).toFixed(1) + ' ' + Y(c).toFixed(1) })
-  const area = top + ` L ${W} ${H - b} L 0 ${H - b} Z`
+  const pts = counts.map((c, i) => [X(i), Y(c)])
+  const smooth = a => {
+    if (a.length < 2) return ''
+    let d = 'M ' + a[0][0].toFixed(1) + ' ' + a[0][1].toFixed(1)
+    for (let i = 0; i < a.length - 1; i++) {
+      const p0 = a[i - 1] || a[i], p1 = a[i], p2 = a[i + 1], p3 = a[i + 2] || p2
+      const c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = p1[1] + (p2[1] - p0[1]) / 6
+      const c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = p2[1] - (p3[1] - p1[1]) / 6
+      d += ' C ' + c1x.toFixed(1) + ' ' + c1y.toFixed(1) + ' ' + c2x.toFixed(1) + ' ' + c2y.toFixed(1) + ' ' + p2[0].toFixed(1) + ' ' + p2[1].toFixed(1)
+    }
+    return d
+  }
+  const topD = smooth(pts)
+  const area = topD + ' L ' + W + ' ' + (H - b) + ' L 0 ' + (H - b) + ' Z'
   const minL = labels[0], maxL = labels[n - 1]
   const vx = val => ((val - minL) / Math.max(maxL - minL, 1)) * W
   const medX = vx(med), loX = vx(lo), hiX = vx(hi)
+  const [tip, setTip] = useState(null)
+  const move = e => {
+    const host = e.currentTarget.getBoundingClientRect()
+    const px = (e.touches ? e.touches[0].clientX : e.clientX) - host.left
+    const fx = Math.max(0, Math.min(1, px / host.width))
+    const idx = Math.max(0, Math.min(n - 1, Math.round(fx * (n - 1))))
+    setTip({ left: px, ga: labels[idx], pct: counts[idx] / total * 100 })
+  }
   return (
     <div className="chart">
       <h4>📈 Sezonluk Gol + Asist Olasılık Dağılımı</h4>
-      <svg className="mc" viewBox={`0 0 ${W} ${H}`}>
-        <defs>
-          <linearGradient id="mcg" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#10b981" stopOpacity="0.5" />
-            <stop offset="100%" stopColor="#10b981" stopOpacity="0.04" />
-          </linearGradient>
-        </defs>
-        <rect x={loX} y="2" width={Math.max(hiX - loX, 0)} height={H - b - 2} fill="#fbbf24" opacity="0.10" rx="2" />
-        <path d={area} fill="url(#mcg)" style={{ opacity: anim ? 1 : 0, transition: 'opacity .9s ease' }} />
-        <path d={top} fill="none" stroke="#34d399" strokeWidth="2.4" strokeLinejoin="round" pathLength="1"
-          style={{ strokeDasharray: 1, strokeDashoffset: anim ? 0 : 1, transition: 'stroke-dashoffset 1.3s ease' }} />
-        <line x1={medX} y1="4" x2={medX} y2={H - b} stroke="#fbbf24" strokeWidth="1.6" strokeDasharray="4 3"
-          style={{ opacity: anim ? 1 : 0, transition: 'opacity .5s .7s ease' }} />
-      </svg>
+      <div className="mc-host" onMouseMove={move} onMouseLeave={() => setTip(null)} onTouchStart={move} onTouchMove={move}>
+        <svg className="mc" viewBox={'0 0 ' + W + ' ' + H} preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="mcg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#10b981" stopOpacity="0.55" />
+              <stop offset="100%" stopColor="#10b981" stopOpacity="0.03" />
+            </linearGradient>
+          </defs>
+          <rect x={loX} y="2" width={Math.max(hiX - loX, 0)} height={H - b - 2} fill="#fbbf24" opacity="0.10" rx="2" />
+          <path d={area} fill="url(#mcg)" style={{ opacity: anim ? 1 : 0, transition: 'opacity .9s ease' }} />
+          <path d={topD} fill="none" stroke="#34d399" strokeWidth="2.2" strokeLinejoin="round" vectorEffect="non-scaling-stroke" pathLength="1"
+            style={{ strokeDasharray: 1, strokeDashoffset: anim ? 0 : 1, transition: 'stroke-dashoffset 1.3s ease' }} />
+          <line x1={medX} y1="4" x2={medX} y2={H - b} stroke="#fbbf24" strokeWidth="1.4" strokeDasharray="4 3" vectorEffect="non-scaling-stroke"
+            style={{ opacity: anim ? 1 : 0, transition: 'opacity .5s .7s ease' }} />
+          {tip && <line x1={vx(tip.ga)} y1="2" x2={vx(tip.ga)} y2={H - b} stroke="#fff" strokeWidth="1" opacity="0.55" vectorEffect="non-scaling-stroke" />}
+        </svg>
+        {tip && <div className="mc-tip" style={{ left: tip.left }}><b>{tip.ga}</b> gol+asist<span>%{tip.pct.toFixed(1)} olasılık</span></div>}
+      </div>
       <div className="mc-x">
         <span>{lo}<small> (%10)</small></span>
         <span className="mc-med">◆ medyan {med}</span>
@@ -147,6 +186,7 @@ function Radar({ radar, isim, anim }) {
         <polygon points={poly(radar.ortalama)} fill="rgba(148,163,184,.12)" stroke="#94a3b8" strokeWidth="1.4" strokeDasharray="3 3" />
         <polygon points={poly(radar.oyuncu)} fill="rgba(251,191,36,.28)" stroke="#fbbf24" strokeWidth="2"
           style={{ opacity: anim ? 1 : 0, transform: anim ? 'scale(1)' : 'scale(.5)', transformOrigin: cx + 'px ' + cy + 'px', transition: 'all .8s cubic-bezier(.2,.7,.2,1)' }} />
+        {radar.oyuncu.map((val, i) => { const [x, y] = pt(val, i); return <text key={'rv' + i} x={x} y={y - 3} fontSize="8" fontWeight="800" fill="#fde68a" textAnchor="middle" style={{ opacity: anim ? 1 : 0, transition: 'opacity .5s .6s' }}>{val}</text> })}
         {radar.labels.map((lab, i) => { const [x, y] = lblPt(i); return <text key={i} x={x} y={y} fontSize="7.5" fill="#cbd5e1" textAnchor={x < cx - 4 ? 'end' : x > cx + 4 ? 'start' : 'middle'} dominantBaseline="middle">{lab}</text> })}
       </svg>
       <div className="radar-leg"><span><i style={{ background: '#fbbf24' }} />{isim.split(' ').pop()}</span><span><i style={{ background: '#94a3b8' }} />Ortalama Atakçı</span></div>
@@ -201,7 +241,8 @@ function Dashboard({ data }) {
           </div>
         </div>
         <div className="card gaugeCard">
-          <Gauge value={U} anim={anim} />
+          <div className="gauge-title">ANA UYUM ÖZETİ</div>
+          <Gauge value={U} />
           <span className="badge" style={{ background: v[1] + '22', color: v[1], border: '1px solid ' + v[1] + '55' }}>{v[0]}</span>
         </div>
         <div className="card">
