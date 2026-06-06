@@ -1,6 +1,7 @@
-// Vercel Serverless Function (Node.js) — Futbol Dijital İkiz analiz motoru.
-// API_KEY ortam değişkeninden okunur (koda yazılmaz). Hiç dış paket kullanmaz.
-// Uç nokta:  GET /api/analyze?oyuncu=...&hedef=...
+// Vercel Serverless Function (Node.js) — Futbol Dijital İkiz.
+// API_KEY ortam değişkeninden okunur. Sadece Node stdlib + global fetch.
+//   GET /api/analyze?ara=<isim>            → aday oyuncu listesi
+//   GET /api/analyze?pid=<id>&hedef=<takim> → tam analiz
 
 const API_KEY = process.env.API_KEY || "";
 const BASE = "https://v3.football.api-sports.io";
@@ -12,14 +13,11 @@ async function apiGet(path, params) {
     if (!r.ok) return [];
     const j = await r.json();
     return j.response ?? [];
-  } catch (e) {
-    return [];
-  }
+  } catch (e) { return []; }
 }
 
-function sade(t) { const re = new RegExp("[" + String.fromCharCode(768) + "-" + String.fromCharCode(879) + "]", "g"); return (t || "").normalize("NFKD").replace(re, ""); }
-
-function ratio(a, b) {                              // Levenshtein tabanlı benzerlik (0-1)
+function sade(t) { return (t || "").normalize("NFKD").replace(new RegExp("[" + String.fromCharCode(768) + "-" + String.fromCharCode(879) + "]", "g"), ""); }
+function ratio(a, b) {
   a = sade(a).toLowerCase(); b = sade(b).toLowerCase();
   const m = a.length, n = b.length;
   if (!m && !n) return 1; if (!m || !n) return 0;
@@ -35,34 +33,37 @@ function benzerlik(aday, isim) {
   const adlar = [p.name || "", p.lastname || "", p.firstname || ""].filter(Boolean);
   return Math.max(0, ...adlar.map(x => ratio(isim, x)));
 }
-function ga90(s) {
-  const dk = s.games.minutes || 0;
-  return dk > 0 ? ((s.goals.total || 0) + (s.goals.assists || 0)) * 90 / dk : 0;
-}
+function ga90(s) { const dk = s.games.minutes || 0; return dk > 0 ? ((s.goals.total || 0) + (s.goals.assists || 0)) * 90 / dk : 0; }
 
-// ---------- seed'li rastgele (aynı oyuncu+takım => aynı sonuç) ----------
-function mulberry32(a) {
-  return function () {
-    a |= 0; a = (a + 0x6D2B79F5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
+// ---- Türkçeleştirme ----
+const POZ = { Goalkeeper: "Kaleci", Defender: "Defans", Midfielder: "Orta Saha", Attacker: "Forvet", Forward: "Forvet" };
+const ULKE = {
+  Nigeria: "Nijerya", Argentina: "Arjantin", Turkey: "Türkiye", Brazil: "Brezilya", France: "Fransa",
+  Spain: "İspanya", Germany: "Almanya", England: "İngiltere", Portugal: "Portekiz", Italy: "İtalya",
+  Netherlands: "Hollanda", Belgium: "Belçika", Croatia: "Hırvatistan", Morocco: "Fas", Senegal: "Senegal",
+  Egypt: "Mısır", Ghana: "Gana", "Ivory-Coast": "Fildişi Sahili", "Ivory Coast": "Fildişi Sahili",
+  Uruguay: "Uruguay", Colombia: "Kolombiya", Mexico: "Meksika", USA: "ABD", Norway: "Norveç",
+  Sweden: "İsveç", Denmark: "Danimarka", Poland: "Polonya", Austria: "Avusturya", Switzerland: "İsviçre",
+  Serbia: "Sırbistan", Greece: "Yunanistan", Scotland: "İskoçya", Wales: "Galler", Ireland: "İrlanda",
+  Japan: "Japonya", "South-Korea": "Güney Kore", "South Korea": "Güney Kore", Australia: "Avustralya",
+  Cameroon: "Kamerun", Algeria: "Cezayir", Tunisia: "Tunus", Ukraine: "Ukrayna", "Czech-Republic": "Çekya",
+  Hungary: "Macaristan", Romania: "Romanya", Slovakia: "Slovakya", Slovenia: "Slovenya", Russia: "Rusya",
+  Chile: "Şili", Paraguay: "Paraguay", Peru: "Peru", Ecuador: "Ekvador", Iceland: "İzlanda", Finland: "Finlandiya"
+};
+const trUlke = u => ULKE[u] || u || "";
+const trPoz = p => POZ[p] || p || "";
+
+// ---- rastgele (seed'li) ----
+function mulberry32(a) { return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 function hashStr(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
-function gauss(rng, mean, sd) {
-  let u = 0, v = 0; while (u === 0) u = rng(); while (v === 0) v = rng();
-  return mean + sd * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
-}
-function poisson(rng, lam) {
-  if (lam <= 0) return 0;
-  const L = Math.exp(-Math.min(lam, 30)); let k = 0, p = 1;
-  do { k++; p *= rng(); } while (p > L);
-  return k - 1;
-}
+function gauss(rng, mean, sd) { let u = 0, v = 0; while (u === 0) u = rng(); while (v === 0) v = rng(); return mean + sd * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+function poisson(rng, lam) { if (lam <= 0) return 0; const L = Math.exp(-Math.min(lam, 30)); let k = 0, p = 1; do { k++; p *= rng(); } while (p > L); return k - 1; }
 
-// ---------- oyuncu bulma (az istekli) ----------
-async function oyuncuBul(isim) {
+const NON_INJURY = new Set(["Red Card", "Yellow Cards", "Yellow Card", "National selection",
+  "International duty", "Rest", "Inactive", "Suspended", "Coach's decision", "Personal reasons", "Other"]);
+
+// ---- ARAMA: aday oyuncuları getir ----
+async function searchPlayers(isim) {
   let kokler = [];
   if (isim.includes(" ")) { const son = isim.trim().split(/\s+/).pop(); kokler.push(son, sade(son)); }
   kokler.push(isim, sade(isim));
@@ -78,45 +79,40 @@ async function oyuncuBul(isim) {
     }
     if (Object.keys(havuz).length) break;
   }
-  const adaylar = Object.values(havuz).sort((a, b) => benzerlik(b, isim) - benzerlik(a, isim));
-  for (const aday of adaylar.slice(0, 1)) {
-    const cid = aday.player.id;
-    const cs = (await apiGet("players/seasons", { player: cid })).sort((a, b) => b - a);
-    for (const sez of cs.slice(0, 2)) {
-      const res = await apiGet("players", { id: cid, season: sez });
-      if (res.length && res[0].statistics && res[0].statistics.length) return { cid, hit: res[0], sez, seasons: cs };
-    }
-  }
-  return null;
+  const adaylar = Object.values(havuz).sort((a, b) => benzerlik(b, isim) - benzerlik(a, isim)).slice(0, 6);
+  return adaylar.map(a => ({ id: a.player.id, isim: a.player.name, foto: a.player.photo, uyruk: trUlke(a.player.nationality), yas: a.player.age }));
 }
 
-const NON_INJURY = new Set(["Red Card", "Yellow Cards", "Yellow Card", "National selection",
-  "International duty", "Rest", "Inactive", "Suspended", "Coach's decision", "Personal reasons", "Other"]);
-
-async function analyze(oyuncuAdi, hedefAdi) {
-  const bul = await oyuncuBul(oyuncuAdi);
-  if (!bul) throw new Error(`'${oyuncuAdi}' bulunamadı. Soyadıyla ve doğruya yakın yaz.`);
-  const { hit, sez, seasons, cid: pid } = bul;
+// ---- ANALİZ: oyuncu id + hedef takım ----
+async function analyzeById(pid, hedefAdi) {
+  const cs = (await apiGet("players/seasons", { player: pid })).sort((a, b) => b - a);
+  if (!cs.length) throw new Error("Oyuncunun sezon verisi bulunamadı.");
+  let hit = null, sez = null;
+  for (const s of cs.slice(0, 3)) {
+    const res = await apiGet("players", { id: pid, season: s });
+    if (res.length && res[0].statistics && res[0].statistics.length) { hit = res[0]; sez = s; break; }
+  }
+  if (!hit) throw new Error("Oyuncunun istatistik verisi bulunamadı.");
   let stats = hit.statistics.filter(s => (s.games.appearences || 0) > 0);
   if (!stats.length) stats = hit.statistics;
   const main = stats.reduce((a, b) => ((b.games.appearences || 0) > (a.games.appearences || 0) ? b : a));
   const oyuncu = {
-    isim: hit.player.name, yas: hit.player.age, foto: hit.player.photo, uyruk: hit.player.nationality,
-    pozisyon: main.games.position, gol: main.goals.total || 0, asist: main.goals.assists || 0,
+    isim: hit.player.name, yas: hit.player.age, foto: hit.player.photo, uyruk: trUlke(hit.player.nationality),
+    pozisyon: trPoz(main.games.position), gol: main.goals.total || 0, asist: main.goals.assists || 0,
     ort_rating: main.games.rating ? parseFloat(main.games.rating) : 7.0,
     ga90: Math.round(ga90(main) * 1000) / 1000, lig: main.league.name, takim: main.team.name, sezon: sez
   };
   let sakatliklar = [];
-  for (const yil of seasons.slice(0, 2)) {
+  for (const yil of cs.slice(0, 2)) {
     const inj = await apiGet("injuries", { player: pid, season: yil });
     for (const rec of inj) sakatliklar.push({ tarih: rec.fixture.date.slice(0, 10), tip: rec.player.type, neden: rec.player.reason });
   }
-  const toplamMac = 38 * Math.max(seasons.slice(0, 2).length, 1);
+  const toplamMac = 38 * Math.max(cs.slice(0, 2).length, 1);
 
   let tt = await apiGet("teams", { search: hedefAdi });
   if (!tt.length) tt = await apiGet("teams", { search: sade(hedefAdi) });
   if (!tt.length) throw new Error(`'${hedefAdi}' takımı bulunamadı.`);
-  const htid = tt[0].team.id, ulke = tt[0].team.country || "", logo = tt[0].team.logo;
+  const htid = tt[0].team.id, ulke = trUlke(tt[0].team.country), logo = tt[0].team.logo;
   const ligler = await apiGet("leagues", { team: htid });
   let ls = [];
   for (const l of ligler) if (l.league.type === "League") for (const s of l.seasons) ls.push([s.year, l.league.id, l.league.name]);
@@ -170,7 +166,7 @@ function runModel(oyuncu, sakatliklar, toplamMac, hedef, N = 5000, macSayisi = 3
   const kacan_ort = Kl.reduce((a, b) => a + b, 0) / Kl.length;
   const perf = [...Pl].sort((a, b) => a - b)[Math.floor(Pl.length / 2)];
   let lo = G[0], hi = G[G.length - 1]; if (hi === lo) hi = lo + 1;
-  const nb = 24, w = (hi - lo) / nb;
+  const nb = 26, w = (hi - lo) / nb;
   const labels = [], counts = new Array(nb).fill(0);
   for (let i = 0; i < nb; i++) labels.push(Math.round(lo + w * (i + 0.5)));
   for (const x of G) { let idx = Math.floor((x - lo) / w); idx = idx >= nb ? nb - 1 : (idx < 0 ? 0 : idx); counts[idx]++; }
@@ -182,14 +178,19 @@ function runModel(oyuncu, sakatliklar, toplamMac, hedef, N = 5000, macSayisi = 3
 }
 
 export default async function handler(req, res) {
-  const oyuncu = ((req.query && req.query.oyuncu) || "").toString().trim();
-  const hedef = ((req.query && req.query.hedef) || "").toString().trim();
+  const q = req.query || {};
   try {
     if (!API_KEY) throw new Error("Sunucuda API_KEY tanımlı değil (Vercel → Settings → Environment Variables).");
-    if (!oyuncu || !hedef) throw new Error("Oyuncu ve hedef takım gerekli.");
-    const out = await analyze(oyuncu, hedef);
-    res.status(200).json({ ok: true, ...out });
+    if (q.ara) {
+      const adaylar = await searchPlayers(q.ara.toString().trim());
+      return res.status(200).json({ ok: true, adaylar });
+    }
+    if (q.pid && q.hedef) {
+      const out = await analyzeById(parseInt(q.pid, 10), q.hedef.toString().trim());
+      return res.status(200).json({ ok: true, ...out });
+    }
+    throw new Error("Geçersiz istek.");
   } catch (e) {
-    res.status(200).json({ ok: false, error: e.message });
+    return res.status(200).json({ ok: false, error: e.message });
   }
 }

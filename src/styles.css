@@ -130,6 +130,29 @@ body{
 .params summary{cursor:pointer;color:#c7d2e0;font-weight:600;}
 .params p{margin-top:8px;line-height:1.6;}
 
+/* ---- monte carlo alan grafiği ---- */
+.mc{width:100%;height:auto;display:block;margin-top:4px;overflow:visible;}
+.mc-x{display:flex;justify-content:space-between;color:var(--muted);font-size:11.5px;margin-top:8px;}
+.mc-x small{opacity:.65;}
+.mc-med{color:var(--gold);font-weight:700;}
+
+/* ---- aday seçim ekranı ---- */
+.picker{animation:fadeUp .5s both;}
+.picker h3{font-family:'Sora',sans-serif;font-size:clamp(16px,3vw,19px);margin-bottom:16px;color:#e6edf3;}
+.pick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+@media(max-width:680px){.pick-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:420px){.pick-grid{grid-template-columns:1fr;}}
+.pick-card{cursor:pointer;text-align:center;background:var(--card);border:1px solid var(--line);
+  border-radius:16px;padding:18px 12px;color:var(--txt);transition:.18s;animation:fadeUp .5s both;}
+.pick-card:hover{transform:translateY(-4px);border-color:rgba(16,185,129,.5);
+  box-shadow:0 14px 34px rgba(16,185,129,.18);background:rgba(16,185,129,.06);}
+.pick-card img{width:74px;height:74px;border-radius:50%;object-fit:cover;background:#1f2937;
+  border:2px solid var(--line);margin-bottom:10px;}
+.pick-ph{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;font-size:30px;
+  background:rgba(255,255,255,.06);margin:0 auto 10px;}
+.pick-n{font-weight:800;font-size:14.5px;line-height:1.2;}
+.pick-m{color:var(--muted);font-size:12px;margin-top:3px;}
+
 /* ---- durum kutuları ---- */
 .state{background:var(--card);border:1px dashed var(--line);border-radius:var(--radius);padding:30px 24px;
   color:var(--muted);font-size:14.5px;line-height:1.6;animation:fadeUp .5s both;}
