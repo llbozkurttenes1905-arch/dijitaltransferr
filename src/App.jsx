@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import Scores from './Scores.jsx'
 
 /* sayı sayma animasyonu */
 function CountUp({ value, dec = 0 }) {
@@ -310,6 +311,7 @@ function Picker({ list, onPick }) {
 
 /* uygulama */
 export default function App() {
+  const [sekme, setSekme] = useState('transfer') // 'transfer' | 'skorlar'
   const [oyuncu, setOyuncu] = useState('Lautaro Martinez')
   const [hedef, setHedef] = useState('Fenerbahce')
   const [loading, setLoading] = useState(false)
@@ -351,6 +353,12 @@ export default function App() {
     <>
       <div className="bg" /><div className="grain" />
       <div className="wrap">
+        <div className="ust-sekme">
+          <button className={'usek' + (sekme === 'transfer' ? ' aktif' : '')} onClick={() => setSekme('transfer')}>🔁 Transfer Analizi</button>
+          <button className={'usek' + (sekme === 'skorlar' ? ' aktif' : '')} onClick={() => setSekme('skorlar')}>⚽ Canlı Skorlar</button>
+        </div>
+
+        {sekme === 'skorlar' ? <Scores /> : (
         <div className="shell">
           <aside className="panel">
             <div className="brand"><span className="dot">⚽</span> Dijital İkiz</div>
@@ -402,6 +410,7 @@ export default function App() {
                     : <div className="state">Soldan bir <b>oyuncu</b> ve <b>hedef takım</b> yaz, <b>Analiz Et</b>'e bas. Sonuçların geçmişe kaydedilir.</div>}
           </main>
         </div>
+        )}
       </div>
       <div className="imza">⚽ by <b>Enes Bozkurt</b></div>
     </>
