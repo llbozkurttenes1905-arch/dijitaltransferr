@@ -40,7 +40,7 @@ function MacSatiri({ m, onClick }) {
         <b>{oynandi ? m.skor.ev : '–'}</b>
         <b>{oynandi ? m.skor.dep : '–'}</b>
       </div>
-      <span className="mac-ok">📊</span>
+      <span className="mac-ok">›</span>
     </button>
   )
 }
@@ -70,7 +70,7 @@ function Kadro11({ takim }) {
           <li key={i}><span className="kadro-no">{p.no ?? '–'}</span>{p.isim}<span className="kadro-poz">{p.poz}</span></li>
         ))}
       </ul>
-      {takim.teknikDirektor && <div className="kadro-td">🧑‍💼 {takim.teknikDirektor}</div>}
+      {takim.teknikDirektor && <div className="kadro-td">Teknik Direktör: {takim.teknikDirektor}</div>}
     </div>
   )
 }
@@ -116,7 +116,7 @@ function MacDetay({ mac, onClose }) {
         </div>
 
         <div className="modal-sekmeler">
-          {[['ozet', '⏱️ Özet'], ['istatistik', '📊 İstatistik'], ['kadro', '🧩 Kadrolar']].map(([k, t]) => (
+          {[['ozet', 'Özet'], ['istatistik', 'İstatistik'], ['kadro', 'Kadrolar']].map(([k, t]) => (
             <button key={k} className={'msek' + (sekme === k ? ' aktif' : '')} onClick={() => setSekme(k)}>{t}</button>
           ))}
         </div>

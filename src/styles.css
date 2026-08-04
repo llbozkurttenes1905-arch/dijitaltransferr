@@ -254,8 +254,8 @@ body{
 .mac-t img{width:20px;height:20px;object-fit:contain;flex-shrink:0;}
 .mac-skor{display:flex;flex-direction:column;gap:6px;font-family:'Sora',sans-serif;text-align:center;}
 .mac-skor b{font-size:14.5px;line-height:1.2;}
-.mac-ok{opacity:.5;font-size:13px;}
-.mac-row:hover .mac-ok{opacity:1;}
+.mac-ok{opacity:.4;font-size:22px;font-weight:800;color:var(--green);line-height:1;transition:.15s;}
+.mac-row:hover .mac-ok{opacity:1;transform:translateX(2px);}
 
 /* ---- modal ---- */
 .modal-bg{position:fixed;inset:0;background:rgba(4,7,10,.72);backdrop-filter:blur(4px);z-index:100;

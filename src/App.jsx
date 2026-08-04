@@ -54,7 +54,7 @@ function Bars({ bilesen, anim }) {
   if (bilesen.rol != null) items.push({ k: 'Rol Uyumu', v: bilesen.rol, c: '#a78bfa' })
   return (
     <div className="chart">
-      <h4>🧩 Uyum Bileşenleri</h4>
+      <h4>Uyum Bileşenleri</h4>
       {items.map((it, i) => (
         <div className="bar" key={it.k}>
           <div className="bl"><span>{it.k}</span><b style={{ color: it.c }}>%{Math.round(it.v * 100)}</b></div>
@@ -66,7 +66,7 @@ function Bars({ bilesen, anim }) {
 }
 
 /* gelişmiş Monte Carlo alan grafiği (yumuşak eğri + tooltip) */
-function MonteCarlo({ hist, med, lo, hi, anim }) {
+function MonteCarlo({ hist, med, lo, hi, anim, birimAd = 'Gol+Asist' }) {
   const counts = hist.counts, labels = hist.labels, n = counts.length
   const maxC = Math.max(...counts, 1)
   const total = counts.reduce((a, b) => a + b, 0) || 1
@@ -100,7 +100,7 @@ function MonteCarlo({ hist, med, lo, hi, anim }) {
   }
   return (
     <div className="chart">
-      <h4>📈 Sezonluk Gol + Asist Olasılık Dağılımı</h4>
+      <h4>Sezonluk {birimAd} Olasılık Dağılımı</h4>
       <div className="mc-host" onMouseMove={move} onMouseLeave={() => setTip(null)} onTouchStart={move} onTouchMove={move}>
         <svg className="mc" viewBox={'0 0 ' + W + ' ' + H} preserveAspectRatio="none">
           <defs>
@@ -117,7 +117,7 @@ function MonteCarlo({ hist, med, lo, hi, anim }) {
             style={{ opacity: anim ? 1 : 0, transition: 'opacity .5s .7s ease' }} />
           {tip && <line x1={vx(tip.ga)} y1="2" x2={vx(tip.ga)} y2={H - b} stroke="#fff" strokeWidth="1" opacity="0.55" vectorEffect="non-scaling-stroke" />}
         </svg>
-        {tip && <div className="mc-tip" style={{ left: tip.left }}><b>{tip.ga}</b> gol+asist<span>%{tip.pct.toFixed(1)} olasılık</span></div>}
+        {tip && <div className="mc-tip" style={{ left: tip.left }}><b>{tip.ga}</b> {birimAd.toLowerCase()}<span>%{tip.pct.toFixed(1)} olasılık</span></div>}
       </div>
       <div className="mc-x">
         <span>{lo}<small> (%10)</small></span>
@@ -199,16 +199,18 @@ function Radar({ radar, isim, anim }) {
 function Katki({ data }) {
   if (data.katki == null || !data.incumbent) return null
   const k = data.katki, pos = k >= 0
+  const birimAd = (data.birim && data.birim.ad) || 'Gol+Asist'
+  const rolKelime = data.oyuncu.pozisyon || 'oyuncu'
   return (
     <div className={'katki ' + (pos ? 'pos' : 'neg')}>
       <div className="katki-ic">
         <span className="katki-n">{pos ? '+' : ''}{k}</span>
-        <span className="katki-u">gol+asist / sezon</span>
+        <span className="katki-u">{birimAd.toLowerCase()} / sezon</span>
       </div>
       <div className="katki-t">
-        <b>Takıma Kattığı Değer</b> — {data.oyuncu.isim}, hedef takımın mevcut en iyi forveti
-        <b> {data.incumbent.isim}</b> ({data.incumbent.ga90} G+A/90) ile kıyaslandığında sezonda
-        <b> {pos ? '+' : ''}{k} gol+asist</b> {pos ? 'fazla' : 'fark'} üretmesi beklenir.
+        <b>Takıma Kattığı Değer</b> — {data.oyuncu.isim}, hedef takımın mevcut en iyi {rolKelime.toLowerCase()}i
+        <b> {data.incumbent.isim}</b> ({data.incumbent.ga90} {birimAd}/90) ile kıyaslandığında sezonda
+        <b> {pos ? '+' : ''}{k} {birimAd.toLowerCase()}</b> {pos ? 'fazla' : 'fark'} üretmesi beklenir.
       </div>
     </div>
   )
@@ -221,6 +223,9 @@ function Dashboard({ data }) {
   const [anim, setAnim] = useState(false)
   useEffect(() => { setAnim(false); const t = setTimeout(() => setAnim(true), 60); return () => clearTimeout(t) }, [data])
   const o = data.oyuncu, h = data.hedef, s = data.sim, U = data.uyum
+  const birimAd = (data.birim && data.birim.ad) || 'Gol+Asist'
+  const esik1 = (data.birim && data.birim.esik1) || 20
+  const esik2 = (data.birim && data.birim.esik2) || 30
   const v = U >= 0.80 ? ['MÜKEMMEL UYUM', '#10b981'] : U >= 0.65 ? ['İYİ UYUM', '#34d399'] : U >= 0.50 ? ['ORTA DÜZEY', '#fbbf24'] : ['RİSKLİ', '#ef4444']
   return (
     <>
@@ -235,10 +240,10 @@ function Dashboard({ data }) {
             </div>
           </div>
           <div className="pills">
-            <span className="pill">⚽ {o.gol} gol</span>
-            <span className="pill">🅰️ {o.asist} asist</span>
-            <span className="pill">⭐ {Number(o.ort_rating).toFixed(2)} reyting</span>
-            <span className="pill">🎯 {o.ga90} G+A/90</span>
+            <span className="pill">{o.gol} gol</span>
+            <span className="pill">{o.asist} asist</span>
+            <span className="pill">{Number(o.ort_rating).toFixed(2)} reyting</span>
+            <span className="pill">{o.ga90} G+A/90</span>
           </div>
         </div>
         <div className="card gaugeCard">
@@ -256,16 +261,19 @@ function Dashboard({ data }) {
             </div>
           </div>
           <div className="pills">
-            <span className="pill">🥅 {h.atilan_gol} gol</span>
-            <span className="pill">📈 {h.gol_basina_mac} gol/maç</span>
+            <span className="pill">{h.atilan_gol} gol</span>
+            <span className="pill">{h.gol_basina_mac} gol/maç</span>
+            {(o.grp === 'DEF' || o.grp === 'GK') && (
+              <span className="pill">{h.yenilen_gol} yenilen · {h.yenilen_gol_basina_mac}/maç</span>
+            )}
           </div>
         </div>
       </div>
 
       <div className="g4">
-        <Metric t="Beklenen Gol+Asist" v={<CountUp value={s.ga_med} />} s={'aralık ' + s.ga_lo + '–' + s.ga_hi} c="#10b981" />
+        <Metric t={'Beklenen ' + birimAd} v={<CountUp value={s.ga_med} />} s={'aralık ' + s.ga_lo + '–' + s.ga_hi} c="#10b981" />
         <Metric t="Sakatlık Riski" v={<><CountUp value={s.kacan_ort} dec={1} /> maç</>} s="sezonda (ortalama)" c="#fbbf24" />
-        <Metric t="20+ Gol+Asist İhtimali" v={<>%<CountUp value={s.p20 * 100} /></>} s={'30+ için %' + Math.round(s.p30 * 100)} c="#34d399" />
+        <Metric t={esik1 + '+ ' + birimAd + ' İhtimali'} v={<>%<CountUp value={s.p20 * 100} /></>} s={esik2 + '+ için %' + Math.round(s.p30 * 100)} c="#34d399" />
         <Metric t="Sağlamlık" v={<>%<CountUp value={s.saglam * 100} /></>} s="32+ maç oynama" c="#60a5fa" />
       </div>
 
@@ -278,11 +286,11 @@ function Dashboard({ data }) {
 
       <div className="g2">
         <Bars bilesen={data.bilesen} anim={anim} />
-        <MonteCarlo hist={s.hist} med={s.ga_med} lo={s.ga_lo} hi={s.ga_hi} anim={anim} />
+        <MonteCarlo hist={s.hist} med={s.ga_med} lo={s.ga_lo} hi={s.ga_hi} anim={anim} birimAd={birimAd} />
       </div>
 
       <details className="params">
-        <summary>🔬 Hesaplanan parametreler (gerçek veriden)</summary>
+        <summary>Hesaplanan parametreler (gerçek veriden)</summary>
         <p>Temel performans: {data.param.S.toFixed(3)} · dalgalanma: {data.param.sigma[0]}/{data.param.sigma[1]} ·
           Sakatlık: {data.param.episode} dönem / {data.param.toplam_mac} maç → maç başı %{(data.param.p * 100).toFixed(1)},
           dönem başına {data.param.lam.toFixed(1)} maç · Medyan performans %{Math.round(s.perf * 100)}</p>
@@ -354,8 +362,8 @@ export default function App() {
       <div className="bg" /><div className="grain" />
       <div className="wrap">
         <div className="ust-sekme">
-          <button className={'usek' + (sekme === 'transfer' ? ' aktif' : '')} onClick={() => setSekme('transfer')}>🔁 Transfer Analizi</button>
-          <button className={'usek' + (sekme === 'skorlar' ? ' aktif' : '')} onClick={() => setSekme('skorlar')}>⚽ Canlı Skorlar</button>
+          <button className={'usek' + (sekme === 'transfer' ? ' aktif' : '')} onClick={() => setSekme('transfer')}>Transfer Analizi</button>
+          <button className={'usek' + (sekme === 'skorlar' ? ' aktif' : '')} onClick={() => setSekme('skorlar')}>Canlı Skorlar</button>
         </div>
 
         {sekme === 'skorlar' ? <Scores /> : (
@@ -373,7 +381,7 @@ export default function App() {
             </div>
             <button className="btn" onClick={analiz} disabled={loading}>
               <span className="shine" />
-              {loading ? <><span className="spin" />İşleniyor...</> : '🚀 ANALİZ ET'}
+              {loading ? <><span className="spin" />İşleniyor...</> : 'ANALİZ ET'}
             </button>
             <div className="sep" />
             <div className="hist-h">
