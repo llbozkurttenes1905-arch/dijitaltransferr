@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Scores from './Scores.jsx'
+import { DILLER, ceviriUret } from './i18n.js'
 
 /* sayı sayma animasyonu */
 function CountUp({ value, dec = 0 }) {
@@ -317,9 +318,58 @@ function Picker({ list, onPick }) {
   )
 }
 
+/* API'den canlı öneri: yazarken debounce ile arka uca sorar (oyuncu veya takım) */
+function useOneri(deger, param, alanAdi) {
+  const [liste, setListe] = useState([])
+  const sayac = useRef(0)
+  useEffect(() => {
+    const q = deger.trim()
+    if (q.length < 2) { setListe([]); return }
+    const kendi = ++sayac.current
+    const zamanlayici = setTimeout(() => {
+      fetch('/api/analyze?' + param + '=' + encodeURIComponent(q))
+        .then(r => r.json())
+        .then(d => { if (sayac.current === kendi) setListe(d.ok ? (d[alanAdi] || []) : []) })
+        .catch(() => { if (sayac.current === kendi) setListe([]) })
+    }, 280)
+    return () => clearTimeout(zamanlayici)
+  }, [deger, param, alanAdi])
+  return liste
+}
+
 /* uygulama */
+/* dil seçici — bayrak + açılır liste */
+function DilSecici({ dil, setDil }) {
+  const [acik, setAcik] = useState(false)
+  const aktif = DILLER.find(d => d.kod === dil) || DILLER[0]
+  return (
+    <div className="dil-wrap">
+      <button type="button" className="dil-buton" onClick={() => setAcik(a => !a)}>
+        <span>{aktif.bayrak}</span>{aktif.ad}<span className="dil-ok">▾</span>
+      </button>
+      {acik && (
+        <div className="dil-kutu" onMouseLeave={() => setAcik(false)}>
+          {DILLER.map(d => (
+            <button type="button" key={d.kod}
+              className={'dil-item' + (d.kod === dil ? ' aktif' : '') + (!d.hazir ? ' yakinda' : '')}
+              onClick={() => { if (d.hazir) { setDil(d.kod); setAcik(false) } }}>
+              <span className="dil-kisa">{d.kisa}</span>
+              <span>{d.bayrak}</span>
+              <span className="dil-ad">{d.ad}</span>
+              {!d.hazir && <span className="dil-badge">Yakında</span>}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function App() {
   const [sekme, setSekme] = useState('transfer') // 'transfer' | 'skorlar'
+  const [dil, setDil] = useState(() => localStorage.getItem('dt_dil') || 'tr')
+  const t = ceviriUret(dil)
+  useEffect(() => { try { localStorage.setItem('dt_dil', dil) } catch (e) {} }, [dil])
   const [oyuncu, setOyuncu] = useState('Lautaro Martinez')
   const [hedef, setHedef] = useState('Fenerbahce')
   const [loading, setLoading] = useState(false)
@@ -328,6 +378,10 @@ export default function App() {
   const [data, setData] = useState(null)
   const [candidates, setCandidates] = useState(null)
   const [hist, setHist] = useState(() => { try { return JSON.parse(localStorage.getItem('dt_hist') || '[]') } catch (e) { return [] } })
+  const [oyuncuOdak, setOyuncuOdak] = useState(false)
+  const [hedefOdak, setHedefOdak] = useState(false)
+  const oyuncuOneri = useOneri(oyuncu, 'ara', 'adaylar')
+  const hedefOneri = useOneri(hedef, 'aratakim', 'takimlar')
 
   const persist = h => { setHist(h); try { localStorage.setItem('dt_hist', JSON.stringify(h)) } catch (e) {} }
   const addHist = d => { const key = (d.oyuncu.isim + '|' + d.hedef.takim).toLowerCase(); persist([{ key, d }, ...hist.filter(x => x.key !== key)].slice(0, 12)) }
@@ -362,34 +416,67 @@ export default function App() {
       <div className="bg" /><div className="grain" />
       <div className="wrap">
         <div className="ust-sekme">
-          <button className={'usek' + (sekme === 'transfer' ? ' aktif' : '')} onClick={() => setSekme('transfer')}>Transfer Analizi</button>
-          <button className={'usek' + (sekme === 'skorlar' ? ' aktif' : '')} onClick={() => setSekme('skorlar')}>Canlı Skorlar</button>
+          <button className={'usek' + (sekme === 'transfer' ? ' aktif' : '')} onClick={() => setSekme('transfer')}>{t('tabTransfer')}</button>
+          <button className={'usek' + (sekme === 'skorlar' ? ' aktif' : '')} onClick={() => setSekme('skorlar')}>{t('tabSkor')}</button>
+          <div className="dil-sag"><DilSecici dil={dil} setDil={setDil} /></div>
         </div>
 
-        {sekme === 'skorlar' ? <Scores /> : (
+        {sekme === 'skorlar' ? <Scores dil={dil} t={t} /> : (
         <div className="shell">
           <aside className="panel">
-            <div className="brand"><span className="dot">⚽</span> Dijital İkiz</div>
-            <div className="brand-sub">Transfer Uyum Simülatörü</div>
-            <div className="field">
-              <label>OYUNCU</label>
-              <input value={oyuncu} onChange={e => setOyuncu(e.target.value)} onKeyDown={e => e.key === 'Enter' && analiz()} placeholder="ör. Lautaro Martinez" />
-            </div>
-            <div className="field">
-              <label>HEDEF TAKIM</label>
-              <input value={hedef} onChange={e => setHedef(e.target.value)} onKeyDown={e => e.key === 'Enter' && analiz()} placeholder="ör. Fenerbahçe" />
-            </div>
-            <button className="btn" onClick={analiz} disabled={loading}>
-              <span className="shine" />
-              {loading ? <><span className="spin" />İşleniyor...</> : 'ANALİZ ET'}
-            </button>
+            <div className="brand"><span className="dot">⚽</span> {t('heroBaslik')}</div>
+            <div className="brand-sub">{t('heroAlt')}</div>
+            <form className="arama-form" onSubmit={e => { e.preventDefault(); analiz() }}>
+              <div className="field">
+                <label>{t('lblOyuncu')}</label>
+                <input name="oyuncu-adi" autoComplete="off" value={oyuncu}
+                  onChange={e => setOyuncu(e.target.value)}
+                  onFocus={() => setOyuncuOdak(true)}
+                  onBlur={() => setTimeout(() => setOyuncuOdak(false), 150)}
+                  placeholder={t('phOyuncu')} />
+                {oyuncuOdak && oyuncu.trim().length >= 2 && oyuncuOneri.length > 0 && (
+                  <div className="oneri-kutu">
+                    {oyuncuOneri.map(a => (
+                      <button type="button" key={a.id} className="oneri-item" onMouseDown={() => { setOyuncu(a.isim); setOyuncuOdak(false) }}>
+                        {a.foto ? <img src={a.foto} alt="" /> : <span className="oneri-ph" />}
+                        <span className="oneri-n">{a.isim}</span>
+                        <span className="oneri-m">{a.uyruk || ''}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="field">
+                <label>{t('lblHedef')}</label>
+                <input name="hedef-takim" autoComplete="off" value={hedef}
+                  onChange={e => setHedef(e.target.value)}
+                  onFocus={() => setHedefOdak(true)}
+                  onBlur={() => setTimeout(() => setHedefOdak(false), 150)}
+                  placeholder={t('phHedef')} />
+                {hedefOdak && hedef.trim().length >= 2 && hedefOneri.length > 0 && (
+                  <div className="oneri-kutu">
+                    {hedefOneri.map(tk => (
+                      <button type="button" key={tk.id} className="oneri-item" onMouseDown={() => { setHedef(tk.isim); setHedefOdak(false) }}>
+                        {tk.logo ? <img src={tk.logo} alt="" /> : <span className="oneri-ph" />}
+                        <span className="oneri-n">{tk.isim}</span>
+                        <span className="oneri-m">{tk.ulke || ''}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <button type="submit" className="btn" disabled={loading}>
+                <span className="shine" />
+                {loading ? <><span className="spin" />{t('btnIsleniyor')}</> : t('btnAnaliz')}
+              </button>
+            </form>
             <div className="sep" />
             <div className="hist-h">
-              <span>📋 Geçmiş Futbolcular</span>
+              <span>{t('gecmis')}</span>
               {hist.length > 0 && <button className="clr" onClick={() => persist([])}>temizle</button>}
             </div>
             {hist.length === 0
-              ? <div className="empty-h">Henüz analiz yok.</div>
+              ? <div className="empty-h">{t('gecmisYok')}</div>
               : hist.map((it, i) => {
                 const u = it.d.uyum, dot = u >= 0.8 ? '#10b981' : u >= 0.55 ? '#fbbf24' : '#ef4444'
                 return (
@@ -404,8 +491,8 @@ export default function App() {
 
           <main>
             <div className="hero">
-              <h1>Futbol Dijital İkiz</h1>
-              <p>Gerçek veriler ve Monte Carlo simülasyonu ile bir futbolcunun hedef takımdaki uyumunu, beklenen katkısını ve sakatlık riskini öngör.</p>
+              <h1>{t('heroBaslik')}</h1>
+              <p>{t('heroAciklama')}</p>
             </div>
             {loading
               ? <div className="state"><span className="spin" /> {loadMsg}</div>
@@ -415,7 +502,7 @@ export default function App() {
                   ? <Picker list={candidates} onPick={runAnalyze} />
                   : data
                     ? <Dashboard data={data} />
-                    : <div className="state">Soldan bir <b>oyuncu</b> ve <b>hedef takım</b> yaz, <b>Analiz Et</b>'e bas. Sonuçların geçmişe kaydedilir.</div>}
+                    : <div className="state" dangerouslySetInnerHTML={{ __html: t('bosDurum') }} />}
           </main>
         </div>
         )}
