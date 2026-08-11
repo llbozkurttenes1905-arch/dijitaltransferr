@@ -43,7 +43,18 @@ body{
 .brand .dot{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:16px;
   background:linear-gradient(135deg,var(--green),var(--teal));box-shadow:0 6px 18px rgba(16,185,129,.4);}
 .brand-sub{color:var(--muted);font-size:12.5px;margin:4px 0 16px;}
-.field{margin-bottom:var(--sp-3);}
+.field{margin-bottom:var(--sp-3);position:relative;}
+.oneri-kutu{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:30;max-height:260px;overflow-y:auto;
+  background:#0d1218;border:1px solid var(--line);border-radius:var(--r-sm);box-shadow:var(--shadow-card);
+  animation:fadeUp .18s both;}
+.oneri-item{width:100%;display:flex;align-items:center;gap:9px;padding:9px 11px;background:none;border:0;
+  border-bottom:1px solid var(--line);color:var(--txt);text-align:left;cursor:pointer;transition:.12s;}
+.oneri-kutu .oneri-item:last-child{border-bottom:0;}
+.oneri-item:hover,.oneri-item:focus{background:rgba(16,185,129,.12);}
+.oneri-item img{width:26px;height:26px;border-radius:7px;object-fit:cover;background:#1f2937;flex-shrink:0;}
+.oneri-ph{width:26px;height:26px;border-radius:7px;background:#1f2937;flex-shrink:0;}
+.oneri-n{font-size:13.5px;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.oneri-m{font-size:11px;color:var(--muted);flex-shrink:0;}
 .field label{display:block;font-size:12px;color:var(--muted);font-weight:600;margin-bottom:var(--sp-2);letter-spacing:.3px;}
 .field input{width:100%;padding:12px 14px;border-radius:var(--r-sm);border:1px solid var(--line);
   background:rgba(0,0,0,.25);color:var(--txt);font-size:14.5px;outline:none;transition:.2s;}
@@ -212,7 +223,24 @@ body{
 @media(max-width:520px){.imza{font-size:11px;right:8px;bottom:8px;padding:5px 11px;}}
 
 /* ================= Canlı Skorlar ================= */
-.ust-sekme{display:flex;gap:var(--sp-2);margin-bottom:var(--sp-5);flex-wrap:wrap;}
+.ust-sekme{display:flex;gap:var(--sp-2);margin-bottom:var(--sp-5);flex-wrap:wrap;align-items:center;}
+.dil-sag{margin-left:auto;position:relative;}
+.dil-buton{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.045);border:1px solid var(--line);
+  color:var(--txt);font-weight:700;font-size:13px;padding:9px 14px;border-radius:999px;cursor:pointer;}
+.dil-buton:hover{border-color:rgba(255,255,255,.22);}
+.dil-ok{font-size:10px;color:var(--muted);margin-left:2px;}
+.dil-kutu{position:absolute;top:calc(100% + 6px);right:0;z-index:40;width:220px;max-height:340px;overflow-y:auto;
+  background:#0d1218;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-card);animation:fadeUp .18s both;}
+.dil-item{width:100%;display:flex;align-items:center;gap:9px;padding:10px 12px;background:none;border:0;
+  border-bottom:1px solid var(--line);color:var(--txt);text-align:left;cursor:pointer;font-size:13.5px;transition:.12s;}
+.dil-kutu .dil-item:last-child{border-bottom:0;}
+.dil-item:hover{background:rgba(16,185,129,.1);}
+.dil-item.aktif{background:rgba(16,185,129,.16);color:#34d399;font-weight:700;}
+.dil-item.yakinda{opacity:.5;cursor:not-allowed;}
+.dil-item.yakinda:hover{background:none;}
+.dil-kisa{color:var(--muted);font-size:10.5px;font-weight:700;width:22px;flex-shrink:0;}
+.dil-ad{flex:1;}
+.dil-badge{font-size:9.5px;background:rgba(251,191,36,.15);color:#fbbf24;border-radius:999px;padding:2px 8px;font-weight:700;flex-shrink:0;}
 .usek{background:rgba(255,255,255,.045);border:1px solid var(--line);color:var(--muted);
   font-weight:700;font-size:13.5px;padding:10px 18px;border-radius:999px;cursor:pointer;transition:.18s;}
 .usek:hover{color:var(--txt);border-color:rgba(255,255,255,.22);}
@@ -238,6 +266,8 @@ body{
 .lig-grubu{margin-bottom:var(--sp-5);animation:fadeUp .5s both;}
 .lig-baslik{display:flex;align-items:center;gap:9px;font-weight:800;font-size:13.5px;color:#dbe4ee;margin-bottom:var(--sp-2);padding-left:2px;}
 .lig-baslik img{width:20px;height:20px;object-fit:contain;}
+.lig-bayrak{width:18px;height:13px;object-fit:cover;border-radius:2px;}
+.lig-ulke{margin-left:auto;color:var(--muted);font-weight:600;font-size:11.5px;text-transform:none;}
 .mac-liste{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--inset-glass);}
 .mac-row{width:100%;display:grid;grid-template-columns:52px 1fr 40px 20px;align-items:center;gap:10px;
   padding:12px 14px;background:none;border:0;border-bottom:1px solid var(--line);color:var(--txt);cursor:pointer;text-align:left;transition:.15s;}
