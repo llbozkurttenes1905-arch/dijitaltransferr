@@ -2,11 +2,11 @@ import { useState, useEffect, useRef } from 'react'
 
 const bugun = () => new Date().toISOString().slice(0, 10)
 const gunEkle = (tarih, n) => { const d = new Date(tarih + 'T12:00:00'); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10) }
-const gunEtiket = tarih => {
+const gunEtiket = (tarih, t) => {
   const b = bugun()
-  if (tarih === b) return 'Bugün'
-  if (tarih === gunEkle(b, -1)) return 'Dün'
-  if (tarih === gunEkle(b, 1)) return 'Yarın'
+  if (tarih === b) return t ? t('bugun') : 'Bugün'
+  if (tarih === gunEkle(b, -1)) return t ? t('dun') : 'Dün'
+  if (tarih === gunEkle(b, 1)) return t ? t('yarin') : 'Yarın'
   const d = new Date(tarih + 'T12:00:00')
   return d.toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', weekday: 'short' })
 }
@@ -160,7 +160,8 @@ function MacDetay({ mac, onClose }) {
   )
 }
 
-export default function Scores() {
+export default function Scores({ t }) {
+  const ceviri = t || (k => ({ skorHero: 'Canlı Skorlar', skorAlt: 'Tüm dünyadan ligler — bir maça tıkla, istatistiklerini ve kadrolarını gör.', canli: 'canlı', maçYok: 'Bu tarihte maç bulunamadı.', getiriliyor: 'Maçlar getiriliyor...' }[k] || k))
   const [tarih, setTarih] = useState(bugun())
   const [veri, setVeri] = useState(null)
   const [yukleniyor, setYukleniyor] = useState(true)
@@ -184,24 +185,29 @@ export default function Scores() {
   return (
     <div className="skorlar">
       <div className="skor-hero">
-        <h1>Canlı Skorlar</h1>
-        <p>Süper Lig ve büyük Avrupa liglerinden maçlar — bir maça tıkla, istatistiklerini ve kadrolarını gör.</p>
+        <h1>{ceviri('skorHero')}</h1>
+        <p>{ceviri('skorAlt')}</p>
       </div>
 
       <div className="skor-gun-bar">
         <button onClick={() => setTarih(gunEkle(tarih, -1))}>◀</button>
-        <div className="skor-gun-etiket">{gunEtiket(tarih)}{veri?.canliSayisi > 0 && <span className="canli-sayac"><span className="dot-canli" />{veri.canliSayisi} canlı</span>}</div>
+        <div className="skor-gun-etiket">{gunEtiket(tarih, ceviri)}{veri?.canliSayisi > 0 && <span className="canli-sayac"><span className="dot-canli" />{veri.canliSayisi} {ceviri('canli')}</span>}</div>
         <button onClick={() => setTarih(gunEkle(tarih, 1))}>▶</button>
       </div>
 
       {yukleniyor ? (
-        <div className="state"><span className="spin" /> Maçlar getiriliyor...</div>
+        <div className="state"><span className="spin" /> {ceviri('getiriliyor')}</div>
       ) : !veri || veri.gruplar.length === 0 ? (
-        <div className="state">Bu tarihte takip edilen liglerde maç bulunamadı.</div>
+        <div className="state">{ceviri('maçYok')}</div>
       ) : (
         veri.gruplar.map(g => (
           <div className="lig-grubu" key={g.id}>
-            <div className="lig-baslik"><img src={g.logo} alt="" /><span>{g.ad}</span></div>
+            <div className="lig-baslik">
+              {g.bayrak && <img className="lig-bayrak" src={g.bayrak} alt="" />}
+              <img src={g.logo} alt="" />
+              <span>{g.ad}</span>
+              {g.ulke && <span className="lig-ulke">{g.ulke}</span>}
+            </div>
             <div className="mac-liste">
               {g.maclar.map(m => <MacSatiri key={m.id} m={m} onClick={setSecilenMac} />)}
             </div>
