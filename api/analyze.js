@@ -189,7 +189,33 @@ const TEAMS_DATABASE = {
     mid: "Gabriel Sara / Lucas Torreira", midGa90: 0.45,
     def: "Davinson Sánchez / Abdülkerim Bardakcı", defGa90: 0.12,
     gk: "Fernando Muslera", gkGa90: 0.03,
-    kadro: ["Victor Osimhen", "Mauro Icardi", "Michy Batshuayi", "Barış Alper Yılmaz", "Yunus Akgün", "Dries Mertens", "Gabriel Sara", "Lucas Torreira", "Davinson Sánchez", "Abdülkerim Bardakcı", "Fernando Muslera"]
+    felsefe: "Ön Alanda Boğucu Şok Pres & Hakim Topa Sahip Olma",
+    hucumStili: "Ceza sahasına dikine kilit paslar, Osimhen bitiriciliği ve dinamik kanat varyasyonları",
+    savunmaStili: "Yüksek savunma çizgisi, Torreira merkezli şok karşı pres ve kompakt hatlar",
+    tempo: "Yüksek & Boğucu Hücum Temposu",
+    topaSahipOlma: "%62",
+    presSiddeti: "Çok Yüksek (PPDA: 7.8)",
+    xgMac: "2.40",
+    gucluYonler: [
+      "Ceza sahası içi ölümcül bitiricilik (Victor Osimhen / Mauro Icardi)",
+      "Ön alanda şok pres ile top kazanma (Torreira & Gabriel Sara)",
+      "Bireysel dribling ile adam eksiltme (Barış Alper & Yunus Akgün)",
+      "Kanat beklerinden ceza sahasına kilit servisler (Jakobs & Jelert)"
+    ],
+    zayifYonler: [
+      "Yüksek savunma çizgisi arkasına atılan kontratak topları",
+      "Geniş alanda geçiş savunması ve temas gecikmesi",
+      "Duran top savunmasında adam paylaşımı dalgalanmaları"
+    ],
+    anaDizilis: "4-2-3-1",
+    altDizilis: "3-4-1-2",
+    kadro: ["Victor Osimhen", "Mauro Icardi", "Michy Batshuayi", "Barış Alper Yılmaz", "Yunus Akgün", "Roland Sallai", "Dries Mertens", "Gabriel Sara", "Lucas Torreira", "Davinson Sánchez", "Abdülkerim Bardakcı", "Victor Nelsson", "Ismail Jakobs", "Elias Jelert", "Kaan Ayhan", "Fernando Muslera"],
+    kadroDetay: {
+      kaleciler: ["Fernando Muslera (K)", "Günay Güvenç"],
+      defans: ["Davinson Sánchez", "Abdülkerim Bardakcı", "Victor Nelsson", "Ismail Jakobs", "Elias Jelert", "Kaan Ayhan", "Metehan Baltacı"],
+      ortasaha: ["Lucas Torreira", "Gabriel Sara", "Kerem Demirbay", "Berkan Kutlu", "Eyüp Aydın"],
+      kanat_forvet: ["Barış Alper Yılmaz", "Yunus Akgün", "Roland Sallai", "Dries Mertens", "Hakim Ziyech", "Victor Osimhen", "Mauro Icardi", "Michy Batshuayi"]
+    }
   },
   fenerbahce: {
     isim: "Fenerbahçe",
@@ -200,7 +226,33 @@ const TEAMS_DATABASE = {
     mid: "Sebastian Szymański / Fred", midGa90: 0.44,
     def: "Alexander Djiku / Çağlar Söyüncü", defGa90: 0.12,
     gk: "Dominik Livaković", gkGa90: 0.03,
-    kadro: ["Youssef En-Nesyri", "Edin Džeko", "Dušan Tadić", "Allan Saint-Maximin", "İrfan Can Kahveci", "Sebastian Szymański", "Fred", "Sofyan Amrabat", "Alexander Djiku", "Çağlar Söyüncü", "Dominik Livaković"]
+    felsefe: "Kompakt Geçiş Oyunu & Taktiksel Disiplin (Mourinho Felsefesi)",
+    hucumStili: "Hedef santrafor bağlantıları, ceza sahasına erken kavisli ortalar ve duran top setleri",
+    savunmaStili: "Kompakt orta blok, fiziki ikili mücadele üstünlüğü ve alan daraltma",
+    tempo: "Kontrollü & Fırsatçı Geçiş Temposu",
+    topaSahipOlma: "%57",
+    presSiddeti: "Orta-Yüksek Blok (PPDA: 9.6)",
+    xgMac: "2.12",
+    gucluYonler: [
+      "Hava topları ve ceza sahası ribaundlarında üstünlük (En-Nesyri & Džeko)",
+      "Duran top organizasyonları ve kilit pas üretimi (Dušan Tadić)",
+      "Kanatta patlayıcı birebir dribling tehdidi (Allan Saint-Maximin)",
+      "Orta alanda dinamik süpürme (Fred & Sofyan Amrabat)"
+    ],
+    zayifYonler: [
+      "Derin blokla kapanan takımlara karşı set oyununda üretim tıkanıklığı",
+      "Merkez savunmada arkaya sarkan hızlı oyunculara karşı hamle gecikmesi",
+      "Skorda geriye düşüldüğünde yaşanan ritim kaybı"
+    ],
+    anaDizilis: "4-2-3-1",
+    altDizilis: "3-5-2",
+    kadro: ["Youssef En-Nesyri", "Edin Džeko", "Dušan Tadić", "Allan Saint-Maximin", "İrfan Can Kahveci", "Sebastian Szymański", "Fred", "Sofyan Amrabat", "Alexander Djiku", "Çağlar Söyüncü", "Jayden Oosterwolde", "Dominik Livaković"],
+    kadroDetay: {
+      kaleciler: ["Dominik Livaković", "İrfan Can Eğribayat"],
+      defans: ["Alexander Djiku", "Çağlar Söyüncü", "Rodrigo Becão", "Jayden Oosterwolde", "Mert Müldür", "Bright Osayi-Samuel"],
+      ortasaha: ["Fred", "Sofyan Amrabat", "Sebastian Szymański", "İsmail Yüksek", "Mert Hakan Yandaş"],
+      kanat_forvet: ["Dušan Tadić", "Allan Saint-Maximin", "İrfan Can Kahveci", "Cengiz Ünder", "Youssef En-Nesyri", "Edin Džeko", "Cenk Tosun"]
+    }
   },
   besiktas: {
     isim: "Beşiktaş",
@@ -211,7 +263,33 @@ const TEAMS_DATABASE = {
     mid: "Rafa Silva / Gedson Fernandes", midGa90: 0.60,
     def: "Gabriel Paulista / Felix Uduokhai", defGa90: 0.12,
     gk: "Mert Günok", gkGa90: 0.03,
-    kadro: ["Ciro Immobile", "Semih Kılıçsoy", "Rafa Silva", "Gedson Fernandes", "Milot Rashica", "Ernest Muçi", "Arthur Masuaku", "Gabriel Paulista", "Felix Uduokhai", "Mert Günok"]
+    felsefe: "Hızlı Hücum Reaksiyonu & Yaratıcı Ön Hat",
+    hucumStili: "Rafa Silva liderliğinde dikine akınlar, Immobile ceza sahası koşuları ve merkezden sızmalar",
+    savunmaStili: "Gedson Fernandes dinamizmiyle pres, Paulista liderliğinde savunma emniyeti",
+    tempo: "Değişken & Patlayıcı Hücum Temposu",
+    topaSahipOlma: "%58",
+    presSiddeti: "Yüksek (PPDA: 8.5)",
+    xgMac: "1.95",
+    gucluYonler: [
+      "Ceza sahası önünde ölümcül pas kombinasyonları (Rafa Silva)",
+      "Son vuruş ustalığı ve ceza sahası sezgisi (Ciro Immobile)",
+      "Orta sahadan top taşıma ve dikine dribling gücü (Gedson Fernandes)",
+      "Genç forvet patlayıcılığı (Semih Kılıçsoy)"
+    ],
+    zayifYonler: [
+      "Beklerin hücuma çıkışında kanat arkasında kalan geniş koridorlar",
+      "Fiziksel temaslı sert maçlarda orta sahada oyundan düşme riski",
+      "Kadro rotasyon derinliğindeki eksiklikler"
+    ],
+    anaDizilis: "4-2-3-1",
+    altDizilis: "4-3-3",
+    kadro: ["Ciro Immobile", "Semih Kılıçsoy", "Rafa Silva", "Gedson Fernandes", "Milot Rashica", "Ernest Muçi", "Arthur Masuaku", "Gabriel Paulista", "Felix Uduokhai", "Mert Günok"],
+    kadroDetay: {
+      kaleciler: ["Mert Günok", "Ersin Destanoğlu"],
+      defans: ["Gabriel Paulista", "Felix Uduokhai", "Emirhan Topçu", "Arthur Masuaku", "Jonas Svensson"],
+      ortasaha: ["Gedson Fernandes", "Al-Musrati", "Cher Ndour", "Salih Uçan", "Ernest Muçi"],
+      kanat_forvet: ["Rafa Silva", "Milot Rashica", "Semih Kılıçsoy", "Ciro Immobile", "Mustafa Erhan Hekimoğlu"]
+    }
   },
   trabzonspor: {
     isim: "Trabzonspor",
@@ -222,7 +300,31 @@ const TEAMS_DATABASE = {
     mid: "Edin Višća / Muhammed Cham", midGa90: 0.46,
     def: "Stefan Savić / Stefano Denswil", defGa90: 0.10,
     gk: "Uğurcan Çakır", gkGa90: 0.03,
-    kadro: ["Simon Banza", "Denis Drăguș", "Edin Višća", "Anthony Nwakaeme", "Muhammed Cham", "Batista Mendy", "Okay Yokuşlu", "Stefan Savić", "Stefano Denswil", "Uğurcan Çakır"]
+    felsefe: "Kanat Odaklı Hücum & Geçiş Fırsatçılığı",
+    hucumStili: "Višća ve Nwakaeme ile kanatlardan yüklenme, Banza'ya kafa topu servisleri",
+    savunmaStili: "Uğurcan Çakır güveniyle orta blok karşılama ve ceza sahası içi direnç",
+    tempo: "Orta Tempo & Ani Kanat Hızlanmaları",
+    topaSahipOlma: "%53",
+    presSiddeti: "Dengeli (PPDA: 11.0)",
+    xgMac: "1.68",
+    gucluYonler: [
+      "Hava topları ve pivot santrafor etkinliği (Simon Banza)",
+      "Kanat ortaları ve ceza sahası kilit servisi (Edin Višća)",
+      "Kalede refleksler ve çizgi performansı (Uğurcan Çakır)"
+    ],
+    zayifYonler: [
+      "Orta alandan savunmaya geri dönüşlerde tempo kaybı",
+      "Deplasman maçlarında top hakimiyetini koruma zorluğu"
+    ],
+    anaDizilis: "4-2-3-1",
+    altDizilis: "4-3-3",
+    kadro: ["Simon Banza", "Denis Drăguș", "Edin Višća", "Anthony Nwakaeme", "Muhammed Cham", "Batista Mendy", "Okay Yokuşlu", "Stefan Savić", "Stefano Denswil", "Uğurcan Çakır"],
+    kadroDetay: {
+      kaleciler: ["Uğurcan Çakır", "Onuralp Çevikkan"],
+      defans: ["Stefan Savić", "Stefano Denswil", "Pedro Malheiro", "Eren Elmalı"],
+      ortasaha: ["Batista Mendy", "Okay Yokuşlu", "John Lundstram", "Muhammed Cham"],
+      kanat_forvet: ["Edin Višća", "Anthony Nwakaeme", "Denis Drăguș", "Simon Banza", "Enis Destan"]
+    }
   },
   basaksehir: {
     isim: "Başakşehir",
@@ -678,6 +780,59 @@ function findTeamData(targetName) {
   return null;
 }
 
+// WhoScored / Opta Stili Akıllı Taktik ve Oynayış Tarzı Motoru
+function getTacticalData(teamData, targetName, atilanGol, yenilenGol, dizilis, kadro) {
+  if (teamData && teamData.felsefe) {
+    return {
+      felsefe: teamData.felsefe,
+      hucumStili: teamData.hucumStili,
+      savunmaStili: teamData.savunmaStili,
+      tempo: teamData.tempo,
+      topaSahipOlma: teamData.topaSahipOlma,
+      presSiddeti: teamData.presSiddeti,
+      xgMac: teamData.xgMac,
+      gucluYonler: teamData.gucluYonler,
+      zayifYonler: teamData.zayifYonler,
+      anaDizilis: teamData.anaDizilis || teamData.dizilis || "4-2-3-1",
+      altDizilis: teamData.altDizilis || "4-3-3",
+      kadroDetay: teamData.kadroDetay || null
+    };
+  }
+
+  // Kulüp veritabanında özel profil yoksa matematiksel WhoScored profil üretici
+  const seed = hashStr((targetName || "kulup").toLowerCase());
+  const possess = Math.min(65, Math.max(45, Math.round(48 + (atilanGol / 38 - 1.2) * 11 + (seed % 5))));
+  const xG = (atilanGol / 38 * 0.94).toFixed(2);
+  const isHighPress = possess >= 54;
+
+  return {
+    felsefe: isHighPress ? "Ön Alanda Agresif Pres & Dominant Topa Sahip Olma" : "Disiplinli Kompakt Alan Savunması & Hızlı Geçiş Hücumu",
+    hucumStili: isHighPress ? "Kısa pas kombinasyonları, kanat bindirmeleri ve ceza sahası içi şut tehdidi" : "Dikey kontra paslar, hızlı hücum kanatları ve duran top fırsatçılığı",
+    savunmaStili: isHighPress ? "Yüksek savunma çizgisi ve ön blokta şok karşılama" : "Kompakt çift hatlı orta blok ve ceza sahası emniyeti",
+    tempo: isHighPress ? "Yüksek & Yoğun Baskılı Tempo" : "Kontrollü & Fırsatçı Geçiş Temposu",
+    topaSahipOlma: `%${possess}`,
+    presSiddeti: isHighPress ? "Yüksek (PPDA: 8.4)" : "Orta Blok (PPDA: 11.2)",
+    xgMac: xG,
+    gucluYonler: [
+      "Hızlı geçiş hücumları ve kontra fırsatçılığı",
+      "Duran top organizasyonları ve hava topu üstünlüğü",
+      "Taktiksel sadakat ve takım dayanışması"
+    ],
+    zayifYonler: [
+      "Top kaybı sonrası geniş alanda yakalanma riski",
+      "Kapanan rakiplere karşı set oyununda üretim zorluğu"
+    ],
+    anaDizilis: dizilis || "4-2-3-1",
+    altDizilis: "4-3-3",
+    kadroDetay: (kadro && kadro.length >= 8) ? {
+      kaleciler: [kadro[kadro.length - 1] || "As Kaleci"],
+      defans: kadro.slice(0, 3),
+      ortasaha: kadro.slice(3, 6),
+      kanat_forvet: kadro.slice(6, kadro.length - 1)
+    } : null
+  };
+}
+
 // Hedef Takımın Gerçek Mevcut Oyuncusu (Incumbent), Aktif Kadrosu ve Taktik Bilgisi
 function getTargetTeamProfile(targetName, posGrp = "ATT", playerName = "") {
   const teamData = findTeamData(targetName);
@@ -734,7 +889,9 @@ function getTargetTeamProfile(targetName, posGrp = "ATT", playerName = "") {
     else { incumbentName = "Mevcut As Forvet"; incumbentGa90 = 0.55; }
   }
 
-  return { isim, incumbentName, incumbentGa90, atilanGol, golBasina, yenilenGol, yenilenBasina, dizilis, kadro };
+  const taktik = getTacticalData(teamData, targetName, atilanGol, yenilenGol, dizilis, kadro);
+
+  return { isim, incumbentName, incumbentGa90, atilanGol, golBasina, yenilenGol, yenilenBasina, dizilis, kadro, taktik };
 }
 
 // 6 Boyutlu Dinamik Radar (Oyuncuya Özel Değerler)
@@ -973,6 +1130,7 @@ async function analyzePlayerAndTeam(pid, hedefAdi) {
   result.radar = calculateCustomRadar(pName, pStats.rating, pStats.ga90, posGrp);
   result.heat = oyuncu.pozisyon;
   result.incumbent = { isim: teamProfile.incumbentName, ga90: teamProfile.incumbentGa90 };
+  result.taktik = teamProfile.taktik;
   
   // Takıma kattığı net değer
   const benchmarkVal = (posGrp === "DEF" || posGrp === "GK")

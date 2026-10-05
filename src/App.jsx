@@ -217,6 +217,180 @@ function Katki({ data }) {
   )
 }
 
+/* WhoScored / Opta Stili Taktik ve Oynayış Tarzı Analizi */
+function TaktikAnalizi({ data }) {
+  const t = data.taktik
+  const h = data.hedef
+  if (!t) return null
+  const [sekme, setSekme] = useState('taktik')
+
+  return (
+    <div className="card" style={{ marginTop: 'var(--sp-5)', border: '1px solid rgba(16, 185, 129, 0.25)', background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.05), rgba(0, 0, 0, 0.25))' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', marginBottom: '16px', borderBottom: '1px solid var(--line)', paddingBottom: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ fontSize: '22px' }}>🧭</span>
+          <div>
+            <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--txt)', letterSpacing: '0.2px' }}>
+              {h.takim} — TAKTİK VE OYNAYIŞ TARZI ANALİZİ
+            </div>
+            <div style={{ fontSize: '12px', color: 'var(--muted)' }}>
+              WhoScored & Opta Felsefesi · 2024/2025 - 2025/2026 Sezon Analitiği
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: '6px' }}>
+          <button
+            type="button"
+            onClick={() => setSekme('taktik')}
+            style={{
+              padding: '6px 14px', borderRadius: '8px', border: '1px solid', cursor: 'pointer',
+              fontSize: '12px', fontWeight: 700,
+              background: sekme === 'taktik' ? 'rgba(16, 185, 129, 0.25)' : 'rgba(255,255,255,0.05)',
+              borderColor: sekme === 'taktik' ? 'var(--green)' : 'var(--line)',
+              color: sekme === 'taktik' ? 'var(--green)' : 'var(--muted)'
+            }}
+          >
+            ⚽ Taktik Karakter
+          </button>
+          <button
+            type="button"
+            onClick={() => setSekme('kadro')}
+            style={{
+              padding: '6px 14px', borderRadius: '8px', border: '1px solid', cursor: 'pointer',
+              fontSize: '12px', fontWeight: 700,
+              background: sekme === 'kadro' ? 'rgba(16, 185, 129, 0.25)' : 'rgba(255,255,255,0.05)',
+              borderColor: sekme === 'kadro' ? 'var(--green)' : 'var(--line)',
+              color: sekme === 'kadro' ? 'var(--green)' : 'var(--muted)'
+            }}
+          >
+            👥 Tam Kadro Dağılımı
+          </button>
+        </div>
+      </div>
+
+      {sekme === 'taktik' ? (
+        <div>
+          {/* Taktiksel Metrikler */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px', marginBottom: '16px' }}>
+            <div style={{ background: 'rgba(0,0,0,0.35)', padding: '10px 12px', borderRadius: '10px', border: '1px solid var(--line)' }}>
+              <div style={{ fontSize: '11px', color: 'var(--muted)', fontWeight: 600 }}>TOPA SAHİP OLMA</div>
+              <div style={{ fontSize: '18px', fontWeight: 800, color: '#34d399', marginTop: '2px' }}>{t.topaSahipOlma || '%56'}</div>
+              <div style={{ fontSize: '10.5px', color: 'var(--muted)' }}>Maç Başı Ortalama</div>
+            </div>
+            <div style={{ background: 'rgba(0,0,0,0.35)', padding: '10px 12px', borderRadius: '10px', border: '1px solid var(--line)' }}>
+              <div style={{ fontSize: '11px', color: 'var(--muted)', fontWeight: 600 }}>PRES ŞİDDETİ</div>
+              <div style={{ fontSize: '18px', fontWeight: 800, color: '#fbbf24', marginTop: '2px' }}>{t.presSiddeti || 'Yüksek'}</div>
+              <div style={{ fontSize: '10.5px', color: 'var(--muted)' }}>Ön Alan Baskısı</div>
+            </div>
+            <div style={{ background: 'rgba(0,0,0,0.35)', padding: '10px 12px', borderRadius: '10px', border: '1px solid var(--line)' }}>
+              <div style={{ fontSize: '11px', color: 'var(--muted)', fontWeight: 600 }}>GOL BEKLENTİSİ (xG)</div>
+              <div style={{ fontSize: '18px', fontWeight: 800, color: '#60a5fa', marginTop: '2px' }}>{t.xgMac || '1.95'}</div>
+              <div style={{ fontSize: '10.5px', color: 'var(--muted)' }}>Maç Başı Üretim</div>
+            </div>
+            <div style={{ background: 'rgba(0,0,0,0.35)', padding: '10px 12px', borderRadius: '10px', border: '1px solid var(--line)' }}>
+              <div style={{ fontSize: '11px', color: 'var(--muted)', fontWeight: 600 }}>ANA DİZİLİŞ</div>
+              <div style={{ fontSize: '18px', fontWeight: 800, color: '#e6edf3', marginTop: '2px' }}>{t.anaDizilis || h.dizilis || '4-2-3-1'}</div>
+              <div style={{ fontSize: '10.5px', color: 'var(--muted)' }}>Alt: {t.altDizilis || '4-3-3'}</div>
+            </div>
+          </div>
+
+          {/* Felsefe & Stiller */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '12px', marginBottom: '16px' }}>
+            <div style={{ background: 'rgba(255,255,255,0.03)', padding: '12px 14px', borderRadius: '12px', border: '1px solid var(--line)' }}>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: '#34d399', marginBottom: '4px' }}>🎯 OYUN FELSEFESİ</div>
+              <div style={{ fontSize: '13px', color: 'var(--txt)', lineHeight: 1.45 }}>{t.felsefe}</div>
+            </div>
+            <div style={{ background: 'rgba(255,255,255,0.03)', padding: '12px 14px', borderRadius: '12px', border: '1px solid var(--line)' }}>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: '#60a5fa', marginBottom: '4px' }}>⚡ HÜCUM KARAKTERİ & TEMPO</div>
+              <div style={{ fontSize: '13px', color: 'var(--txt)', lineHeight: 1.45 }}>{t.hucumStili} · <i>{t.tempo}</i></div>
+            </div>
+            <div style={{ background: 'rgba(255,255,255,0.03)', padding: '12px 14px', borderRadius: '12px', border: '1px solid var(--line)' }}>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: '#fbbf24', marginBottom: '4px' }}>🛡️ SAVUNMA VE GEÇİŞ BLOKLARI</div>
+              <div style={{ fontSize: '13px', color: 'var(--txt)', lineHeight: 1.45 }}>{t.savunmaStili}</div>
+            </div>
+          </div>
+
+          {/* Güçlü ve Zayıf Yönler */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px' }}>
+            <div style={{ background: 'rgba(16, 185, 129, 0.06)', padding: '12px 14px', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.25)' }}>
+              <div style={{ fontSize: '12px', fontWeight: 800, color: '#10b981', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span>🟢</span> GÜÇLÜ YÖNLER (GÜÇLÜ KASLAR)
+              </div>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {t.gucluYonler && t.gucluYonler.map((g, i) => (
+                  <li key={i} style={{ fontSize: '12.5px', color: '#e6edf3', marginBottom: '6px', display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+                    <span style={{ color: '#10b981', fontWeight: 800 }}>✓</span> {g}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div style={{ background: 'rgba(239, 68, 68, 0.06)', padding: '12px 14px', borderRadius: '12px', border: '1px solid rgba(239, 68, 68, 0.25)' }}>
+              <div style={{ fontSize: '12px', fontWeight: 800, color: '#ef4444', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span>🔴</span> DİKKAT EDİLMESİ GEREKEN ZAYIF YÖNLER
+              </div>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {t.zayifYonler && t.zayifYonler.map((z, i) => (
+                  <li key={i} style={{ fontSize: '12.5px', color: '#e6edf3', marginBottom: '6px', display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+                    <span style={{ color: '#ef4444', fontWeight: 800 }}>⚠</span> {z}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* Kadro Sekmesi */
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '12px' }}>
+          {t.kadroDetay ? (
+            <>
+              <div style={{ background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '10px', border: '1px solid var(--line)' }}>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: '#fbbf24', marginBottom: '8px' }}>🧤 KALECİLER</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  {t.kadroDetay.kaleciler && t.kadroDetay.kaleciler.map((p, idx) => (
+                    <span key={idx} className="pill" style={{ fontSize: '12px', padding: '4px 8px' }}>{p}</span>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '10px', border: '1px solid var(--line)' }}>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: '#60a5fa', marginBottom: '8px' }}>🛡️ DEFANS / BEKLER</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  {t.kadroDetay.defans && t.kadroDetay.defans.map((p, idx) => (
+                    <span key={idx} className="pill" style={{ fontSize: '12px', padding: '4px 8px' }}>{p}</span>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '10px', border: '1px solid var(--line)' }}>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: '#34d399', marginBottom: '8px' }}>⚙️ ORTA SAHA</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  {t.kadroDetay.ortasaha && t.kadroDetay.ortasaha.map((p, idx) => (
+                    <span key={idx} className="pill" style={{ fontSize: '12px', padding: '4px 8px' }}>{p}</span>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '10px', border: '1px solid var(--line)' }}>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: '#f87171', marginBottom: '8px' }}>⚡ KANAT & FORVETLER</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  {t.kadroDetay.kanat_forvet && t.kadroDetay.kanat_forvet.map((p, idx) => (
+                    <span key={idx} className="pill" style={{ fontSize: '12px', padding: '4px 8px', fontWeight: (p.includes('Osimhen') || p.includes('Icardi') || p.includes('Haaland') || p.includes('Mbappé') || p.includes('Kane')) ? 800 : 500 }}>{p}</span>
+                  ))}
+                </div>
+              </div>
+            </>
+          ) : (
+            <div style={{ color: 'var(--muted)', fontSize: '13px', gridColumn: '1 / -1' }}>
+              Bu takım için güncel kadro listesi: {h.kadro && h.kadro.join(', ')}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function Metric({ t, v, s, c }) { return <div className="metric"><div className="mt">{t}</div><div className="mv" style={{ color: c }}>{v}</div><div className="ms">{s}</div></div> }
 
 /* dashboard */
@@ -291,6 +465,8 @@ function Dashboard({ data }) {
       </div>
 
       <Katki data={data} />
+
+      <TaktikAnalizi data={data} />
 
       <div className="g2">
         <HeatMap pozisyon={o.pozisyon} isim={o.isim} />
