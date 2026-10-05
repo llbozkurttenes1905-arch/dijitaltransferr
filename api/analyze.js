@@ -177,9 +177,511 @@ function calculateDynamicPlayerStats(pName, teamName, posRaw, age) {
   return { rating, gol, asist, minutes, ga90, injuryEpisodes, missedMatches };
 }
 
-// Hedef Takımın Gerçek Mevcut Forveti (Incumbent) ve Taktik Bilgisi
-function getTargetTeamProfile(targetName) {
-  const norm = targetName.toLowerCase().trim();
+// Güncel Kadrolar, Mevcut As Oyuncular ve Kulüp Taktik Profilleri (2024/2025 - 2025/2026)
+const TEAMS_DATABASE = {
+  // SÜPER LİG
+  galatasaray: {
+    isim: "Galatasaray",
+    aliases: ["galatasaray", "cimbom", "gs"],
+    ulke: "Türkiye", lig: "Süper Lig",
+    dizilis: "4-2-3-1", atilanGol: 94, golBasina: 2.47, yenilenGol: 28, yenilenBasina: 0.74,
+    att: "Victor Osimhen", attGa90: 0.96, altAtt: "Mauro Icardi / Michy Batshuayi",
+    mid: "Gabriel Sara / Lucas Torreira", midGa90: 0.45,
+    def: "Davinson Sánchez / Abdülkerim Bardakcı", defGa90: 0.12,
+    gk: "Fernando Muslera", gkGa90: 0.03,
+    kadro: ["Victor Osimhen", "Mauro Icardi", "Michy Batshuayi", "Barış Alper Yılmaz", "Yunus Akgün", "Dries Mertens", "Gabriel Sara", "Lucas Torreira", "Davinson Sánchez", "Abdülkerim Bardakcı", "Fernando Muslera"]
+  },
+  fenerbahce: {
+    isim: "Fenerbahçe",
+    aliases: ["fenerbahce", "fenerbahçe", "fb"],
+    ulke: "Türkiye", lig: "Süper Lig",
+    dizilis: "4-2-3-1", atilanGol: 86, golBasina: 2.26, yenilenGol: 31, yenilenBasina: 0.81,
+    att: "Youssef En-Nesyri", attGa90: 0.78, altAtt: "Edin Džeko / Cenk Tosun",
+    mid: "Sebastian Szymański / Fred", midGa90: 0.44,
+    def: "Alexander Djiku / Çağlar Söyüncü", defGa90: 0.12,
+    gk: "Dominik Livaković", gkGa90: 0.03,
+    kadro: ["Youssef En-Nesyri", "Edin Džeko", "Dušan Tadić", "Allan Saint-Maximin", "İrfan Can Kahveci", "Sebastian Szymański", "Fred", "Sofyan Amrabat", "Alexander Djiku", "Çağlar Söyüncü", "Dominik Livaković"]
+  },
+  besiktas: {
+    isim: "Beşiktaş",
+    aliases: ["besiktas", "beşiktaş", "bjk"],
+    ulke: "Türkiye", lig: "Süper Lig",
+    dizilis: "4-2-3-1", atilanGol: 74, golBasina: 1.95, yenilenGol: 36, yenilenBasina: 0.95,
+    att: "Ciro Immobile", attGa90: 0.75, altAtt: "Semih Kılıçsoy",
+    mid: "Rafa Silva / Gedson Fernandes", midGa90: 0.60,
+    def: "Gabriel Paulista / Felix Uduokhai", defGa90: 0.12,
+    gk: "Mert Günok", gkGa90: 0.03,
+    kadro: ["Ciro Immobile", "Semih Kılıçsoy", "Rafa Silva", "Gedson Fernandes", "Milot Rashica", "Ernest Muçi", "Arthur Masuaku", "Gabriel Paulista", "Felix Uduokhai", "Mert Günok"]
+  },
+  trabzonspor: {
+    isim: "Trabzonspor",
+    aliases: ["trabzonspor", "trabzon", "ts"],
+    ulke: "Türkiye", lig: "Süper Lig",
+    dizilis: "4-2-3-1", atilanGol: 64, golBasina: 1.68, yenilenGol: 40, yenilenBasina: 1.05,
+    att: "Simon Banza", attGa90: 0.65, altAtt: "Denis Drăguș / Enis Destan",
+    mid: "Edin Višća / Muhammed Cham", midGa90: 0.46,
+    def: "Stefan Savić / Stefano Denswil", defGa90: 0.10,
+    gk: "Uğurcan Çakır", gkGa90: 0.03,
+    kadro: ["Simon Banza", "Denis Drăguș", "Edin Višća", "Anthony Nwakaeme", "Muhammed Cham", "Batista Mendy", "Okay Yokuşlu", "Stefan Savić", "Stefano Denswil", "Uğurcan Çakır"]
+  },
+  basaksehir: {
+    isim: "Başakşehir",
+    aliases: ["basaksehir", "başakşehir", "istanbul basaksehir", "rams basaksehir"],
+    ulke: "Türkiye", lig: "Süper Lig",
+    dizilis: "4-3-3", atilanGol: 60, golBasina: 1.58, yenilenGol: 42, yenilenBasina: 1.10,
+    att: "Krzysztof Piątek", attGa90: 0.72, altAtt: "Philippe Keny",
+    mid: "Deniz Türüç / Miguel Crespo", midGa90: 0.40,
+    def: "Jerome Opoku / Léo Duarte", defGa90: 0.10,
+    gk: "Muhammed Şengezer", gkGa90: 0.03,
+    kadro: ["Krzysztof Piątek", "Deniz Türüç", "Miguel Crespo", "Berkay Özcan", "Serdar Gürler", "Jerome Opoku", "Léo Duarte", "Muhammed Şengezer"]
+  },
+  samsunspor: {
+    isim: "Samsunspor",
+    aliases: ["samsunspor", "samsun"],
+    ulke: "Türkiye", lig: "Süper Lig",
+    dizilis: "4-2-3-1", atilanGol: 56, golBasina: 1.47, yenilenGol: 40, yenilenBasina: 1.05,
+    att: "Marius Mouandilmadji", attGa90: 0.58, altAtt: "Landry Dimata",
+    mid: "Olivier Ntcham / Carlo Holse", midGa90: 0.44,
+    def: "Rick van Drongelen / Lubomír Šatka", defGa90: 0.10,
+    gk: "Okan Kocuk", gkGa90: 0.03,
+    kadro: ["Marius Mouandilmadji", "Olivier Ntcham", "Carlo Holse", "Landry Dimata", "Emre Kılınç", "Rick van Drongelen", "Lubomír Šatka", "Okan Kocuk"]
+  },
+  eyupspor: {
+    isim: "Eyüpspor",
+    aliases: ["eyupspor", "eyüpspor", "eyup"],
+    ulke: "Türkiye", lig: "Süper Lig",
+    dizilis: "4-1-4-1", atilanGol: 54, golBasina: 1.42, yenilenGol: 42, yenilenBasina: 1.10,
+    att: "Mame Thiam", attGa90: 0.62, altAtt: "Gianni Bruno",
+    mid: "Ahmed Kutucu / Emre Akbaba", midGa90: 0.46,
+    def: "Luccas Claro / Robin Yalçın", defGa90: 0.10,
+    gk: "Berke Özer", gkGa90: 0.03,
+    kadro: ["Mame Thiam", "Ahmed Kutucu", "Emre Akbaba", "Gianni Bruno", "Samu Sáiz", "Luccas Claro", "Robin Yalçın", "Berke Özer"]
+  },
+  goztepe: {
+    isim: "Göztepe",
+    aliases: ["goztepe", "göztepe"],
+    ulke: "Türkiye", lig: "Süper Lig",
+    dizilis: "3-5-2", atilanGol: 52, golBasina: 1.37, yenilenGol: 38, yenilenBasina: 1.00,
+    att: "David Datro Fofana / Rômulo", attGa90: 0.60, altAtt: "Juan",
+    mid: "Anthony Dennis / Isaac Solet", midGa90: 0.36,
+    def: "Héliton / Koray Günter", defGa90: 0.10,
+    gk: "Mateusz Lis", gkGa90: 0.03,
+    kadro: ["David Datro Fofana", "Rômulo", "Juan", "Anthony Dennis", "Isaac Solet", "Djalma Silva", "Héliton", "Koray Günter", "Mateusz Lis"]
+  },
+  kasimpasa: {
+    isim: "Kasımpaşa",
+    aliases: ["kasimpasa", "kasımpaşa"],
+    ulke: "Türkiye", lig: "Süper Lig",
+    dizilis: "4-1-4-1", atilanGol: 55, golBasina: 1.45, yenilenGol: 50, yenilenBasina: 1.31,
+    att: "Nuno da Costa", attGa90: 0.58, altAtt: "Mamadou Fall",
+    mid: "Haris Hajradinović / Aytaç Kara", midGa90: 0.50,
+    def: "Nicholas Opoku / Yasin Özcan", defGa90: 0.10,
+    gk: "Andreas Gianniotis", gkGa90: 0.03,
+    kadro: ["Nuno da Costa", "Haris Hajradinović", "Aytaç Kara", "Mamadou Fall", "Mortadha Ben Ouanes", "Nicholas Opoku", "Yasin Özcan", "Andreas Gianniotis"]
+  },
+  sivasspor: {
+    isim: "Sivasspor",
+    aliases: ["sivasspor", "sivas"],
+    ulke: "Türkiye", lig: "Süper Lig",
+    dizilis: "4-3-3", atilanGol: 48, golBasina: 1.26, yenilenGol: 52, yenilenBasina: 1.36,
+    att: "Rey Manaj", attGa90: 0.68, altAtt: "Keita Baldé",
+    mid: "Alex Pritchard / Charis Charisis", midGa90: 0.35,
+    def: "Uroš Radaković / Samba Camara", defGa90: 0.10,
+    gk: "Đorđe Nikolić", gkGa90: 0.03,
+    kadro: ["Rey Manaj", "Keita Baldé", "Alex Pritchard", "Charis Charisis", "Azizbek Turgunboev", "Uroš Radaković", "Samba Camara", "Đorđe Nikolić"]
+  },
+  antalyaspor: {
+    isim: "Antalyaspor",
+    aliases: ["antalyaspor", "antalya"],
+    ulke: "Türkiye", lig: "Süper Lig",
+    dizilis: "4-2-3-1", atilanGol: 46, golBasina: 1.21, yenilenGol: 54, yenilenBasina: 1.42,
+    att: "Adolfo Gaich / Sam Larsson", attGa90: 0.52, altAtt: "Sander van de Streek",
+    mid: "Erdal Rakip / Jakub Kałuziński", midGa90: 0.34,
+    def: "Veysel Sarı / Thalisson Kelven", defGa90: 0.08,
+    gk: "Kenan Pirić", gkGa90: 0.03,
+    kadro: ["Adolfo Gaich", "Sam Larsson", "Sander van de Streek", "Jakub Kałuziński", "Erdal Rakip", "Veysel Sarı", "Thalisson Kelven", "Kenan Pirić"]
+  },
+  gaziantep: {
+    isim: "Gaziantep FK",
+    aliases: ["gaziantep", "gaziantepfk", "antep"],
+    ulke: "Türkiye", lig: "Süper Lig",
+    dizilis: "4-2-3-1", atilanGol: 48, golBasina: 1.26, yenilenGol: 54, yenilenBasina: 1.42,
+    att: "David Okereke / Kenan Kodro", attGa90: 0.50, altAtt: "Halil Dervişoğlu",
+    mid: "Deian Sorescu / Alexandru Maxim", midGa90: 0.42,
+    def: "Bruno Viana / Arda Kızıldağ", defGa90: 0.08,
+    gk: "Mustafa Burak Bozan", gkGa90: 0.03,
+    kadro: ["David Okereke", "Kenan Kodro", "Deian Sorescu", "Alexandru Maxim", "Kacper Kozłowski", "Bruno Viana", "Arda Kızıldağ", "Mustafa Burak Bozan"]
+  },
+  rizespor: {
+    isim: "Çaykur Rizespor",
+    aliases: ["rizespor", "caykurrizespor", "rize"],
+    ulke: "Türkiye", lig: "Süper Lig",
+    dizilis: "4-2-3-1", atilanGol: 48, golBasina: 1.26, yenilenGol: 56, yenilenBasina: 1.47,
+    att: "Ali Sowe", attGa90: 0.52, altAtt: "Martin Minchev",
+    mid: "Dal Varešanović / Ibrahim Olawoyin", midGa90: 0.40,
+    def: "Khusniddin Alikulov / Attila Mocsi", defGa90: 0.08,
+    gk: "Ivo Grbić", gkGa90: 0.03,
+    kadro: ["Ali Sowe", "Dal Varešanović", "Ibrahim Olawoyin", "Babajide David", "Khusniddin Alikulov", "Attila Mocsi", "Ivo Grbić"]
+  },
+  konyaspor: {
+    isim: "Konyaspor",
+    aliases: ["konyaspor", "konya"],
+    ulke: "Türkiye", lig: "Süper Lig",
+    dizilis: "4-2-3-1", atilanGol: 44, golBasina: 1.15, yenilenGol: 52, yenilenBasina: 1.36,
+    att: "Umut Nayir / Blaž Kramer", attGa90: 0.50, altAtt: "Melih Bostan",
+    mid: "Pedrinho / Marko Jevtović", midGa90: 0.38,
+    def: "Adil Demirbağ / Riechedly Bazoer", defGa90: 0.08,
+    gk: "Jakub Słowik", gkGa90: 0.03,
+    kadro: ["Umut Nayir", "Blaž Kramer", "Pedrinho", "Alassane Ndao", "Marko Jevtović", "Adil Demirbağ", "Riechedly Bazoer", "Jakub Słowik"]
+  },
+  alanyaspor: {
+    isim: "Alanyaspor",
+    aliases: ["alanyaspor", "alanya"],
+    ulke: "Türkiye", lig: "Süper Lig",
+    dizilis: "4-2-3-1", atilanGol: 45, golBasina: 1.18, yenilenGol: 50, yenilenBasina: 1.31,
+    att: "Sergio Córdova", attGa90: 0.48, altAtt: "Serdar Dursun",
+    mid: "Nicolas Janvier / Richard", midGa90: 0.36,
+    def: "Fidan Aliti / Furkan Bayır", defGa90: 0.08,
+    gk: "Ertuğrul Taşkıran", gkGa90: 0.03,
+    kadro: ["Sergio Córdova", "Nicolas Janvier", "Richard", "Florent Hadergjonaj", "Fidan Aliti", "Furkan Bayır", "Ertuğrul Taşkıran"]
+  },
+  kayserispor: {
+    isim: "Kayserispor",
+    aliases: ["kayserispor", "kayseri"],
+    ulke: "Türkiye", lig: "Süper Lig",
+    dizilis: "4-2-3-1", atilanGol: 44, golBasina: 1.15, yenilenGol: 56, yenilenBasina: 1.47,
+    att: "Stéphane Bahoken / Duckens Nazon", attGa90: 0.48, altAtt: "Talha Sarıarslan",
+    mid: "Mehdi Bourabia / Miguel Cardoso", midGa90: 0.38,
+    def: "Joseph Attamah / Majid Hosseini", defGa90: 0.08,
+    gk: "Bilal Bayazit", gkGa90: 0.03,
+    kadro: ["Stéphane Bahoken", "Duckens Nazon", "Miguel Cardoso", "Mehdi Bourabia", "Aylton Boa Morte", "Joseph Attamah", "Majid Hosseini", "Bilal Bayazit"]
+  },
+  bodrum: {
+    isim: "Bodrum FK",
+    aliases: ["bodrum", "bodrumfk"],
+    ulke: "Türkiye", lig: "Süper Lig",
+    dizilis: "4-1-4-1", atilanGol: 40, golBasina: 1.05, yenilenGol: 50, yenilenBasina: 1.31,
+    att: "George Pușcaș", attGa90: 0.46, altAtt: "Celal Dumanlı",
+    mid: "Fredy / Taylan Antalyalı", midGa90: 0.34,
+    def: "Christophe Hérelle / Arlind Ajeti", defGa90: 0.08,
+    gk: "Diogo Sousa", gkGa90: 0.03,
+    kadro: ["George Pușcaș", "Fredy", "Taylan Antalyalı", "Taulant Seferi", "Christophe Hérelle", "Arlind Ajeti", "Diogo Sousa"]
+  },
+  adanademir: {
+    isim: "Adana Demirspor",
+    aliases: ["adanademir", "adanademirspor", "adana"],
+    ulke: "Türkiye", lig: "Süper Lig",
+    dizilis: "4-2-3-1", atilanGol: 38, golBasina: 1.00, yenilenGol: 62, yenilenBasina: 1.63,
+    att: "Yusuf Barası", attGa90: 0.40, altAtt: "Ali Yavuz Kol",
+    mid: "Maestro / Tayfun Aydoğan", midGa90: 0.32,
+    def: "Semih Güler / Jovan Manev", defGa90: 0.08,
+    gk: "Vedat Karakuş", gkGa90: 0.03,
+    kadro: ["Yusuf Barası", "Ali Yavuz Kol", "Maestro", "Tayfun Aydoğan", "Semih Güler", "Jovan Manev", "Vedat Karakuş"]
+  },
+  hatayspor: {
+    isim: "Hatayspor",
+    aliases: ["hatayspor", "hatay"],
+    ulke: "Türkiye", lig: "Süper Lig",
+    dizilis: "4-2-3-1", atilanGol: 42, golBasina: 1.10, yenilenGol: 56, yenilenBasina: 1.47,
+    att: "Vincent Aboubakar / Carlos Strandberg", attGa90: 0.50, altAtt: "Joelson Fernandes",
+    mid: "Görkem Sağlam / Lamine Diack", midGa90: 0.36,
+    def: "Guy-Marcelin Kilama / Francisco Calvo", defGa90: 0.08,
+    gk: "Erce Kardeşler", gkGa90: 0.03,
+    kadro: ["Vincent Aboubakar", "Carlos Strandberg", "Joelson Fernandes", "Görkem Sağlam", "Lamine Diack", "Guy-Marcelin Kilama", "Francisco Calvo", "Erce Kardeşler"]
+  },
+
+  // AVRUPA DEVLERİ
+  realmadrid: {
+    isim: "Real Madrid",
+    aliases: ["realmadrid", "real madrid", "madrid"],
+    ulke: "İspanya", lig: "La Liga",
+    dizilis: "4-3-3", atilanGol: 98, golBasina: 2.58, yenilenGol: 26, yenilenBasina: 0.68,
+    att: "Kylian Mbappé", attGa90: 1.08, altAtt: "Vinícius Júnior / Rodrygo",
+    mid: "Jude Bellingham / Federico Valverde", midGa90: 0.70,
+    def: "Antonio Rüdiger / Éder Militão", defGa90: 0.15,
+    gk: "Thibaut Courtois", gkGa90: 0.03,
+    kadro: ["Kylian Mbappé", "Vinícius Júnior", "Jude Bellingham", "Rodrygo", "Federico Valverde", "Eduardo Camavinga", "Aurélien Tchouaméni", "Antonio Rüdiger", "Dani Carvajal", "Thibaut Courtois"]
+  },
+  mancity: {
+    isim: "Manchester City",
+    aliases: ["manchestercity", "mancity", "city"],
+    ulke: "İngiltere", lig: "Premier League",
+    dizilis: "4-1-4-1", atilanGol: 102, golBasina: 2.68, yenilenGol: 30, yenilenBasina: 0.79,
+    att: "Erling Haaland", attGa90: 1.15, altAtt: "Phil Foden",
+    mid: "Kevin De Bruyne / Bernardo Silva / Rodri", midGa90: 0.72,
+    def: "Rúben Dias / Joško Gvardiol", defGa90: 0.15,
+    gk: "Ederson", gkGa90: 0.03,
+    kadro: ["Erling Haaland", "Phil Foden", "Kevin De Bruyne", "Bernardo Silva", "Rodri", "Jack Grealish", "İlkay Gündoğan", "Rúben Dias", "Joško Gvardiol", "Ederson"]
+  },
+  arsenal: {
+    isim: "Arsenal",
+    aliases: ["arsenal", "gunners"],
+    ulke: "İngiltere", lig: "Premier League",
+    dizilis: "4-3-3", atilanGol: 90, golBasina: 2.37, yenilenGol: 28, yenilenBasina: 0.74,
+    att: "Kai Havertz", attGa90: 0.85, altAtt: "Gabriel Jesus / Bukayo Saka",
+    mid: "Martin Ødegaard / Declan Rice", midGa90: 0.68,
+    def: "William Saliba / Gabriel Magalhães", defGa90: 0.14,
+    gk: "David Raya", gkGa90: 0.03,
+    kadro: ["Bukayo Saka", "Kai Havertz", "Gabriel Martinelli", "Martin Ødegaard", "Declan Rice", "Thomas Partey", "William Saliba", "Gabriel Magalhães", "David Raya"]
+  },
+  liverpool: {
+    isim: "Liverpool",
+    aliases: ["liverpool", "lfc"],
+    ulke: "İngiltere", lig: "Premier League",
+    dizilis: "4-3-3", atilanGol: 92, golBasina: 2.42, yenilenGol: 30, yenilenBasina: 0.79,
+    att: "Mohamed Salah / Darwin Núñez", attGa90: 0.95, altAtt: "Diogo Jota / Cody Gakpo",
+    mid: "Alexis Mac Allister / Dominik Szoboszlai", midGa90: 0.60,
+    def: "Virgil van Dijk / Trent Alexander-Arnold", defGa90: 0.18,
+    gk: "Alisson Becker", gkGa90: 0.03,
+    kadro: ["Mohamed Salah", "Luis Díaz", "Darwin Núñez", "Diogo Jota", "Cody Gakpo", "Alexis Mac Allister", "Ryan Gravenberch", "Virgil van Dijk", "Trent Alexander-Arnold", "Alisson Becker"]
+  },
+  barcelona: {
+    isim: "Barcelona",
+    aliases: ["barcelona", "barca", "barça"],
+    ulke: "İspanya", lig: "La Liga",
+    dizilis: "4-2-3-1", atilanGol: 96, golBasina: 2.53, yenilenGol: 32, yenilenBasina: 0.84,
+    att: "Robert Lewandowski", attGa90: 1.05, altAtt: "Lamine Yamal / Ferran Torres",
+    mid: "Raphinha / Dani Olmo / Pedri", midGa90: 0.78,
+    def: "Pau Cubarsí / Jules Koundé", defGa90: 0.14,
+    gk: "Wojciech Szczęsny", gkGa90: 0.03,
+    kadro: ["Robert Lewandowski", "Lamine Yamal", "Raphinha", "Dani Olmo", "Pedri", "Gavi", "Frenkie de Jong", "Pau Cubarsí", "Jules Koundé", "Alejandro Balde", "Wojciech Szczęsny"]
+  },
+  bayern: {
+    isim: "Bayern München",
+    aliases: ["bayern", "bayern munich", "bayern münchen"],
+    ulke: "Almanya", lig: "Bundesliga",
+    dizilis: "4-2-3-1", atilanGol: 100, golBasina: 2.94, yenilenGol: 32, yenilenBasina: 0.94,
+    att: "Harry Kane", attGa90: 1.12, altAtt: "Mathys Tel",
+    mid: "Jamal Musiala / Michael Olise", midGa90: 0.80,
+    def: "Dayot Upamecano / Kim Min-jae", defGa90: 0.12,
+    gk: "Manuel Neuer", gkGa90: 0.03,
+    kadro: ["Harry Kane", "Jamal Musiala", "Michael Olise", "Serge Gnabry", "Leroy Sané", "Joshua Kimmich", "Aleksandar Pavlović", "Kim Min-jae", "Dayot Upamecano", "Alphonso Davies", "Manuel Neuer"]
+  },
+  inter: {
+    isim: "Inter Milan",
+    aliases: ["inter", "inter milan", "internazionale"],
+    ulke: "İtalya", lig: "Serie A",
+    dizilis: "3-5-2", atilanGol: 88, golBasina: 2.32, yenilenGol: 26, yenilenBasina: 0.68,
+    att: "Lautaro Martínez", attGa90: 0.90, altAtt: "Marcus Thuram / Mehdi Taremi",
+    mid: "Nicolò Barella / Hakan Çalhanoğlu", midGa90: 0.58,
+    def: "Alessandro Bastoni / Benjamin Pavard", defGa90: 0.14,
+    gk: "Yann Sommer", gkGa90: 0.03,
+    kadro: ["Lautaro Martínez", "Marcus Thuram", "Mehdi Taremi", "Nicolò Barella", "Hakan Çalhanoğlu", "Henrikh Mkhitaryan", "Federico Dimarco", "Alessandro Bastoni", "Benjamin Pavard", "Yann Sommer"]
+  },
+  juventus: {
+    isim: "Juventus",
+    aliases: ["juventus", "juve"],
+    ulke: "İtalya", lig: "Serie A",
+    dizilis: "4-2-3-1", atilanGol: 72, golBasina: 1.89, yenilenGol: 28, yenilenBasina: 0.74,
+    att: "Dušan Vlahović", attGa90: 0.78, altAtt: "Arkadiusz Milik",
+    mid: "Kenan Yıldız / Teun Koopmeiners", midGa90: 0.55,
+    def: "Bremer / Federico Gatti", defGa90: 0.12,
+    gk: "Michele Di Gregorio", gkGa90: 0.03,
+    kadro: ["Dušan Vlahović", "Kenan Yıldız", "Nicolás González", "Teun Koopmeiners", "Douglas Luiz", "Manuel Locatelli", "Andrea Cambiaso", "Bremer", "Federico Gatti", "Michele Di Gregorio"]
+  },
+  milan: {
+    isim: "AC Milan",
+    aliases: ["acmilan", "milan"],
+    ulke: "İtalya", lig: "Serie A",
+    dizilis: "4-2-3-1", atilanGol: 76, golBasina: 2.00, yenilenGol: 38, yenilenBasina: 1.00,
+    att: "Álvaro Morata", attGa90: 0.74, altAtt: "Tammy Abraham / Luka Jović",
+    mid: "Rafael Leão / Christian Pulisic", midGa90: 0.72,
+    def: "Theo Hernández / Fikayo Tomori", defGa90: 0.16,
+    gk: "Mike Maignan", gkGa90: 0.03,
+    kadro: ["Álvaro Morata", "Rafael Leão", "Christian Pulisic", "Tammy Abraham", "Tijjani Reijnders", "Youssouf Fofana", "Theo Hernández", "Fikayo Tomori", "Mike Maignan"]
+  },
+  psg: {
+    isim: "Paris Saint-Germain",
+    aliases: ["psg", "paris", "parissaintgermain"],
+    ulke: "Fransa", lig: "Ligue 1",
+    dizilis: "4-3-3", atilanGol: 88, golBasina: 2.58, yenilenGol: 32, yenilenBasina: 0.94,
+    att: "Bradley Barcola", attGa90: 0.82, altAtt: "Gonçalo Ramos / Randal Kolo Muani",
+    mid: "Ousmane Dembélé / Vitinha", midGa90: 0.65,
+    def: "Marquinhos / Willian Pacho", defGa90: 0.12,
+    gk: "Gianluigi Donnarumma", gkGa90: 0.03,
+    kadro: ["Bradley Barcola", "Ousmane Dembélé", "Gonçalo Ramos", "Randal Kolo Muani", "Vitinha", "João Neves", "Warren Zaïre-Emery", "Marquinhos", "Willian Pacho", "Gianluigi Donnarumma"]
+  },
+  chelsea: {
+    isim: "Chelsea",
+    aliases: ["chelsea"],
+    ulke: "İngiltere", lig: "Premier League",
+    dizilis: "4-2-3-1", atilanGol: 80, golBasina: 2.10, yenilenGol: 42, yenilenBasina: 1.10,
+    att: "Nicolas Jackson", attGa90: 0.78, altAtt: "Christopher Nkunku",
+    mid: "Cole Palmer / Enzo Fernández", midGa90: 0.75,
+    def: "Levi Colwill / Marc Cucurella", defGa90: 0.12,
+    gk: "Robert Sánchez", gkGa90: 0.03,
+    kadro: ["Nicolas Jackson", "Christopher Nkunku", "Cole Palmer", "Noni Madueke", "Jadon Sancho", "Enzo Fernández", "Moisés Caicedo", "Levi Colwill", "Robert Sánchez"]
+  },
+  sporting: {
+    isim: "Sporting CP",
+    aliases: ["sporting", "sportingcp", "sportinglisbon"],
+    ulke: "Portekiz", lig: "Primeira Liga",
+    dizilis: "3-4-2-1", atilanGol: 92, golBasina: 2.70, yenilenGol: 24, yenilenBasina: 0.70,
+    att: "Viktor Gyökeres", attGa90: 1.12, altAtt: "Conrad Harder",
+    mid: "Pedro Gonçalves / Francisco Trincão", midGa90: 0.68,
+    def: "Gonçalo Inácio / Ousmane Diomande", defGa90: 0.12,
+    gk: "Franco Israel", gkGa90: 0.03,
+    kadro: ["Viktor Gyökeres", "Pedro Gonçalves", "Francisco Trincão", "Morten Hjulmand", "Hidemasa Morita", "Gonçalo Inácio", "Ousmane Diomande", "Franco Israel"]
+  },
+  benfica: {
+    isim: "Benfica",
+    aliases: ["benfica", "slb"],
+    ulke: "Portekiz", lig: "Primeira Liga",
+    dizilis: "4-3-3", atilanGol: 84, golBasina: 2.47, yenilenGol: 28, yenilenBasina: 0.82,
+    att: "Vangelis Pavlidis", attGa90: 0.82, altAtt: "Arthur Cabral",
+    mid: "Kerem Aktürkoğlu / Orkun Kökçü", midGa90: 0.80,
+    def: "Nicolás Otamendi / António Silva", defGa90: 0.14,
+    gk: "Anatoliy Trubin", gkGa90: 0.03,
+    kadro: ["Vangelis Pavlidis", "Kerem Aktürkoğlu", "Orkun Kökçü", "Ángel Di María", "Florentino Luís", "Nicolás Otamendi", "António Silva", "Anatoliy Trubin"]
+  },
+  leverkusen: {
+    isim: "Bayer Leverkusen",
+    aliases: ["leverkusen", "bayerleverkusen"],
+    ulke: "Almanya", lig: "Bundesliga",
+    dizilis: "3-4-2-1", atilanGol: 88, golBasina: 2.58, yenilenGol: 34, yenilenBasina: 1.00,
+    att: "Victor Boniface", attGa90: 0.86, altAtt: "Patrik Schick",
+    mid: "Florian Wirtz / Granit Xhaka", midGa90: 0.82,
+    def: "Jonathan Tah / Jeremie Frimpong", defGa90: 0.20,
+    gk: "Lukáš Hrádecký", gkGa90: 0.03,
+    kadro: ["Victor Boniface", "Patrik Schick", "Florian Wirtz", "Granit Xhaka", "Jeremie Frimpong", "Alejandro Grimaldo", "Robert Andrich", "Jonathan Tah", "Lukáš Hrádecký"]
+  },
+  dortmund: {
+    isim: "Borussia Dortmund",
+    aliases: ["dortmund", "borussiadortmund", "bvb"],
+    ulke: "Almanya", lig: "Bundesliga",
+    dizilis: "4-2-3-1", atilanGol: 80, golBasina: 2.35, yenilenGol: 40, yenilenBasina: 1.17,
+    att: "Serhou Guirassy", attGa90: 0.88, altAtt: "Maximilian Beier",
+    mid: "Julian Brandt / Marcel Sabitzer", midGa90: 0.64,
+    def: "Nico Schlotterbeck / Waldemar Anton", defGa90: 0.12,
+    gk: "Gregor Kobel", gkGa90: 0.03,
+    kadro: ["Serhou Guirassy", "Karim Adeyemi", "Julian Brandt", "Marcel Sabitzer", "Donyell Malen", "Pascal Groß", "Nico Schlotterbeck", "Waldemar Anton", "Gregor Kobel"]
+  },
+  atletico: {
+    isim: "Atlético Madrid",
+    aliases: ["atletico", "atleticomadrid"],
+    ulke: "İspanya", lig: "La Liga",
+    dizilis: "3-5-2", atilanGol: 78, golBasina: 2.05, yenilenGol: 30, yenilenBasina: 0.79,
+    att: "Julián Álvarez", attGa90: 0.85, altAtt: "Alexander Sørloth",
+    mid: "Antoine Griezmann / Rodrigo De Paul", midGa90: 0.70,
+    def: "Robin Le Normand / José María Giménez", defGa90: 0.12,
+    gk: "Jan Oblak", gkGa90: 0.03,
+    kadro: ["Julián Álvarez", "Alexander Sørloth", "Antoine Griezmann", "Conor Gallagher", "Rodrigo De Paul", "Koke", "Robin Le Normand", "José María Giménez", "Jan Oblak"]
+  },
+  tottenham: {
+    isim: "Tottenham Hotspur",
+    aliases: ["tottenham", "spurs"],
+    ulke: "İngiltere", lig: "Premier League",
+    dizilis: "4-3-3", atilanGol: 78, golBasina: 2.05, yenilenGol: 45, yenilenBasina: 1.18,
+    att: "Dominic Solanke", attGa90: 0.76, altAtt: "Richarlison",
+    mid: "Son Heung-min / James Maddison", midGa90: 0.74,
+    def: "Cristian Romero / Micky van de Ven", defGa90: 0.14,
+    gk: "Guglielmo Vicario", gkGa90: 0.03,
+    kadro: ["Dominic Solanke", "Son Heung-min", "James Maddison", "Dejan Kulusevski", "Brennan Johnson", "Pape Matar Sarr", "Cristian Romero", "Micky van de Ven", "Guglielmo Vicario"]
+  },
+  astonvilla: {
+    isim: "Aston Villa",
+    aliases: ["astonvilla", "villa"],
+    ulke: "İngiltere", lig: "Premier League",
+    dizilis: "4-2-3-1", atilanGol: 76, golBasina: 2.00, yenilenGol: 44, yenilenBasina: 1.15,
+    att: "Ollie Watkins", attGa90: 0.82, altAtt: "Jhon Durán",
+    mid: "Morgan Rogers / Youri Tielemans", midGa90: 0.60,
+    def: "Ezri Konsa / Pau Torres", defGa90: 0.12,
+    gk: "Emiliano Martínez", gkGa90: 0.03,
+    kadro: ["Ollie Watkins", "Jhon Durán", "Morgan Rogers", "Leon Bailey", "Youri Tielemans", "John McGinn", "Ezri Konsa", "Pau Torres", "Lucas Digne", "Emiliano Martínez"]
+  },
+  napoli: {
+    isim: "Napoli",
+    aliases: ["napoli"],
+    ulke: "İtalya", lig: "Serie A",
+    dizilis: "4-3-3", atilanGol: 74, golBasina: 1.95, yenilenGol: 28, yenilenBasina: 0.74,
+    att: "Romelu Lukaku", attGa90: 0.82, altAtt: "Giacomo Raspadori",
+    mid: "Khvicha Kvaratskhelia / Scott McTominay", midGa90: 0.68,
+    def: "Alessandro Buongiorno / Giovanni Di Lorenzo", defGa90: 0.14,
+    gk: "Alex Meret", gkGa90: 0.03,
+    kadro: ["Romelu Lukaku", "Khvicha Kvaratskhelia", "Matteo Politano", "Scott McTominay", "Stanislav Lobotka", "Frank Anguissa", "Alessandro Buongiorno", "Giovanni Di Lorenzo", "Alex Meret"]
+  },
+  roma: {
+    isim: "AS Roma",
+    aliases: ["roma", "asroma"],
+    ulke: "İtalya", lig: "Serie A",
+    dizilis: "3-4-2-1", atilanGol: 68, golBasina: 1.78, yenilenGol: 38, yenilenBasina: 1.00,
+    att: "Artem Dovbyk", attGa90: 0.74, altAtt: "Eldor Shomurodov",
+    mid: "Paulo Dybala / Lorenzo Pellegrini", midGa90: 0.64,
+    def: "Gianluca Mancini / Evan Ndicka", defGa90: 0.12,
+    gk: "Mile Svilar", gkGa90: 0.03,
+    kadro: ["Artem Dovbyk", "Paulo Dybala", "Lorenzo Pellegrini", "Matías Soulé", "Manu Koné", "Bryan Cristante", "Gianluca Mancini", "Evan Ndicka", "Angeliño", "Mile Svilar"]
+  },
+  porto: {
+    isim: "FC Porto",
+    aliases: ["porto", "fcporto"],
+    ulke: "Portekiz", lig: "Primeira Liga",
+    dizilis: "4-2-3-1", atilanGol: 82, golBasina: 2.41, yenilenGol: 26, yenilenBasina: 0.76,
+    att: "Samu Omorodion", attGa90: 0.85, altAtt: "Danny Namaso",
+    mid: "Galeno / Nico González", midGa90: 0.62,
+    def: "Nehuén Pérez / Zé Pedro", defGa90: 0.12,
+    gk: "Diogo Costa", gkGa90: 0.03,
+    kadro: ["Samu Omorodion", "Galeno", "Pepê", "Nico González", "Alan Varela", "Nehuén Pérez", "João Mário", "Diogo Costa"]
+  },
+  ajax: {
+    isim: "Ajax",
+    aliases: ["ajax"],
+    ulke: "Hollanda", lig: "Eredivisie",
+    dizilis: "4-3-3", atilanGol: 76, golBasina: 2.23, yenilenGol: 38, yenilenBasina: 1.11,
+    att: "Wout Weghorst / Brian Brobbey", attGa90: 0.72, altAtt: "Chuba Akpom",
+    mid: "Kenneth Taylor / Jordan Henderson", midGa90: 0.48,
+    def: "Josip Šutalo / Jorrel Hato", defGa90: 0.14,
+    gk: "Remko Pasveer", gkGa90: 0.03,
+    kadro: ["Wout Weghorst", "Brian Brobbey", "Chuba Akpom", "Bertrand Traoré", "Kenneth Taylor", "Jordan Henderson", "Kian Fitz-Jim", "Josip Šutalo", "Jorrel Hato", "Remko Pasveer"]
+  },
+  newcastle: {
+    isim: "Newcastle United",
+    aliases: ["newcastle", "newcastleunited"],
+    ulke: "İngiltere", lig: "Premier League",
+    dizilis: "4-3-3", atilanGol: 74, golBasina: 1.95, yenilenGol: 46, yenilenBasina: 1.21,
+    att: "Alexander Isak", attGa90: 0.84, altAtt: "Callum Wilson",
+    mid: "Anthony Gordon / Bruno Guimarães", midGa90: 0.62,
+    def: "Fabian Schär / Dan Burn", defGa90: 0.12,
+    gk: "Nick Pope", gkGa90: 0.03,
+    kadro: ["Alexander Isak", "Anthony Gordon", "Harvey Barnes", "Bruno Guimarães", "Joelinton", "Sandro Tonali", "Fabian Schär", "Dan Burn", "Tino Livramento", "Nick Pope"]
+  },
+  manutd: {
+    isim: "Manchester United",
+    aliases: ["manchesterunited", "manutd", "united"],
+    ulke: "İngiltere", lig: "Premier League",
+    dizilis: "4-2-3-1", atilanGol: 66, golBasina: 1.74, yenilenGol: 48, yenilenBasina: 1.26,
+    att: "Rasmus Højlund / Joshua Zirkzee", attGa90: 0.68, altAtt: "Marcus Rashford",
+    mid: "Bruno Fernandes / Alejandro Garnacho", midGa90: 0.64,
+    def: "Matthijs de Ligt / Lisandro Martínez", defGa90: 0.12,
+    gk: "André Onana", gkGa90: 0.03,
+    kadro: ["Rasmus Højlund", "Joshua Zirkzee", "Marcus Rashford", "Alejandro Garnacho", "Bruno Fernandes", "Kobbie Mainoo", "Manuel Ugarte", "Matthijs de Ligt", "Lisandro Martínez", "André Onana"]
+  }
+};
+
+function findTeamData(targetName) {
+  if (!targetName) return null;
+  const norm = sade(targetName.toLowerCase().replace(/[^a-z0-9]/g, ""));
+  for (const [key, data] of Object.entries(TEAMS_DATABASE)) {
+    const keyNorm = sade(key.toLowerCase().replace(/[^a-z0-9]/g, ""));
+    const nameNorm = sade((data.isim || "").toLowerCase().replace(/[^a-z0-9]/g, ""));
+    if (norm === keyNorm || norm === nameNorm || norm.includes(keyNorm) || keyNorm.includes(norm) || norm.includes(nameNorm) || nameNorm.includes(norm)) {
+      return data;
+    }
+    if (data.aliases) {
+      for (const al of data.aliases) {
+        const alNorm = sade(al.toLowerCase().replace(/[^a-z0-9]/g, ""));
+        if (norm === alNorm || norm.includes(alNorm) || alNorm.includes(norm)) {
+          return data;
+        }
+      }
+    }
+  }
+  return null;
+}
+
+// Hedef Takımın Gerçek Mevcut Oyuncusu (Incumbent), Aktif Kadrosu ve Taktik Bilgisi
+function getTargetTeamProfile(targetName, posGrp = "ATT", playerName = "") {
+  const teamData = findTeamData(targetName);
+  
   let incumbentName = "Mevcut As Forvet";
   let incumbentGa90 = 0.55;
   let atilanGol = 70;
@@ -187,49 +689,52 @@ function getTargetTeamProfile(targetName) {
   let yenilenGol = 36;
   let yenilenBasina = 1.0;
   let dizilis = "4-2-3-1";
+  let kadro = [];
+  let isim = targetName;
 
-  if (norm.includes("galatasaray")) {
-    incumbentName = "Victor Osimhen";
-    incumbentGa90 = 0.96; // Galatasaray'ın aktif ana forveti (Victor Osimhen)
-    atilanGol = 94;
-    golBasina = 2.47;
-    yenilenGol = 28;
-    yenilenBasina = 0.74;
-  } else if (norm.includes("fenerbah")) {
-    incumbentName = "Youssef En-Nesyri / Edin Džeko";
-    incumbentGa90 = 0.72;
-    atilanGol = 86;
-    golBasina = 2.26;
-    yenilenGol = 31;
-    yenilenBasina = 0.81;
-  } else if (norm.includes("besiktas") || norm.includes("beşiktaş")) {
-    incumbentName = "Ciro Immobile";
-    incumbentGa90 = 0.72;
-    atilanGol = 72;
-    golBasina = 1.89;
-    yenilenGol = 38;
-    yenilenBasina = 1.0;
-  } else if (norm.includes("trabzon")) {
-    incumbentName = "Simon Banza";
-    incumbentGa90 = 0.60;
-    atilanGol = 64;
-    golBasina = 1.68;
-    yenilenGol = 40;
-    yenilenBasina = 1.05;
-  } else if (norm.includes("real madrid")) {
-    incumbentName = "Kylian Mbappé";
-    incumbentGa90 = 1.08;
-    atilanGol = 98;
-    golBasina = 2.58;
-    dizilis = "4-3-3";
-  } else if (norm.includes("city")) {
-    incumbentName = "Erling Haaland";
-    incumbentGa90 = 1.15;
-    atilanGol = 102;
-    golBasina = 2.68;
+  if (teamData) {
+    isim = teamData.isim;
+    atilanGol = teamData.atilanGol;
+    golBasina = teamData.golBasina;
+    yenilenGol = teamData.yenilenGol;
+    yenilenBasina = teamData.yenilenBasina;
+    dizilis = teamData.dizilis;
+    kadro = teamData.kadro || [];
+
+    const pNorm = sade((playerName || "").toLowerCase());
+    
+    if (posGrp === "DEF") {
+      incumbentName = teamData.def || "As Stoper";
+      incumbentGa90 = teamData.defGa90 || 0.12;
+    } else if (posGrp === "GK") {
+      incumbentName = teamData.gk || "As Kaleci";
+      incumbentGa90 = teamData.gkGa90 || 0.03;
+    } else if (posGrp === "MID") {
+      incumbentName = teamData.mid || "As Orta Saha";
+      incumbentGa90 = teamData.midGa90 || 0.45;
+    } else {
+      // ATT / Forvet
+      incumbentName = teamData.att;
+      incumbentGa90 = teamData.attGa90;
+      
+      // Eğer analiz edilen oyuncu zaten o takımın as forvetiyse alternatif yıldızla kıyasla
+      const firstName = sade(incumbentName.split(" ")[0].toLowerCase());
+      if (pNorm && (pNorm.includes(firstName) || firstName.includes(pNorm))) {
+        if (teamData.altAtt) {
+          incumbentName = teamData.altAtt;
+          incumbentGa90 = Math.round(teamData.attGa90 * 0.85 * 100) / 100;
+        }
+      }
+    }
+  } else {
+    // Genel / Bilinmeyen Takım fallback
+    if (posGrp === "DEF") { incumbentName = "Mevcut As Stoper"; incumbentGa90 = 0.10; }
+    else if (posGrp === "GK") { incumbentName = "Mevcut As Kaleci"; incumbentGa90 = 0.03; }
+    else if (posGrp === "MID") { incumbentName = "Mevcut As Orta Saha"; incumbentGa90 = 0.38; }
+    else { incumbentName = "Mevcut As Forvet"; incumbentGa90 = 0.55; }
   }
 
-  return { incumbentName, incumbentGa90, atilanGol, golBasina, yenilenGol, yenilenBasina, dizilis };
+  return { isim, incumbentName, incumbentGa90, atilanGol, golBasina, yenilenGol, yenilenBasina, dizilis, kadro };
 }
 
 // 6 Boyutlu Dinamik Radar (Oyuncuya Özel Değerler)
@@ -297,18 +802,37 @@ async function searchTeams(takimAdi) {
   const cached = getCache(cKey);
   if (cached) return cached;
 
+  let takimlar = [];
   const sdbData = await sdbGet(`searchteams.php?t=${encodeURIComponent(clean)}`);
   if (sdbData && sdbData.teams && sdbData.teams.length > 0) {
-    const takimlar = sdbData.teams.slice(0, 6).map(t => ({
+    takimlar = sdbData.teams.slice(0, 6).map(t => ({
       id: t.idTeam,
       isim: t.strTeam,
       logo: t.strBadge || t.strLogo || "",
       ulke: trUlke(t.strCountry)
     }));
-    setCache(cKey, takimlar);
-    return takimlar;
   }
-  return [];
+
+  // Yerel güncel veritabanından tamamlayıcı takımları ekle
+  const qNorm = sade(clean.toLowerCase().replace(/[^a-z0-9]/g, ""));
+  for (const [k, d] of Object.entries(TEAMS_DATABASE)) {
+    const dNorm = sade(d.isim.toLowerCase().replace(/[^a-z0-9]/g, ""));
+    const matchAlias = d.aliases && d.aliases.some(a => sade(a.toLowerCase()).includes(qNorm));
+    if (dNorm.includes(qNorm) || matchAlias) {
+      if (!takimlar.some(x => sade(x.isim.toLowerCase()).includes(dNorm))) {
+        takimlar.unshift({
+          id: `team_${k}`,
+          isim: d.isim,
+          logo: "",
+          ulke: d.ulke || "Türkiye"
+        });
+      }
+    }
+  }
+
+  takimlar = takimlar.slice(0, 8);
+  setCache(cKey, takimlar);
+  return takimlar;
 }
 
 // Monte Carlo Simülasyonu
@@ -418,11 +942,11 @@ async function analyzePlayerAndTeam(pid, hedefAdi) {
   };
 
   // Hedef Takım Profili ve Mevcut Oyuncu
-  const teamProfile = getTargetTeamProfile(cleanHedef);
-  const tName = tRaw ? tRaw.strTeam : cleanHedef;
+  const teamProfile = getTargetTeamProfile(cleanHedef, posGrp, pName);
+  const tName = tRaw ? tRaw.strTeam : (teamProfile.isim || cleanHedef);
   const tLogo = tRaw ? (tRaw.strBadge || tRaw.strLogo || "") : "";
-  const tCountry = tRaw ? trUlke(tRaw.strCountry) : "Türkiye";
-  const tLeague = tRaw ? (tRaw.strLeague || "Süper Lig") : "Süper Lig";
+  const tCountry = tRaw ? trUlke(tRaw.strCountry) : (teamProfile.ulke || "Türkiye");
+  const tLeague = tRaw ? (tRaw.strLeague || "Süper Lig") : (teamProfile.lig || "Süper Lig");
 
   const hedef = {
     takim: tName,
@@ -434,11 +958,12 @@ async function analyzePlayerAndTeam(pid, hedefAdi) {
     gol_basina_mac: teamProfile.golBasina,
     yenilen_gol: teamProfile.yenilenGol,
     yenilen_gol_basina_mac: teamProfile.yenilenBasina,
-    dizilis: teamProfile.dizilis
+    dizilis: teamProfile.dizilis,
+    kadro: teamProfile.kadro || []
   };
 
-  // Rol Uyumu (Hedef takımın mevcut forvetine göre kıyaslama)
-  const rol = Math.min(oyuncu.ga90 / Math.max(teamProfile.incumbentGa90, 0.1), 1.3) / 1.3;
+  // Rol Uyumu (Hedef takımın mevcut mevkidaşına göre kıyaslama)
+  const rol = Math.min(oyuncu.ga90 / Math.max(teamProfile.incumbentGa90, 0.05), 1.3) / 1.3;
 
   // Monte Carlo Modelini Çalıştır
   const toplamMac = 76;
@@ -450,7 +975,10 @@ async function analyzePlayerAndTeam(pid, hedefAdi) {
   result.incumbent = { isim: teamProfile.incumbentName, ga90: teamProfile.incumbentGa90 };
   
   // Takıma kattığı net değer
-  const netKatki = result.sim.ga_med - Math.round(teamProfile.incumbentGa90 * 34);
+  const benchmarkVal = (posGrp === "DEF" || posGrp === "GK")
+    ? 22
+    : Math.round(teamProfile.incumbentGa90 * 34);
+  const netKatki = result.sim.ga_med - benchmarkVal;
   result.katki = netKatki;
   result.birim = (posGrp === "DEF" || posGrp === "GK")
     ? { ad: "Savunma Puanı", esik1: 15, esik2: 25 }

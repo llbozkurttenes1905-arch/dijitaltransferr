@@ -268,6 +268,18 @@ function Dashboard({ data }) {
               <span className="pill">{h.yenilen_gol} yenilen · {h.yenilen_gol_basina_mac}/maç</span>
             )}
           </div>
+          {h.kadro && h.kadro.length > 0 && (
+            <div style={{ marginTop: '12px', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '10px' }}>
+              <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                ⭐ Güncel Kadro & Kilit İsimler:
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                {h.kadro.map((k, i) => (
+                  <span key={i} className="pill" style={{ fontSize: '0.70rem', padding: '2px 8px', background: 'rgba(30, 41, 59, 0.7)' }}>{k}</span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
