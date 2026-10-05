@@ -189,15 +189,15 @@ function getTargetTeamProfile(targetName) {
   let dizilis = "4-2-3-1";
 
   if (norm.includes("galatasaray")) {
-    incumbentName = "Mauro Icardi";
-    incumbentGa90 = 0.84; // Galatasaray'ın hücum verimi yüksek
-    atilanGol = 92;
-    golBasina = 2.42;
+    incumbentName = "Victor Osimhen";
+    incumbentGa90 = 0.96; // Galatasaray'ın aktif ana forveti (Victor Osimhen)
+    atilanGol = 94;
+    golBasina = 2.47;
     yenilenGol = 28;
     yenilenBasina = 0.74;
   } else if (norm.includes("fenerbah")) {
-    incumbentName = "Edin Džeko";
-    incumbentGa90 = 0.68;
+    incumbentName = "Youssef En-Nesyri / Edin Džeko";
+    incumbentGa90 = 0.72;
     atilanGol = 86;
     golBasina = 2.26;
     yenilenGol = 31;
