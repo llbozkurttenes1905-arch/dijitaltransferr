@@ -9,6 +9,11 @@ const BASE = "https://v3.football.api-sports.io";
 // Öne çıkan ligler: liste başında bu sırayla gösterilir, geri kalan TÜM ligler altında ülkeye göre sıralı gelir
 const ONE_CIKAN = [203, 39, 140, 135, 78, 61, 2, 848, 88, 94, 3];
 
+// Önbellek: Geçmiş günleri ve bitmiş maçları tekrar tekrar çekmeyi önler
+const scoresCache = new Map();
+const CACHE_TTL_LIVE = 1000 * 20; // Canlı maçlar için 20 saniye
+const CACHE_TTL_PAST = 1000 * 60 * 60 * 24; // Geçmiş maçlar için 24 saat
+
 async function apiGet(path, params) {
   const qs = new URLSearchParams(params).toString();
   try {
@@ -16,7 +21,9 @@ async function apiGet(path, params) {
     if (!r.ok) return [];
     const j = await r.json();
     return j.response ?? [];
-  } catch (e) { return []; }
+  } catch (e) {
+    return [];
+  }
 }
 
 function sadeMac(f) {
@@ -36,10 +43,24 @@ function sadeMac(f) {
 const CANLI = new Set(["1H", "HT", "2H", "ET", "BT", "P", "SUSP", "INT", "LIVE"]);
 
 async function listeGetir(res, date) {
+  const bugunStr = new Date().toISOString().slice(0, 10);
+  const cacheKey = `list:${date}`;
+  const cached = scoresCache.get(cacheKey);
+
+  // Eğer geçmiş bir günse ve önbellekte varsa doğrudan dön (kotayı korur)
+  if (cached && date !== bugunStr && Date.now() - cached.time < CACHE_TTL_PAST) {
+    return res.status(200).json(cached.data);
+  }
+  // Bugün ise ve 15 saniyeden tazeyse önbellekten dön
+  if (cached && date === bugunStr && Date.now() - cached.time < CACHE_TTL_LIVE) {
+    return res.status(200).json(cached.data);
+  }
+
   const [gunMaclari, canliMaclar] = await Promise.all([
     apiGet("fixtures", { date, timezone: "Europe/Istanbul" }),
-    apiGet("fixtures", { live: "all" }),
+    date === bugunStr ? apiGet("fixtures", { live: "all" }) : Promise.resolve([]),
   ]);
+
   const map = new Map();
   for (const f of gunMaclari) map.set(f.fixture.id, f);
   for (const f of canliMaclar) map.set(f.fixture.id, f); // canlı veri daha güncel, üzerine yazar
@@ -57,7 +78,16 @@ async function listeGetir(res, date) {
     .filter(g => !ONE_CIKAN.includes(g.id))
     .sort((a, b) => (a.ulke || "").localeCompare(b.ulke || "") || a.ad.localeCompare(b.ad));
   const gruplar = [...oneCikanlar, ...digerleri];
-  res.status(200).json({ ok: true, tarih: date, gruplar, canliSayisi: maclar.filter(m => CANLI.has(m.durum)).length });
+
+  const payload = {
+    ok: true,
+    tarih: date,
+    gruplar,
+    canliSayisi: maclar.filter(m => CANLI.has(m.durum)).length
+  };
+
+  scoresCache.set(cacheKey, { time: Date.now(), data: payload });
+  res.status(200).json(payload);
 }
 
 const STAT_TR = {
@@ -70,12 +100,19 @@ const STAT_TR = {
 };
 
 async function detayGetir(res, fixtureId) {
+  const cacheKey = `detail:${fixtureId}`;
+  const cached = scoresCache.get(cacheKey);
+  if (cached && Date.now() - cached.time < CACHE_TTL_PAST) {
+    return res.status(200).json(cached.data);
+  }
+
   const [stats, lineups, events] = await Promise.all([
     apiGet("fixtures/statistics", { fixture: fixtureId }),
     apiGet("fixtures/lineups", { fixture: fixtureId }),
     apiGet("fixtures/events", { fixture: fixtureId }),
   ]);
 
+  // İstatistikleri tip adına göre güvenli bir şekilde eşle (mismatched sıralamayı önler)
   const istatistik = stats.map(t => ({
     takim: t.team.name, takimLogo: t.team.logo,
     kalemler: (t.statistics || []).map(s => ({ tip: STAT_TR[s.type] || s.type, deger: s.value })),
@@ -94,7 +131,9 @@ async function detayGetir(res, fixtureId) {
     oyuncu: e.player ? e.player.name : null, yardimci: e.assist ? e.assist.name : null,
   })).sort((a, b) => (a.dakika + (a.ekDakika || 0) / 100) - (b.dakika + (b.ekDakika || 0) / 100));
 
-  res.status(200).json({ ok: true, istatistik, kadrolar, olaylar });
+  const payload = { ok: true, istatistik, kadrolar, olaylar };
+  scoresCache.set(cacheKey, { time: Date.now(), data: payload });
+  res.status(200).json(payload);
 }
 
 export default async function handler(req, res) {

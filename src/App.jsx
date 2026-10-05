@@ -324,14 +324,14 @@ function useOneri(deger, param, alanAdi) {
   const sayac = useRef(0)
   useEffect(() => {
     const q = deger.trim()
-    if (q.length < 2) { setListe([]); return }
+    if (q.length < 3) { setListe([]); return }
     const kendi = ++sayac.current
     const zamanlayici = setTimeout(() => {
       fetch('/api/analyze?' + param + '=' + encodeURIComponent(q))
         .then(r => r.json())
         .then(d => { if (sayac.current === kendi) setListe(d.ok ? (d[alanAdi] || []) : []) })
         .catch(() => { if (sayac.current === kendi) setListe([]) })
-    }, 280)
+    }, 350)
     return () => clearTimeout(zamanlayici)
   }, [deger, param, alanAdi])
   return liste

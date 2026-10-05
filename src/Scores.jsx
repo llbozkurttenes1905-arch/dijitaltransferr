@@ -140,11 +140,16 @@ function MacDetay({ mac, onClose }) {
 
             {sekme === 'istatistik' && (
               !ev || !dep ? <div className="modal-yukleniyor">İstatistik verisi henüz yayınlanmadı.</div> :
-              <div className="stat-liste">
-                {ev.kalemler.map((s, i) => (
-                  <StatBar key={i} ad={s.tip} evVal={s.deger} depVal={dep.kalemler[i]?.deger} />
-                ))}
-              </div>
+              (() => {
+                const depMap = new Map((dep.kalemler || []).map(k => [k.tip, k.deger]));
+                return (
+                  <div className="stat-liste">
+                    {ev.kalemler.map((s, i) => (
+                      <StatBar key={i} ad={s.tip} evVal={s.deger} depVal={depMap.get(s.tip)} />
+                    ))}
+                  </div>
+                );
+              })()
             )}
 
             {sekme === 'kadro' && (
@@ -177,7 +182,10 @@ export default function Scores({ t }) {
     setYukleniyor(true); setVeri(null)
     getir()
     clearInterval(zamanlayici.current)
-    zamanlayici.current = setInterval(getir, 20000)
+    // Sadece bugün seçiliyse periyodik yenileme yap (geçmiş günlerde kota harcamaz)
+    if (tarih === bugun()) {
+      zamanlayici.current = setInterval(getir, 25000)
+    }
     return () => clearInterval(zamanlayici.current)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tarih])
