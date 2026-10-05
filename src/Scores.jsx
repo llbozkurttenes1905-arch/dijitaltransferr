@@ -211,8 +211,12 @@ export default function Scores({ t }) {
         veri.gruplar.map(g => (
           <div className="lig-grubu" key={g.id}>
             <div className="lig-baslik">
-              {g.bayrak && <img className="lig-bayrak" src={g.bayrak} alt="" />}
-              <img src={g.logo} alt="" />
+              {g.bayrak && <img className="lig-bayrak" src={g.bayrak} alt="" onError={e => e.currentTarget.style.display = 'none'} />}
+              {g.logo ? (
+                <img src={g.logo} alt="" onError={e => { e.currentTarget.style.display = 'none'; }} />
+              ) : (
+                <span className="lig-ikon">🏆</span>
+              )}
               <span>{g.ad}</span>
               {g.ulke && <span className="lig-ulke">{g.ulke}</span>}
             </div>

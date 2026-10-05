@@ -1,16 +1,17 @@
 // Vercel Serverless Function (Node.js) — Canlı Skorlar / Maç İstatistikleri.
 // Canlı Veri Kaynağı: Mackolik Canlı Veri Servisi (vd.mackolik.com)
-// GET /api/scores?date=YYYY-MM-DD   → o güne ait tüm canlı maçlar ve ligler
+// Tarih desteği: Geçmiş, bugün ve ileri tarihler (date=DD/MM/YYYY)
+// GET /api/scores?date=YYYY-MM-DD   → o güne ait tüm maçlar
 // GET /api/scores?fixture=<id>      → tek maç detay: istatistik + kadro + olaylar
 
-const MACKOLIK_URL = "https://vd.mackolik.com/livedata?group=0";
 const CANLI = new Set(["1H", "HT", "2H", "ET", "BT", "P", "LIVE"]);
 
-// Öne çıkan ligler (bu ligler listenin en başında gösterilir)
+// Öne çıkan ligler
 const ONCELIKLI_LIGLER = [
+  "UEFA Uluslar Ligi",
+  "Uluslar Ligi",
   "Trendyol Süper Lig",
   "Süper Lig",
-  "UEFA Uluslar Ligi",
   "UEFA Şampiyonlar Ligi",
   "UEFA Avrupa Ligi",
   "Premier League",
@@ -21,18 +22,73 @@ const ONCELIKLI_LIGLER = [
   "TFF 1. Lig"
 ];
 
-// Basit önbellek (10 saniye boyunca aynı veriyi dönerek sunucuyu korur)
-let cacheData = null;
-let lastFetch = 0;
+// Bilinen lig logoları
+function getLeagueBadge(leagueName) {
+  const norm = (leagueName || "").toLowerCase();
+  if (norm.includes("uluslar ligi") || norm.includes("nations league")) {
+    return "https://r2.thesportsdb.com/images/media/league/badge/k99p651583344602.png";
+  }
+  if (norm.includes("süper lig") || norm.includes("super lig")) {
+    return "https://r2.thesportsdb.com/images/media/league/badge/9a37o61690987627.png";
+  }
+  if (norm.includes("premier league")) {
+    return "https://r2.thesportsdb.com/images/media/league/badge/g9e11p1718712391.png";
+  }
+  if (norm.includes("şampiyonlar ligi") || norm.includes("champions league")) {
+    return "https://r2.thesportsdb.com/images/media/league/badge/3v5y3a1718712353.png";
+  }
+  if (norm.includes("avrupa ligi") || norm.includes("europa league")) {
+    return "https://r2.thesportsdb.com/images/media/league/badge/34o20y1718712371.png";
+  }
+  if (norm.includes("la liga") || norm.includes("laliga")) {
+    return "https://r2.thesportsdb.com/images/media/league/badge/7fvg3x1686737951.png";
+  }
+  if (norm.includes("serie a")) {
+    return "https://r2.thesportsdb.com/images/media/league/badge/71fvy21630138988.png";
+  }
+  if (norm.includes("bundesliga")) {
+    return "https://r2.thesportsdb.com/images/media/league/badge/0j2g141718712431.png";
+  }
+  if (norm.includes("ligue 1")) {
+    return "https://r2.thesportsdb.com/images/media/league/badge/kfdnfl1718712411.png";
+  }
+  if (norm.includes("1. lig")) {
+    return "https://r2.thesportsdb.com/images/media/league/badge/9a37o61690987627.png";
+  }
+  return "";
+}
 
-async function mackolikVerisiCek() {
+// YYYY-MM-DD -> DD/MM/YYYY dönüşümü
+function toMackolikDate(dateStr) {
+  if (!dateStr) return null;
+  const parts = dateStr.split("-");
+  if (parts.length === 3) {
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  }
+  return dateStr;
+}
+
+// Önbellek
+const dateCache = new Map();
+
+async function mackolikVerisiCek(dateStr) {
+  const mkDate = toMackolikDate(dateStr);
+  const cacheKey = mkDate || "today";
   const now = Date.now();
-  if (cacheData && (now - lastFetch < 10000)) {
-    return cacheData;
+  const cached = dateCache.get(cacheKey);
+
+  // Önbellekte varsa ve tazeyse (canlı maçlar için 12sn, geçmiş/gelecek için 10dk)
+  const ttl = (dateStr === new Date().toISOString().slice(0, 10)) ? 12000 : 600000;
+  if (cached && (now - cached.time < ttl)) {
+    return cached.data;
   }
 
+  const url = mkDate
+    ? `https://vd.mackolik.com/livedata?date=${encodeURIComponent(mkDate)}`
+    : "https://vd.mackolik.com/livedata?group=0";
+
   try {
-    const r = await fetch(MACKOLIK_URL, {
+    const r = await fetch(url, {
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
         "Accept": "application/json, text/plain, */*"
@@ -41,8 +97,7 @@ async function mackolikVerisiCek() {
 
     if (!r.ok) return null;
     const j = await r.json();
-    cacheData = j;
-    lastFetch = now;
+    dateCache.set(cacheKey, { time: now, data: j });
     return j;
   } catch (e) {
     return null;
@@ -50,7 +105,8 @@ async function mackolikVerisiCek() {
 }
 
 async function listeGetir(res, date) {
-  const data = await mackolikVerisiCek();
+  const targetDate = date || new Date().toISOString().slice(0, 10);
+  const data = await mackolikVerisiCek(targetDate);
   const rawMatches = (data && data.m) ? data.m : [];
 
   if (rawMatches.length > 0) {
@@ -125,7 +181,7 @@ async function listeGetir(res, date) {
         lig: {
           id: leagueId,
           ad: leagueName,
-          logo: "",
+          logo: getLeagueBadge(leagueName),
           bayrak: "",
           ulke: countryCode,
           tur: leagueRound
@@ -149,7 +205,7 @@ async function listeGetir(res, date) {
         ligler[leagueId] = {
           id: leagueId,
           ad: leagueName,
-          logo: "",
+          logo: getLeagueBadge(leagueName),
           bayrak: "",
           ulke: countryCode,
           maclar: []
@@ -178,62 +234,19 @@ async function listeGetir(res, date) {
 
     return res.status(200).json({
       ok: true,
-      tarih: date,
+      tarih: targetDate,
       gruplar: siraliGruplar,
       canliSayisi: canliAdet
     });
   }
 
-  // Yedek durum (Mackolik servisinden veri gelmezse sitenin çökmesini önler)
+  // Eğer maç bulunamadıysa boş grup dön
   return res.status(200).json({
     ok: true,
-    tarih: date,
-    gruplar: getFallbackMatches(date),
-    canliSayisi: 2
+    tarih: targetDate,
+    gruplar: [],
+    canliSayisi: 0
   });
-}
-
-function getFallbackMatches(date) {
-  return [
-    {
-      id: 201, ad: "Trendyol Süper Lig", logo: "", bayrak: "", ulke: "Türkiye",
-      maclar: [
-        {
-          id: 991, tarih: `${date}T19:00:00+03:00`, durum: "2H", durumUzun: "2. Yarı", dakika: 67,
-          lig: { id: 203, ad: "Trendyol Süper Lig", logo: "", bayrak: "", ulke: "Türkiye", tur: "Hafta 8" },
-          evSahibi: { id: 611, ad: "Galatasaray", logo: "", kazandi: true },
-          deplasman: { id: 612, ad: "Beşiktaş", logo: "", kazandi: false },
-          skor: { ev: 2, dep: 1 }
-        },
-        {
-          id: 992, tarih: `${date}T16:00:00+03:00`, durum: "FT", durumUzun: "Maç Sonu", dakika: 90,
-          lig: { id: 203, ad: "Trendyol Süper Lig", logo: "", bayrak: "", ulke: "Türkiye", tur: "Hafta 8" },
-          evSahibi: { id: 613, ad: "Fenerbahçe", logo: "", kazandi: true },
-          deplasman: { id: 614, ad: "Trabzonspor", logo: "", kazandi: false },
-          skor: { ev: 3, dep: 0 }
-        }
-      ]
-    },
-    {
-      id: 39, ad: "Premier League", logo: "", bayrak: "", ulke: "İngiltere",
-      maclar: [
-        {
-          id: 993, tarih: `${date}T18:30:00+03:00`, durum: "2H", durumUzun: "2. Yarı", dakika: 54,
-          lig: { id: 39, ad: "Premier League", logo: "", bayrak: "", ulke: "İngiltere", tur: "Regular Season" },
-          evSahibi: { id: 33, ad: "Manchester City", logo: "", kazandi: false },
-          deplasman: { id: 40, ad: "Liverpool", logo: "", kazandi: false },
-          skor: { ev: 1, dep: 1 }
-        },
-        {
-          id: 994, tarih: `${date}T21:00:00+03:00`, durum: "NS", durumUzun: "Başlamadı", dakika: null,
-          lig: { id: 39, ad: "Premier League", logo: "", bayrak: "", ulke: "İngiltere", tur: "Regular Season" },
-          evSahibi: { id: 42, ad: "Arsenal", logo: "", kazandi: null },
-          deplasman: { id: 49, ad: "Chelsea", logo: "", kazandi: null },
-          skor: { ev: null, dep: null }
-        }
-      ]
-    }
-  ];
 }
 
 async function detayGetir(res, fixtureId) {
@@ -266,7 +279,7 @@ async function detayGetir(res, fixtureId) {
 
   const kadrolar = [
     {
-      takim: "Ev Sahibi", dizilis: "4-2-3-1", teknikDirektor: "Teknik Direktör",
+      takim: "Ev Sahibi", dizilis: "4-2-3-1", teknikDirektor: "Teknik Sorumlu",
       ilk11: [
         { no: 1, isim: "Kaleci", poz: "G" }, { no: 2, isim: "Sağ Bek", poz: "D" }, { no: 4, isim: "Stoper", poz: "D" },
         { no: 5, isim: "Stoper", poz: "D" }, { no: 3, isim: "Sol Bek", poz: "D" }, { no: 6, isim: "Ön Libero", poz: "M" },
@@ -275,7 +288,7 @@ async function detayGetir(res, fixtureId) {
       ]
     },
     {
-      takim: "Deplasman", dizilis: "4-3-3", teknikDirektor: "Teknik Direktör",
+      takim: "Deplasman", dizilis: "4-3-3", teknikDirektor: "Teknik Sorumlu",
       ilk11: [
         { no: 1, isim: "Kaleci", poz: "G" }, { no: 22, isim: "Sağ Bek", poz: "D" }, { no: 15, isim: "Stoper", poz: "D" },
         { no: 14, isim: "Stoper", poz: "D" }, { no: 18, isim: "Sol Bek", poz: "D" }, { no: 20, isim: "Ön Libero", poz: "M" },
