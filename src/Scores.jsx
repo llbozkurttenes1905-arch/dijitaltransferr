@@ -21,18 +21,35 @@ function DurumRozeti({ m }) {
   return <span className="skor-saat">{saat(m.tarih)}</span>
 }
 
-function TeamBadge({ logo, name, size = 20, className = '' }) {
-  const [error, setError] = useState(false)
-  const initials = (name || '?')
-    .replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ\s]/g, '')
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map(w => w[0])
-    .join('')
-    .toUpperCase() || '?'
+function TeamBadge({ logo, name, teamId, size = 20, className = '' }) {
+  const [imgSrc, setImgSrc] = useState(
+    logo || (teamId ? `https://im.mackolik.com/img/logo/buyuk/${teamId}.gif` : '')
+  )
+  const [failed, setFailed] = useState(false)
 
-  if (!logo || error) {
+  useEffect(() => {
+    setImgSrc(logo || (teamId ? `https://im.mackolik.com/img/logo/buyuk/${teamId}.gif` : ''))
+    setFailed(false)
+  }, [logo, teamId])
+
+  const handleError = () => {
+    if (teamId && imgSrc && imgSrc.includes('/buyuk/')) {
+      setImgSrc(`https://im.mackolik.com/img/logo/${teamId}.gif`)
+    } else {
+      setFailed(true)
+    }
+  }
+
+  if (!imgSrc || failed) {
+    const initials = (name || '?')
+      .replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ\s]/g, '')
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map(w => w[0])
+      .join('')
+      .toUpperCase() || '?'
+
     return (
       <span
         className={`takim-harf-rozet ${className}`}
@@ -53,7 +70,7 @@ function TeamBadge({ logo, name, size = 20, className = '' }) {
 
   return (
     <img
-      src={logo}
+      src={imgSrc}
       alt={name || ''}
       className={className}
       style={{
@@ -62,7 +79,7 @@ function TeamBadge({ logo, name, size = 20, className = '' }) {
         objectFit: 'contain',
         flexShrink: 0
       }}
-      onError={() => setError(true)}
+      onError={handleError}
     />
   )
 }
@@ -74,11 +91,11 @@ function MacSatiri({ m, onClick }) {
       <div className="mac-durum"><DurumRozeti m={m} /></div>
       <div className="mac-takimlar">
         <div className={'mac-t' + (m.evSahibi.kazandi ? ' kazandi' : '')}>
-          <TeamBadge logo={m.evSahibi.logo} name={m.evSahibi.ad} size={20} />
+          <TeamBadge logo={m.evSahibi.logo} name={m.evSahibi.ad} teamId={m.evSahibi.id} size={20} />
           <span>{m.evSahibi.ad}</span>
         </div>
         <div className={'mac-t' + (m.deplasman.kazandi ? ' kazandi' : '')}>
-          <TeamBadge logo={m.deplasman.logo} name={m.deplasman.ad} size={20} />
+          <TeamBadge logo={m.deplasman.logo} name={m.deplasman.ad} teamId={m.deplasman.id} size={20} />
           <span>{m.deplasman.ad}</span>
         </div>
       </div>
@@ -126,11 +143,12 @@ function Kadro11({ takim }) {
 }
 
 function OlayIkon({ tip, detay }) {
-  if (tip === 'Goal') return <>{detay === 'Own Goal' ? '⚽️🔴' : detay === 'Penalty' ? '⚽️🥅' : '⚽️'}</>
-  if (tip === 'Card') return <>{detay === 'Red Card' ? '🟥' : '🟨'}</>
-  if (tip === 'subst') return <>🔄</>
-  if (tip === 'Var') return <>📺</>
-  return <>•</>
+  if (tip === 'Goal') return <span>⚽</span>
+  if (tip === 'Card') {
+    return (detay && detay.includes('Red')) ? <span className="kart-kirmizi" title="Kırmızı Kart" /> : <span className="kart-sari" title="Sarı Kart" />
+  }
+  if (tip === 'subst') return <span>⇄</span>
+  return <span>•</span>
 }
 
 function MacDetay({ mac, onClose }) {
@@ -138,6 +156,7 @@ function MacDetay({ mac, onClose }) {
   const [yukleniyor, setYukleniyor] = useState(true)
   const [sekme, setSekme] = useState('ozet')
 
+  const canliMi = CANLI.has(mac.durum)
   const oynanmadi = mac.skor.ev == null || mac.durum === 'NS' || mac.durum === 'PST'
 
   useEffect(() => {
@@ -160,7 +179,7 @@ function MacDetay({ mac, onClose }) {
           <div className="mb-lig">{mac.lig.ad}{mac.lig.tur ? ' · ' + mac.lig.tur : ''}</div>
           <div className="mb-mac">
             <div className="mb-t">
-              <TeamBadge logo={mac.evSahibi.logo} name={mac.evSahibi.ad} size={44} />
+              <TeamBadge logo={mac.evSahibi.logo} name={mac.evSahibi.ad} teamId={mac.evSahibi.id} size={44} />
               <span>{mac.evSahibi.ad}</span>
             </div>
             <div className="mb-skor">
@@ -168,7 +187,7 @@ function MacDetay({ mac, onClose }) {
               <div className="mb-durum"><DurumRozeti m={mac} /></div>
             </div>
             <div className="mb-t">
-              <TeamBadge logo={mac.deplasman.logo} name={mac.deplasman.ad} size={44} />
+              <TeamBadge logo={mac.deplasman.logo} name={mac.deplasman.ad} teamId={mac.deplasman.id} size={44} />
               <span>{mac.deplasman.ad}</span>
             </div>
           </div>
@@ -185,17 +204,25 @@ function MacDetay({ mac, onClose }) {
             {sekme === 'ozet' && (
               oynanmadi || veri?.baslamadi ? (
                 <div className="mac-bekliyor-kutu">
-                  <div className="mbk-ikon">⏳</div>
                   <div className="mbk-baslik">Maç Henüz Başlamadı</div>
                   <div className="mbk-aciklama">Başlama Saati: <b>{saat(mac.tarih)}</b></div>
-                  <div className="mbk-ipucu">Karşılaşma başladığında goller, kartlar ve canlı maç anlatımı burada görüntülenecektir.</div>
+                  <div className="mbk-ipucu">Karşılaşma başladığında canlı anlatım ve önemli anlar anlık aktarılacaktır.</div>
+                </div>
+              ) : canliMi && (!veri || !veri.olaylar || veri.olaylar.length === 0) ? (
+                <div className="mac-canli-durum-kutu">
+                  <div className="mcd-skor">{mac.skor.ev ?? 0} : {mac.skor.dep ?? 0}</div>
+                  <div className="mcd-dakika"><span className="dot-canli" /> {mac.dakika ? `${mac.dakika}. Dakika Oynanıyor` : 'Karşılaşma Devam Ediyor'}</div>
+                  <p className="mcd-bilgi">Karşılaşmada henüz gol veya kart kaydı bulunmuyor.</p>
                 </div>
               ) : !veri || !veri.olaylar || veri.olaylar.length === 0 ? (
-                <div className="modal-yukleniyor">Henüz kayda değer bir olay yok.</div>
+                <div className="mac-bekliyor-kutu">
+                  <div className="mbk-baslik">Karşılaşma Tamamlandı</div>
+                  <div className="mbk-aciklama">Bu maç için kayıtlı gol veya kart olayı bulunmuyor.</div>
+                </div>
               ) : (
                 <ul className="olay-liste">
                   {veri.olaylar.map((o, i) => (
-                    <li key={i} className={o.takim === mac.deplasman.ad ? 'sag' : ''}>
+                    <li key={i} className={o.takimTaraf === 'dep' || o.takim === mac.deplasman.ad ? 'sag' : ''}>
                       <span className="olay-dk">{o.dakika}{o.ekDakika ? '+' + o.ekDakika : ''}'</span>
                       <span className="olay-ikon"><OlayIkon tip={o.tip} detay={o.detay} /></span>
                       <span className="olay-oyuncu">{o.oyuncu}{o.yardimci ? <small> ({o.yardimci})</small> : null}</span>
@@ -208,12 +235,18 @@ function MacDetay({ mac, onClose }) {
             {sekme === 'istatistik' && (
               oynanmadi || veri?.baslamadi ? (
                 <div className="mac-bekliyor-kutu">
-                  <div className="mbk-ikon">📊</div>
-                  <div className="mbk-baslik">İstatistikler Henüz Oluşmadı</div>
-                  <div className="mbk-aciklama">Topla oynama, şut, korner ve pas verileri maç başladıktan sonra canlı güncellenecektir.</div>
+                  <div className="mbk-baslik">Karşılaşma İstatistikleri</div>
+                  <div className="mbk-aciklama">Topla oynama, şut ve pas verileri karşılaşma başladıktan sonra canlı güncellenecektir.</div>
                 </div>
               ) : !ev || !dep ? (
-                <div className="modal-yukleniyor">İstatistik verisi henüz yayınlanmadı.</div>
+                <div className="mac-bekliyor-kutu">
+                  <div className="mbk-baslik">İstatistik Bilgisi</div>
+                  <div className="mbk-aciklama">
+                    {canliMi
+                      ? "Bu lig ve kupa turu için yayıncı tarafından detaylı topla oynama/şut istatistiği tutulmamaktadır. Canlı skor ve olayları Özet sekmesinden takip edebilirsiniz."
+                      : "Bu karşılaşma için detaylı maç istatistiği kaydı bulunmuyor."}
+                  </div>
+                </div>
               ) : (
                 (() => {
                   const depMap = new Map((dep.kalemler || []).map(k => [k.tip, k.deger]));
@@ -231,9 +264,13 @@ function MacDetay({ mac, onClose }) {
             {sekme === 'kadro' && (
               (oynanmadi || veri?.baslamadi) && (!kadroEv || !kadroDep) ? (
                 <div className="mac-bekliyor-kutu">
-                  <div className="mbk-ikon">📋</div>
                   <div className="mbk-baslik">Resmi Kadrolar Bekleniyor</div>
-                  <div className="mbk-aciklama">İlk 11'ler maç saatinden yaklaşık 45 - 60 dakika önce açıklanır.</div>
+                  <div className="mbk-aciklama">İlk 11 kadroları maç saatinden yaklaşık 45 - 60 dakika önce açıklanır.</div>
+                </div>
+              ) : (!kadroEv || !kadroDep) ? (
+                <div className="mac-bekliyor-kutu">
+                  <div className="mbk-baslik">Kadro Bilgisi</div>
+                  <div className="mbk-aciklama">Bu karşılaşma için resmi ilk 11 listesi federasyon veya kulüpler tarafından girilmemiştir.</div>
                 </div>
               ) : (
                 <div className="kadro-grid">

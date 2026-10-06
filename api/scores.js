@@ -172,7 +172,11 @@ const CLUB_LOGOS = {
   "chelsea": "https://www.thesportsdb.com/images/media/team/badge/yvwvtu1448813215.png"
 };
 
-function getTeamLogo(teamName) {
+function getTeamLogo(teamName, teamId) {
+  // 1. Mackolik teamId varsa doğrudan resmi yüksek kaliteli logo (Tüm Türk ve Dünya takımları için)
+  if (teamId) {
+    return `https://im.mackolik.com/img/logo/buyuk/${teamId}.gif`;
+  }
   if (!teamName) return "";
   const norm = (teamName || "").toLowerCase().trim();
   if (COUNTRY_FLAGS[norm]) return COUNTRY_FLAGS[norm];
@@ -316,13 +320,13 @@ async function listeGetir(res, date) {
         evSahibi: {
           id: m[1] || 1,
           ad: homeName,
-          logo: getTeamLogo(homeName),
+          logo: getTeamLogo(homeName, m[1]),
           kazandi: oynandi && evScore > depScore
         },
         deplasman: {
           id: m[3] || 2,
           ad: awayName,
-          logo: getTeamLogo(awayName),
+          logo: getTeamLogo(awayName, m[3]),
           kazandi: oynandi && depScore > evScore
         },
         skor: { ev: evScore, dep: depScore }
@@ -391,14 +395,86 @@ async function detayGetir(res, fixtureId, query = {}) {
     });
   }
 
-  // Oynanan maç için gerçek veriler
+  // Oynanan / Canlı maç için Mackolik servisinden gerçek olay ve verileri çek
+  let olaylar = [];
+  let skor = null;
+  let dakika = null;
+
+  try {
+    const dtlUrl = `https://arsiv.mackolik.com/Match/MatchData.aspx?t=dtl&id=${fixtureId}`;
+    const r = await fetch(dtlUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        "Referer": `https://arsiv.mackolik.com/Match/Default.aspx?id=${fixtureId}`,
+        "X-Requested-With": "XMLHttpRequest"
+      }
+    });
+    if (r.ok) {
+      const d = await r.json();
+      if (d && d.d) {
+        skor = d.d.s;
+        dakika = d.d.st || d.d.time;
+      }
+      if (d && Array.isArray(d.e) && d.e.length > 0) {
+        olaylar = d.e.map(ev => {
+          const teamSide = ev[0] === 1 ? "ev" : "dep";
+          const dk = ev[1];
+          const oyuncu = ev[3] || "Oyuncu";
+          const eventCode = ev[4];
+          let tip = "Goal";
+          let detay = "";
+          if (eventCode === 1) tip = "Goal";
+          else if (eventCode === 2) { tip = "Card"; detay = "Red Card"; }
+          else if (eventCode === 3) { tip = "Card"; detay = "Yellow-Red Card"; }
+          else if (eventCode === 5) { tip = "Card"; detay = "Yellow Card"; }
+          else if (eventCode === 6) { tip = "Goal"; detay = "Penalty"; }
+          else if (eventCode === 7) { tip = "Goal"; detay = "Own Goal"; }
+          else tip = "Other";
+
+          return {
+            dakika: dk,
+            tip,
+            detay,
+            oyuncu,
+            takimTaraf: teamSide
+          };
+        });
+      }
+    }
+  } catch (err) {
+    // ignore
+  }
+
+  // Eğer MatchData'da olay yoksa, livedata 'e' listesinde canlı maç olayı var mı kontrol et
+  if (olaylar.length === 0) {
+    try {
+      const liveData = await mackolikVerisiCek(new Date().toISOString().slice(0, 10));
+      if (liveData && Array.isArray(liveData.e)) {
+        const matchEvs = liveData.e.filter(ev => String(ev[1]) === String(fixtureId));
+        if (matchEvs.length > 0) {
+          olaylar = matchEvs.map(ev => ({
+            dakika: String(ev[18] || "").replace("'", ""),
+            tip: ev[12] === 1 ? "Goal" : "Card",
+            detay: ev[12] === 2 ? "Red Card" : (ev[12] === 5 ? "Yellow Card" : ""),
+            oyuncu: ev[13] === 1 ? (ev[8] || "Ev Sahibi") : (ev[10] || "Deplasman"),
+            takimTaraf: ev[13] === 1 ? "ev" : "dep"
+          }));
+        }
+      }
+    } catch (err) {
+      // ignore
+    }
+  }
+
   return res.status(200).json({
     ok: true,
     oynandi: true,
     baslamadi: false,
+    skor,
+    dakika,
     istatistik: null,
     kadrolar: null,
-    olaylar: []
+    olaylar
   });
 }
 
