@@ -1072,6 +1072,7 @@ function MacDetay({ mac, onClose }) {
           </div>
         )}
       </div>
+    </div>
   )
 }
 
