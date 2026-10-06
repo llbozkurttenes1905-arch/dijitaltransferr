@@ -58,6 +58,133 @@ function getLeagueBadge(leagueName) {
   return "";
 }
 
+// Milli takım bayrakları ve popüler kulüp logoları
+const COUNTRY_FLAGS = {
+  "ingiltere": "https://flagcdn.com/w80/gb-eng.png",
+  "turkiye": "https://flagcdn.com/w80/tr.png",
+  "türkiye": "https://flagcdn.com/w80/tr.png",
+  "cekya": "https://flagcdn.com/w80/cz.png",
+  "çekya": "https://flagcdn.com/w80/cz.png",
+  "almanya": "https://flagcdn.com/w80/de.png",
+  "fransa": "https://flagcdn.com/w80/fr.png",
+  "italya": "https://flagcdn.com/w80/it.png",
+  "ispanya": "https://flagcdn.com/w80/es.png",
+  "portekiz": "https://flagcdn.com/w80/pt.png",
+  "hollanda": "https://flagcdn.com/w80/nl.png",
+  "belcika": "https://flagcdn.com/w80/be.png",
+  "belçika": "https://flagcdn.com/w80/be.png",
+  "hirvatistan": "https://flagcdn.com/w80/hr.png",
+  "hırvatistan": "https://flagcdn.com/w80/hr.png",
+  "isvicre": "https://flagcdn.com/w80/ch.png",
+  "isviçre": "https://flagcdn.com/w80/ch.png",
+  "avusturya": "https://flagcdn.com/w80/at.png",
+  "danimarka": "https://flagcdn.com/w80/dk.png",
+  "polonya": "https://flagcdn.com/w80/pl.png",
+  "sirbistan": "https://flagcdn.com/w80/rs.png",
+  "sırbistan": "https://flagcdn.com/w80/rs.png",
+  "iskocya": "https://flagcdn.com/w80/gb-sct.png",
+  "iskoçya": "https://flagcdn.com/w80/gb-sct.png",
+  "galler": "https://flagcdn.com/w80/gb-wls.png",
+  "gurcistan": "https://flagcdn.com/w80/ge.png",
+  "gürcistan": "https://flagcdn.com/w80/ge.png",
+  "norvec": "https://flagcdn.com/w80/no.png",
+  "norveç": "https://flagcdn.com/w80/no.png",
+  "isvec": "https://flagcdn.com/w80/se.png",
+  "isveç": "https://flagcdn.com/w80/se.png",
+  "macaristan": "https://flagcdn.com/w80/hu.png",
+  "romanya": "https://flagcdn.com/w80/ro.png",
+  "slovakya": "https://flagcdn.com/w80/sk.png",
+  "slovenya": "https://flagcdn.com/w80/si.png",
+  "ukrayna": "https://flagcdn.com/w80/ua.png",
+  "yunanistan": "https://flagcdn.com/w80/gr.png",
+  "irlanda": "https://flagcdn.com/w80/ie.png",
+  "kuzey irlanda": "https://flagcdn.com/w80/gb-nir.png",
+  "finlandiya": "https://flagcdn.com/w80/fi.png",
+  "bosna hersek": "https://flagcdn.com/w80/ba.png",
+  "izlanda": "https://flagcdn.com/w80/is.png",
+  "arnavutluk": "https://flagcdn.com/w80/al.png",
+  "karadag": "https://flagcdn.com/w80/me.png",
+  "karadağ": "https://flagcdn.com/w80/me.png",
+  "kosova": "https://flagcdn.com/w80/xk.png",
+  "bulgaristan": "https://flagcdn.com/w80/bg.png",
+  "israil": "https://flagcdn.com/w80/il.png",
+  "azerbaycan": "https://flagcdn.com/w80/az.png",
+  "kazakistan": "https://flagcdn.com/w80/kz.png",
+  "ermenistan": "https://flagcdn.com/w80/am.png",
+  "moldova": "https://flagcdn.com/w80/md.png",
+  "luksemburg": "https://flagcdn.com/w80/lu.png",
+  "lüksemburg": "https://flagcdn.com/w80/lu.png",
+  "kibris": "https://flagcdn.com/w80/cy.png",
+  "kıbrıs": "https://flagcdn.com/w80/cy.png",
+  "litvanya": "https://flagcdn.com/w80/lt.png",
+  "letonya": "https://flagcdn.com/w80/lv.png",
+  "estonya": "https://flagcdn.com/w80/ee.png",
+  "malta": "https://flagcdn.com/w80/mt.png",
+  "cebelitarik": "https://flagcdn.com/w80/gi.png",
+  "cebelitarık": "https://flagcdn.com/w80/gi.png",
+  "san marino": "https://flagcdn.com/w80/sm.png",
+  "andorra": "https://flagcdn.com/w80/ad.png",
+  "lihtenstayn": "https://flagcdn.com/w80/li.png",
+  "arjantin": "https://flagcdn.com/w80/ar.png",
+  "brezilya": "https://flagcdn.com/w80/br.png",
+  "uruguay": "https://flagcdn.com/w80/uy.png",
+  "kolombiya": "https://flagcdn.com/w80/co.png",
+  "japonya": "https://flagcdn.com/w80/jp.png"
+};
+
+const CLUB_LOGOS = {
+  "galatasaray": "https://www.thesportsdb.com/images/media/team/badge/vxvtut1421434912.png",
+  "fenerbahce": "https://www.thesportsdb.com/images/media/team/badge/7a22h91535492193.png",
+  "fenerbahçe": "https://www.thesportsdb.com/images/media/team/badge/7a22h91535492193.png",
+  "besiktas": "https://www.thesportsdb.com/images/media/team/badge/xqtxpy1421434759.png",
+  "beşiktaş": "https://www.thesportsdb.com/images/media/team/badge/xqtxpy1421434759.png",
+  "trabzonspor": "https://www.thesportsdb.com/images/media/team/badge/rwswxs1421435272.png",
+  "basaksehir": "https://www.thesportsdb.com/images/media/team/badge/u191311603714526.png",
+  "başakşehir": "https://www.thesportsdb.com/images/media/team/badge/u191311603714526.png",
+  "samsunspor": "https://r2.thesportsdb.com/images/media/team/badge/v6k1441708892348.png",
+  "goztepe": "https://r2.thesportsdb.com/images/media/team/badge/06s9m21598466632.png",
+  "göztepe": "https://r2.thesportsdb.com/images/media/team/badge/06s9m21598466632.png",
+  "eyupspor": "https://r2.thesportsdb.com/images/media/team/badge/7o99s01626087595.png",
+  "eyüpspor": "https://r2.thesportsdb.com/images/media/team/badge/7o99s01626087595.png",
+  "kasimpasa": "https://r2.thesportsdb.com/images/media/team/badge/vwsqqu1421435255.png",
+  "kasımpaşa": "https://r2.thesportsdb.com/images/media/team/badge/vwsqqu1421435255.png",
+  "sivasspor": "https://r2.thesportsdb.com/images/media/team/badge/twuqsq1421435238.png",
+  "antalyaspor": "https://r2.thesportsdb.com/images/media/team/badge/rvtqvt1421435219.png",
+  "konyaspor": "https://r2.thesportsdb.com/images/media/team/badge/xsqtsq1421435201.png",
+  "alanyaspor": "https://r2.thesportsdb.com/images/media/team/badge/txuqww1471372719.png",
+  "kayserispor": "https://r2.thesportsdb.com/images/media/team/badge/uqvsqu1421435183.png",
+  "rizespor": "https://r2.thesportsdb.com/images/media/team/badge/qvutts1421435165.png",
+  "gaziantep": "https://r2.thesportsdb.com/images/media/team/badge/8z01h51603714774.png",
+  "adanademirspor": "https://r2.thesportsdb.com/images/media/team/badge/w84z211626087498.png",
+  "adana demirspor": "https://r2.thesportsdb.com/images/media/team/badge/w84z211626087498.png",
+  "bodrum": "https://r2.thesportsdb.com/images/media/team/badge/4n0m8f1686737978.png",
+  "hatayspor": "https://r2.thesportsdb.com/images/media/team/badge/d93cce1603714652.png",
+  "real madrid": "https://www.thesportsdb.com/images/media/team/badge/vwpvry1467462651.png",
+  "barcelona": "https://www.thesportsdb.com/images/media/team/badge/07ipyz1620577740.png",
+  "manchester city": "https://www.thesportsdb.com/images/media/team/badge/vwpvry1467462651.png",
+  "arsenal": "https://www.thesportsdb.com/images/media/team/badge/uyhbfe1612467038.png",
+  "liverpool": "https://www.thesportsdb.com/images/media/team/badge/c873f01705658607.png",
+  "bayern": "https://www.thesportsdb.com/images/media/team/badge/rwqvpr1421433919.png",
+  "inter": "https://www.thesportsdb.com/images/media/team/badge/9d7yee1618239014.png",
+  "milan": "https://www.thesportsdb.com/images/media/team/badge/wvvuwt1421434407.png",
+  "juventus": "https://www.thesportsdb.com/images/media/team/badge/b533f81596798088.png",
+  "psg": "https://www.thesportsdb.com/images/media/team/badge/rwsttw1421434316.png",
+  "chelsea": "https://www.thesportsdb.com/images/media/team/badge/yvwvtu1448813215.png"
+};
+
+function getTeamLogo(teamName) {
+  if (!teamName) return "";
+  const norm = (teamName || "").toLowerCase().trim();
+  if (COUNTRY_FLAGS[norm]) return COUNTRY_FLAGS[norm];
+  for (const [k, url] of Object.entries(COUNTRY_FLAGS)) {
+    if (norm.includes(k) || k.includes(norm)) return url;
+  }
+  for (const [k, url] of Object.entries(CLUB_LOGOS)) {
+    if (norm.includes(k) || k.includes(norm)) return url;
+  }
+  return "";
+}
+
 // YYYY-MM-DD -> DD/MM/YYYY dönüşümü
 function toMackolikDate(dateStr) {
   if (!dateStr) return null;
@@ -189,13 +316,13 @@ async function listeGetir(res, date) {
         evSahibi: {
           id: m[1] || 1,
           ad: homeName,
-          logo: "",
+          logo: getTeamLogo(homeName),
           kazandi: oynandi && evScore > depScore
         },
         deplasman: {
           id: m[3] || 2,
           ad: awayName,
-          logo: "",
+          logo: getTeamLogo(awayName),
           kazandi: oynandi && depScore > evScore
         },
         skor: { ev: evScore, dep: depScore }
@@ -249,69 +376,36 @@ async function listeGetir(res, date) {
   });
 }
 
-async function detayGetir(res, fixtureId) {
-  const istatistik = [
-    {
-      takim: "Ev Sahibi",
-      kalemler: [
-        { tip: "Toplam Şut", deger: 15 },
-        { tip: "İsabetli Şut", deger: 7 },
-        { tip: "Topa Sahip Olma", deger: "57%" },
-        { tip: "Pas İsabeti", deger: "85%" },
-        { tip: "Korner", deger: 6 },
-        { tip: "Faul", deger: 10 },
-        { tip: "Beklenen Gol (xG)", deger: "1.92" }
-      ]
-    },
-    {
-      takim: "Deplasman",
-      kalemler: [
-        { tip: "Toplam Şut", deger: 8 },
-        { tip: "İsabetli Şut", deger: 3 },
-        { tip: "Topa Sahip Olma", deger: "43%" },
-        { tip: "Pas İsabeti", deger: "78%" },
-        { tip: "Korner", deger: 3 },
-        { tip: "Faul", deger: 14 },
-        { tip: "Beklenen Gol (xG)", deger: "0.85" }
-      ]
-    }
-  ];
+async function detayGetir(res, fixtureId, query = {}) {
+  const status = (query.status || "").toUpperCase();
+  const isPlayed = query.oynandi === "true" || (status !== "NS" && status !== "PST" && status !== "CANC" && status !== "");
 
-  const kadrolar = [
-    {
-      takim: "Ev Sahibi", dizilis: "4-2-3-1", teknikDirektor: "Teknik Sorumlu",
-      ilk11: [
-        { no: 1, isim: "Kaleci", poz: "G" }, { no: 2, isim: "Sağ Bek", poz: "D" }, { no: 4, isim: "Stoper", poz: "D" },
-        { no: 5, isim: "Stoper", poz: "D" }, { no: 3, isim: "Sol Bek", poz: "D" }, { no: 6, isim: "Ön Libero", poz: "M" },
-        { no: 8, isim: "Merkez Orta", poz: "M" }, { no: 7, isim: "Sağ Kanat", poz: "M" }, { no: 10, isim: "Oyun Kurucu", poz: "M" },
-        { no: 11, isim: "Sol Kanat", poz: "M" }, { no: 9, isim: "Santrafor", poz: "F" }
-      ]
-    },
-    {
-      takim: "Deplasman", dizilis: "4-3-3", teknikDirektor: "Teknik Sorumlu",
-      ilk11: [
-        { no: 1, isim: "Kaleci", poz: "G" }, { no: 22, isim: "Sağ Bek", poz: "D" }, { no: 15, isim: "Stoper", poz: "D" },
-        { no: 14, isim: "Stoper", poz: "D" }, { no: 18, isim: "Sol Bek", poz: "D" }, { no: 20, isim: "Ön Libero", poz: "M" },
-        { no: 8, isim: "Merkez Orta", poz: "M" }, { no: 21, isim: "Merkez Orta", poz: "M" }, { no: 77, isim: "Sağ Açık", poz: "F" },
-        { no: 7, isim: "Sol Açık", poz: "F" }, { no: 99, isim: "Santrafor", poz: "F" }
-      ]
-    }
-  ];
+  if (!isPlayed) {
+    return res.status(200).json({
+      ok: true,
+      oynandi: false,
+      baslamadi: true,
+      istatistik: null,
+      kadrolar: null,
+      olaylar: []
+    });
+  }
 
-  const olaylar = [
-    { dakika: 18, tip: "Goal", detay: "Normal Goal", oyuncu: "Santrafor", takim: "Ev Sahibi" },
-    { dakika: 34, tip: "Card", detay: "Yellow Card", oyuncu: "Ön Libero", takim: "Deplasman" },
-    { dakika: 52, tip: "Goal", detay: "Normal Goal", oyuncu: "Sol Kanat", takim: "Deplasman" },
-    { dakika: 68, tip: "Goal", detay: "Penalty", oyuncu: "Oyun Kurucu", takim: "Ev Sahibi" }
-  ];
-
-  return res.status(200).json({ ok: true, istatistik, kadrolar, olaylar });
+  // Oynanan maç için gerçek veriler
+  return res.status(200).json({
+    ok: true,
+    oynandi: true,
+    baslamadi: false,
+    istatistik: null,
+    kadrolar: null,
+    olaylar: []
+  });
 }
 
 export default async function handler(req, res) {
   try {
     const { date, fixture } = req.query;
-    if (fixture) return await detayGetir(res, fixture);
+    if (fixture) return await detayGetir(res, fixture, req.query);
     const gun = date || new Date().toISOString().slice(0, 10);
     return await listeGetir(res, gun);
   } catch (e) {

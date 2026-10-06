@@ -21,6 +21,52 @@ function DurumRozeti({ m }) {
   return <span className="skor-saat">{saat(m.tarih)}</span>
 }
 
+function TeamBadge({ logo, name, size = 20, className = '' }) {
+  const [error, setError] = useState(false)
+  const initials = (name || '?')
+    .replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ\s]/g, '')
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map(w => w[0])
+    .join('')
+    .toUpperCase() || '?'
+
+  if (!logo || error) {
+    return (
+      <span
+        className={`takim-harf-rozet ${className}`}
+        style={{
+          width: size,
+          height: size,
+          minWidth: size,
+          minHeight: size,
+          borderRadius: size > 24 ? '10px' : '5px',
+          fontSize: size > 24 ? '13px' : '9.5px'
+        }}
+        title={name}
+      >
+        {initials}
+      </span>
+    )
+  }
+
+  return (
+    <img
+      src={logo}
+      alt={name || ''}
+      className={className}
+      style={{
+        width: size,
+        height: size,
+        objectFit: 'contain',
+        flexShrink: 0
+      }}
+      onError={() => setError(true)}
+    />
+  )
+}
+
 function MacSatiri({ m, onClick }) {
   const oynandi = m.skor.ev != null
   return (
@@ -28,11 +74,11 @@ function MacSatiri({ m, onClick }) {
       <div className="mac-durum"><DurumRozeti m={m} /></div>
       <div className="mac-takimlar">
         <div className={'mac-t' + (m.evSahibi.kazandi ? ' kazandi' : '')}>
-          <img src={m.evSahibi.logo} alt="" onError={e => e.currentTarget.style.visibility = 'hidden'} />
+          <TeamBadge logo={m.evSahibi.logo} name={m.evSahibi.ad} size={20} />
           <span>{m.evSahibi.ad}</span>
         </div>
         <div className={'mac-t' + (m.deplasman.kazandi ? ' kazandi' : '')}>
-          <img src={m.deplasman.logo} alt="" onError={e => e.currentTarget.style.visibility = 'hidden'} />
+          <TeamBadge logo={m.deplasman.logo} name={m.deplasman.ad} size={20} />
           <span>{m.deplasman.ad}</span>
         </div>
       </div>
@@ -61,12 +107,16 @@ function StatBar({ ad, evVal, depVal }) {
 }
 
 function Kadro11({ takim }) {
-  if (!takim) return <div className="kadro-yok">Kadro bilgisi henüz yok.</div>
+  if (!takim) return <div className="kadro-yok">Kadro bilgisi henüz açıklanmadı.</div>
   return (
     <div className="kadro-col">
-      <div className="kadro-h"><img src={takim.takimLogo} alt="" />{takim.takim}<span className="kadro-diz">{takim.dizilis}</span></div>
+      <div className="kadro-h">
+        <TeamBadge logo={takim.takimLogo} name={takim.takim} size={18} />
+        {takim.takim}
+        <span className="kadro-diz">{takim.dizilis}</span>
+      </div>
       <ul className="kadro-liste">
-        {takim.ilk11.map((p, i) => (
+        {takim.ilk11?.map((p, i) => (
           <li key={i}><span className="kadro-no">{p.no ?? '–'}</span>{p.isim}<span className="kadro-poz">{p.poz}</span></li>
         ))}
       </ul>
@@ -88,13 +138,16 @@ function MacDetay({ mac, onClose }) {
   const [yukleniyor, setYukleniyor] = useState(true)
   const [sekme, setSekme] = useState('ozet')
 
+  const oynanmadi = mac.skor.ev == null || mac.durum === 'NS' || mac.durum === 'PST'
+
   useEffect(() => {
     let iptal = false
     setYukleniyor(true); setVeri(null)
-    fetch('/api/scores?fixture=' + mac.id).then(r => r.json()).then(d => { if (!iptal) { setVeri(d.ok ? d : null); setYukleniyor(false) } })
+    const url = `/api/scores?fixture=${mac.id}&status=${encodeURIComponent(mac.durum || '')}&oynandi=${mac.skor?.ev != null}`
+    fetch(url).then(r => r.json()).then(d => { if (!iptal) { setVeri(d.ok ? d : null); setYukleniyor(false) } })
       .catch(() => { if (!iptal) setYukleniyor(false) })
     return () => { iptal = true }
-  }, [mac.id])
+  }, [mac.id, mac.durum, mac.skor?.ev])
 
   const ev = veri?.istatistik?.[0], dep = veri?.istatistik?.[1]
   const kadroEv = veri?.kadrolar?.[0], kadroDep = veri?.kadrolar?.[1]
@@ -106,12 +159,18 @@ function MacDetay({ mac, onClose }) {
         <div className="modal-baslik">
           <div className="mb-lig">{mac.lig.ad}{mac.lig.tur ? ' · ' + mac.lig.tur : ''}</div>
           <div className="mb-mac">
-            <div className="mb-t"><img src={mac.evSahibi.logo} alt="" /><span>{mac.evSahibi.ad}</span></div>
+            <div className="mb-t">
+              <TeamBadge logo={mac.evSahibi.logo} name={mac.evSahibi.ad} size={44} />
+              <span>{mac.evSahibi.ad}</span>
+            </div>
             <div className="mb-skor">
               <div className="mb-skor-n">{mac.skor.ev ?? '–'} : {mac.skor.dep ?? '–'}</div>
               <div className="mb-durum"><DurumRozeti m={mac} /></div>
             </div>
-            <div className="mb-t"><img src={mac.deplasman.logo} alt="" /><span>{mac.deplasman.ad}</span></div>
+            <div className="mb-t">
+              <TeamBadge logo={mac.deplasman.logo} name={mac.deplasman.ad} size={44} />
+              <span>{mac.deplasman.ad}</span>
+            </div>
           </div>
         </div>
 
@@ -121,42 +180,67 @@ function MacDetay({ mac, onClose }) {
           ))}
         </div>
 
-        {yukleniyor ? <div className="modal-yukleniyor">Maç verileri getiriliyor...</div> : !veri ? (
-          <div className="modal-yukleniyor">Bu maç için henüz istatistik/kadro verisi yok.</div>
-        ) : (
+        {yukleniyor ? <div className="modal-yukleniyor">Maç verileri getiriliyor...</div> : (
           <div className="modal-govde">
             {sekme === 'ozet' && (
-              veri.olaylar.length === 0 ? <div className="modal-yukleniyor">Henüz kayda değer bir olay yok.</div> :
-              <ul className="olay-liste">
-                {veri.olaylar.map((o, i) => (
-                  <li key={i} className={o.takim === mac.deplasman.ad ? 'sag' : ''}>
-                    <span className="olay-dk">{o.dakika}{o.ekDakika ? '+' + o.ekDakika : ''}'</span>
-                    <span className="olay-ikon"><OlayIkon tip={o.tip} detay={o.detay} /></span>
-                    <span className="olay-oyuncu">{o.oyuncu}{o.yardimci ? <small> ({o.yardimci})</small> : null}</span>
-                  </li>
-                ))}
-              </ul>
+              oynanmadi || veri?.baslamadi ? (
+                <div className="mac-bekliyor-kutu">
+                  <div className="mbk-ikon">⏳</div>
+                  <div className="mbk-baslik">Maç Henüz Başlamadı</div>
+                  <div className="mbk-aciklama">Başlama Saati: <b>{saat(mac.tarih)}</b></div>
+                  <div className="mbk-ipucu">Karşılaşma başladığında goller, kartlar ve canlı maç anlatımı burada görüntülenecektir.</div>
+                </div>
+              ) : !veri || !veri.olaylar || veri.olaylar.length === 0 ? (
+                <div className="modal-yukleniyor">Henüz kayda değer bir olay yok.</div>
+              ) : (
+                <ul className="olay-liste">
+                  {veri.olaylar.map((o, i) => (
+                    <li key={i} className={o.takim === mac.deplasman.ad ? 'sag' : ''}>
+                      <span className="olay-dk">{o.dakika}{o.ekDakika ? '+' + o.ekDakika : ''}'</span>
+                      <span className="olay-ikon"><OlayIkon tip={o.tip} detay={o.detay} /></span>
+                      <span className="olay-oyuncu">{o.oyuncu}{o.yardimci ? <small> ({o.yardimci})</small> : null}</span>
+                    </li>
+                  ))}
+                </ul>
+              )
             )}
 
             {sekme === 'istatistik' && (
-              !ev || !dep ? <div className="modal-yukleniyor">İstatistik verisi henüz yayınlanmadı.</div> :
-              (() => {
-                const depMap = new Map((dep.kalemler || []).map(k => [k.tip, k.deger]));
-                return (
-                  <div className="stat-liste">
-                    {ev.kalemler.map((s, i) => (
-                      <StatBar key={i} ad={s.tip} evVal={s.deger} depVal={depMap.get(s.tip)} />
-                    ))}
-                  </div>
-                );
-              })()
+              oynanmadi || veri?.baslamadi ? (
+                <div className="mac-bekliyor-kutu">
+                  <div className="mbk-ikon">📊</div>
+                  <div className="mbk-baslik">İstatistikler Henüz Oluşmadı</div>
+                  <div className="mbk-aciklama">Topla oynama, şut, korner ve pas verileri maç başladıktan sonra canlı güncellenecektir.</div>
+                </div>
+              ) : !ev || !dep ? (
+                <div className="modal-yukleniyor">İstatistik verisi henüz yayınlanmadı.</div>
+              ) : (
+                (() => {
+                  const depMap = new Map((dep.kalemler || []).map(k => [k.tip, k.deger]));
+                  return (
+                    <div className="stat-liste">
+                      {ev.kalemler.map((s, i) => (
+                        <StatBar key={i} ad={s.tip} evVal={s.deger} depVal={depMap.get(s.tip)} />
+                      ))}
+                    </div>
+                  );
+                })()
+              )
             )}
 
             {sekme === 'kadro' && (
-              <div className="kadro-grid">
-                <Kadro11 takim={kadroEv} />
-                <Kadro11 takim={kadroDep} />
-              </div>
+              (oynanmadi || veri?.baslamadi) && (!kadroEv || !kadroDep) ? (
+                <div className="mac-bekliyor-kutu">
+                  <div className="mbk-ikon">📋</div>
+                  <div className="mbk-baslik">Resmi Kadrolar Bekleniyor</div>
+                  <div className="mbk-aciklama">İlk 11'ler maç saatinden yaklaşık 45 - 60 dakika önce açıklanır.</div>
+                </div>
+              ) : (
+                <div className="kadro-grid">
+                  <Kadro11 takim={kadroEv} />
+                  <Kadro11 takim={kadroDep} />
+                </div>
+              )
             )}
           </div>
         )}

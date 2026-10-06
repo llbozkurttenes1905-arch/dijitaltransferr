@@ -339,3 +339,12 @@ body{
 .kadro-poz{margin-left:auto;color:var(--muted);font-size:10.5px;}
 .kadro-td{margin-top:10px;color:var(--muted);font-size:11.5px;}
 .kadro-yok{color:var(--muted);font-size:12.5px;text-align:center;padding:14px;}
+
+.mac-bekliyor-kutu{text-align:center;padding:32px 18px;background:rgba(255,255,255,.02);border:1px dashed var(--line);border-radius:var(--r-md);margin:10px 0;}
+.mbk-ikon{font-size:32px;margin-bottom:10px;}
+.mbk-baslik{font-size:15px;font-weight:800;color:#fff;margin-bottom:6px;}
+.mbk-aciklama{font-size:13px;color:var(--muted);line-height:1.5;max-width:440px;margin:0 auto 8px;}
+.mbk-aciklama b{color:var(--green);}
+.mbk-ipucu{font-size:11.5px;color:#64748b;line-height:1.4;max-width:400px;margin:0 auto;}
+.takim-harf-rozet{display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.1);color:#e2e8f0;font-weight:700;text-transform:uppercase;flex-shrink:0;user-select:none;}
+
