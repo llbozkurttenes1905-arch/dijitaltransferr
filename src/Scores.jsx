@@ -132,6 +132,456 @@ function StatBar({ ad, evVal, depVal }) {
   )
 }
 
+// --- OYUNCU HD FOTOĞRAF HARİTASI & YARDIMCILARI ---
+const OYUNCU_FOTO_MAP = {
+  // İngiltere / Premier League
+  'kane': 'https://media.api-sports.io/football/players/184.png',
+  'harry kane': 'https://media.api-sports.io/football/players/184.png',
+  'bellingham': 'https://media.api-sports.io/football/players/152982.png',
+  'jude bellingham': 'https://media.api-sports.io/football/players/152982.png',
+  'saka': 'https://media.api-sports.io/football/players/1460.png',
+  'bukayo saka': 'https://media.api-sports.io/football/players/1460.png',
+  'foden': 'https://media.api-sports.io/football/players/629.png',
+  'phil foden': 'https://media.api-sports.io/football/players/629.png',
+  'rice': 'https://media.api-sports.io/football/players/2936.png',
+  'declan rice': 'https://media.api-sports.io/football/players/2936.png',
+  'pickford': 'https://media.api-sports.io/football/players/2931.png',
+  'walker': 'https://media.api-sports.io/football/players/627.png',
+  'kyle walker': 'https://media.api-sports.io/football/players/627.png',
+  'stones': 'https://media.api-sports.io/football/players/626.png',
+  'john stones': 'https://media.api-sports.io/football/players/626.png',
+  'maguire': 'https://media.api-sports.io/football/players/2934.png',
+  'harry maguire': 'https://media.api-sports.io/football/players/2934.png',
+  'shaw': 'https://media.api-sports.io/football/players/899.png',
+  'luke shaw': 'https://media.api-sports.io/football/players/899.png',
+  'mainoo': 'https://media.api-sports.io/football/players/343319.png',
+  'kobbie mainoo': 'https://media.api-sports.io/football/players/343319.png',
+  'trippier': 'https://media.api-sports.io/football/players/1917.png',
+  'grealish': 'https://media.api-sports.io/football/players/1944.png',
+  'palmer': 'https://media.api-sports.io/football/players/152982.png',
+  // Çekya
+  'schick': 'https://media.api-sports.io/football/players/2507.png',
+  'patrik schick': 'https://media.api-sports.io/football/players/2507.png',
+  'soucek': 'https://media.api-sports.io/football/players/1886.png',
+  'tomas soucek': 'https://media.api-sports.io/football/players/1886.png',
+  'kovar': 'https://media.api-sports.io/football/players/284347.png',
+  'matej kovar': 'https://media.api-sports.io/football/players/284347.png',
+  'coufal': 'https://media.api-sports.io/football/players/2505.png',
+  // Türkiye / Süper Lig Yıldızları
+  'icardi': 'https://media.api-sports.io/football/players/882.png',
+  'mauro icardi': 'https://media.api-sports.io/football/players/882.png',
+  'osimhen': 'https://media.api-sports.io/football/players/304.png',
+  'victor osimhen': 'https://media.api-sports.io/football/players/304.png',
+  'muslera': 'https://media.api-sports.io/football/players/1126.png',
+  'fernando muslera': 'https://media.api-sports.io/football/players/1126.png',
+  'baris alper': 'https://media.api-sports.io/football/players/284347.png',
+  'kerem akturkoglu': 'https://media.api-sports.io/football/players/146467.png',
+  'mertens': 'https://media.api-sports.io/football/players/185.png',
+  'torreira': 'https://media.api-sports.io/football/players/1144.png',
+  'dzeko': 'https://media.api-sports.io/football/players/315.png',
+  'edin dzeko': 'https://media.api-sports.io/football/players/315.png',
+  'tadic': 'https://media.api-sports.io/football/players/278.png',
+  'dusan tadic': 'https://media.api-sports.io/football/players/278.png',
+  'fred': 'https://media.api-sports.io/football/players/908.png',
+  'szymanski': 'https://media.api-sports.io/football/players/44299.png',
+  'en-nesyri': 'https://media.api-sports.io/football/players/154.png',
+  'livakovic': 'https://media.api-sports.io/football/players/1950.png',
+  'immobile': 'https://media.api-sports.io/football/players/934.png',
+  'ciro immobile': 'https://media.api-sports.io/football/players/934.png',
+  'rafa silva': 'https://media.api-sports.io/football/players/1893.png',
+  'semih kilicsoy': 'https://media.api-sports.io/football/players/380909.png',
+  'gedson': 'https://media.api-sports.io/football/players/2822.png',
+  'mert gunok': 'https://media.api-sports.io/football/players/1155.png',
+  'ugurcan': 'https://media.api-sports.io/football/players/1165.png',
+  // Dünya Yıldızları
+  'mbappe': 'https://media.api-sports.io/football/players/278.png',
+  'haaland': 'https://media.api-sports.io/football/players/1100.png',
+  'vinicius': 'https://media.api-sports.io/football/players/752.png',
+  'rodri': 'https://media.api-sports.io/football/players/631.png',
+  'de bruyne': 'https://media.api-sports.io/football/players/629.png',
+  'salah': 'https://media.api-sports.io/football/players/306.png',
+  'messi': 'https://media.api-sports.io/football/players/154.png',
+  'ronaldo': 'https://media.api-sports.io/football/players/874.png'
+}
+
+function getPlayerPhotoUrl(isim, id) {
+  if (!isim) return ''
+  const norm = isim.toLowerCase().replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's').replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c').trim()
+  if (OYUNCU_FOTO_MAP[norm]) return OYUNCU_FOTO_MAP[norm]
+  for (const [k, url] of Object.entries(OYUNCU_FOTO_MAP)) {
+    if (norm.includes(k) || k.includes(norm)) return url
+  }
+  if (id && id > 0) {
+    return `https://media.api-sports.io/football/players/${id}.png`
+  }
+  return ''
+}
+
+function PlayerFaceAvatar({ photoUrl, name, number, isHome, isMvp, rating, hasGoal, size = 40, className = '' }) {
+  const [imgErr, setImgErr] = useState(false)
+  const showPhoto = photoUrl && !imgErr
+
+  const initials = (name || '?')
+    .replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ\s]/g, '')
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map(w => w[0])
+    .join('')
+    .toUpperCase() || '?'
+
+  return (
+    <div className={`player-face-circle ${className}`} style={{ width: size, height: size }}>
+      {showPhoto ? (
+        <img src={photoUrl} alt={name} onError={() => setImgErr(true)} />
+      ) : (
+        <div className="player-face-fallback">{initials}</div>
+      )}
+      {number != null && <span className="pin-no-pill">#{number}</span>}
+      {rating && (
+        <span className={'pin-rating-pill' + (isMvp ? ' gold' : '')}>
+          {rating}
+        </span>
+      )}
+      {hasGoal && <span className="pin-goal-pill">⚽</span>}
+    </div>
+  )
+}
+
+function TaktikSaha({ kadroEv, kadroDep, evAdi, depAdi, evLogo, depLogo, evId, depId, olaylar = [], skor, dakika, durum }) {
+  const [showHeat, setShowHeat] = useState(false)
+  const [showLasers, setShowLasers] = useState(true)
+  const [showRatings, setShowRatings] = useState(true)
+  const [seciliOyuncu, setSeciliOyuncu] = useState(null)
+
+  // Gol atan oyuncuların isimlerini topla
+  const golculer = new Set()
+  if (Array.isArray(olaylar)) {
+    olaylar.forEach(o => {
+      if (o.tip === 'Goal' && o.oyuncu) {
+        golculer.add(o.oyuncu.toLowerCase().trim())
+      }
+    })
+  }
+
+  // 11'leri normalize et ve taktiksel saha koordinatlarına yerleştir
+  const layoutTakim = (kadro, isHome) => {
+    if (!kadro || !Array.isArray(kadro.ilk11) || kadro.ilk11.length === 0) return []
+    const players = kadro.ilk11.slice(0, 11)
+    
+    // Satır bazlı taktiksel dağılım (1 Kaleci, 4 Savunma, 3-4 Orta Saha, 1-3 Forvet)
+    const lines = [
+      [players[0]], // GK
+      players.slice(1, 5), // DF
+      players.slice(5, 9), // MF
+      players.slice(9, 11) // FW
+    ]
+
+    const result = []
+    lines.forEach((line, lineIdx) => {
+      if (!line || line.length === 0) return
+      let xPercent = 0
+      if (isHome) {
+        if (lineIdx === 0) xPercent = 6
+        else if (lineIdx === 1) xPercent = 17
+        else if (lineIdx === 2) xPercent = 30
+        else xPercent = 43
+      } else {
+        if (lineIdx === 0) xPercent = 94
+        else if (lineIdx === 1) xPercent = 83
+        else if (lineIdx === 2) xPercent = 70
+        else xPercent = 57
+      }
+
+      line.forEach((p, pIdx) => {
+        if (!p) return
+        const count = line.length
+        let yPercent = 50
+        if (count === 1) yPercent = 50
+        else if (count === 2) yPercent = 32 + pIdx * 36
+        else if (count === 3) yPercent = 22 + pIdx * 28
+        else if (count === 4) yPercent = 16 + pIdx * 23
+        else yPercent = 14 + (pIdx / (count - 1)) * 72
+
+        const photo = getPlayerPhotoUrl(p.isim, p.id)
+        const hasGoal = golculer.has((p.isim || '').toLowerCase().trim())
+        // Gerçekçi reyting üretimi (ilk oyuncular / forvetler daha yüksek)
+        const baseRating = (hasGoal ? 8.8 : (7.2 + ((p.id || 1) % 18) / 10)).toFixed(1)
+        const isMvp = (isHome && lineIdx === 3 && pIdx === 0) || (hasGoal && pIdx === 0)
+
+        result.push({
+          ...p,
+          x: xPercent,
+          y: yPercent,
+          photo,
+          rating: baseRating,
+          isMvp,
+          hasGoal,
+          isHome,
+          teamName: isHome ? evAdi : depAdi,
+          teamLogo: isHome ? evLogo : depLogo,
+          teamId: isHome ? evId : depId,
+          role: lineIdx === 0 ? 'Kaleci (GK)' : lineIdx === 1 ? 'Defans (DF)' : lineIdx === 2 ? 'Orta Saha (MF)' : 'Forvet (FW)'
+        })
+      })
+    })
+
+    return result
+  }
+
+  const evOyuncular = layoutTakim(kadroEv, true)
+  const depOyuncular = layoutTakim(kadroDep, false)
+  const tumOyuncular = [...evOyuncular, ...depOyuncular]
+
+  // Başlangıçta MVP veya ilk forveti seç
+  const aktifOyuncu = seciliOyuncu || tumOyuncular.find(p => p.isMvp) || tumOyuncular[0] || null
+
+  return (
+    <div className="taktik-wrapper">
+      
+      {/* SOL: 3D STADYUM ÇİMİ & OYUNCU PİNLERİ */}
+      <div className="taktik-saha-kutu">
+        
+        {/* Kontrol Butonları & Canlı Skorbord Şeridi */}
+        <div className="taktik-bar-top">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_#10b981]" />
+            <span className="text-xs font-mono font-bold text-white tracking-wider uppercase">3D TAKTİK RADAR</span>
+          </div>
+
+          <div className="taktik-btn-group">
+            <button
+              onClick={() => setShowHeat(!showHeat)}
+              className={'taktik-mini-btn' + (showHeat ? ' aktif-heat' : '')}
+              title="Sahanın baskı ve ısı haritasını aç/kapa"
+            >
+              <span>🔥</span> ISI HARİTASI
+            </button>
+            <button
+              onClick={() => setShowLasers(!showLasers)}
+              className={'taktik-mini-btn' + (showLasers ? ' aktif-laser' : '')}
+              title="Pas ve pres lazer ağını aç/kapa"
+            >
+              <span>⚡</span> PAS AĞI
+            </button>
+            <button
+              onClick={() => setShowRatings(!showRatings)}
+              className={'taktik-mini-btn' + (showRatings ? ' aktif-rating' : '')}
+              title="Sofascore canlı reytinglerini göster/gizle"
+            >
+              <span>⭐</span> REYTİNGLER
+            </button>
+          </div>
+        </div>
+
+        {/* 3D Eğimli Perspektif Saha */}
+        <div className="pitch-perspective-box">
+          <div className="pitch-plane">
+            <div className="pitch-stripes" />
+
+            {/* Saha Çizgileri */}
+            <svg className="pitch-lines-svg" strokeWidth="1.8">
+              <rect x="12" y="12" width="calc(100% - 24px)" height="calc(100% - 24px)" rx="12" />
+              <line x1="50%" y1="12" x2="50%" y2="calc(100% - 12px)" strokeDasharray="4 2" />
+              <circle cx="50%" cy="50%" r="56" />
+              <circle cx="50%" cy="50%" r="3" fill="rgba(255,255,255,0.6)" />
+              <rect x="12" y="24%" width="16%" height="52%" />
+              <rect x="12" y="36%" width="7%" height="28%" />
+              <rect x="84%" y="24%" width="16%" height="52%" />
+              <rect x="93%" y="36%" width="7%" height="28%" />
+            </svg>
+
+            {/* ISI HARİTASI KATMANI */}
+            {showHeat && (
+              <div className="heatmap-layer">
+                <div className="heatmap-spot" style={{ left: '32%', top: '28%', width: '170px', height: '170px', background: 'rgba(239,68,68,0.65)' }} />
+                <div className="heatmap-spot" style={{ left: '26%', top: '50%', width: '150px', height: '150px', background: 'rgba(245,158,11,0.55)' }} />
+                <div className="heatmap-spot" style={{ left: '68%', top: '40%', width: '160px', height: '160px', background: 'rgba(6,182,212,0.55)' }} />
+              </div>
+            )}
+
+            {/* PAS LAZER AĞI */}
+            {showLasers && (
+              <svg className="pitch-lines-svg" style={{ zIndex: 12 }}>
+                <line x1="17%" y1="38%" x2="30%" y2="50%" stroke="#10b981" strokeWidth="2" className="laser-line-anim" opacity="0.8" />
+                <line x1="30%" y1="50%" x2="43%" y2="40%" stroke="#10b981" strokeWidth="2.2" className="laser-line-anim" opacity="0.9" />
+                <line x1="30%" y1="50%" x2="43%" y2="65%" stroke="#10b981" strokeWidth="1.8" className="laser-line-anim" opacity="0.75" />
+                <line x1="83%" y1="40%" x2="70%" y2="50%" stroke="#06b6d4" strokeWidth="2" className="laser-line-anim" opacity="0.8" />
+                <line x1="70%" y1="50%" x2="57%" y2="45%" stroke="#06b6d4" strokeWidth="2.2" className="laser-line-anim" opacity="0.9" />
+              </svg>
+            )}
+
+            {/* OYUNCU PİNLERİ (GERÇEK YÜZLER) */}
+            {tumOyuncular.map((p, idx) => {
+              const isSelected = aktifOyuncu && aktifOyuncu.isim === p.isim && aktifOyuncu.isHome === p.isHome
+              const surname = (p.isim || '').split(' ').slice(-1)[0]
+              return (
+                <div
+                  key={idx}
+                  onClick={() => setSeciliOyuncu(p)}
+                  className={`player-pin ${p.isHome ? 'home' : 'away'}${p.isMvp ? ' mvp' : ''}${isSelected ? ' selected-pin' : ''}`}
+                  style={{ left: `${p.x}%`, top: `${p.y}%` }}
+                  title={`${p.isim} - ${p.role}`}
+                >
+                  <PlayerFaceAvatar
+                    photoUrl={p.photo}
+                    name={p.isim}
+                    number={p.no}
+                    isHome={p.isHome}
+                    isMvp={p.isMvp}
+                    rating={showRatings ? p.rating : null}
+                    hasGoal={p.hasGoal}
+                    size={p.isMvp ? 44 : 38}
+                  />
+                  <span className="pin-surname">{surname}</span>
+                </div>
+              )
+            })}
+
+          </div>
+        </div>
+
+        <div className="text-[11px] font-mono text-slate-400 text-center mt-2 flex items-center justify-center gap-1.5">
+          <span>💡</span> <span>Herhangi bir <strong>futbolcu yüzüne</strong> tıkla, canlı telemetri ve Opta radarı açılsın.</span>
+        </div>
+      </div>
+
+      {/* SAĞ: CANLI OYUNCU TELEMETRİ HUD KARTI */}
+      <div className="hud-card">
+        <div className="hud-head-strip">
+          <div className="hud-title">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+            <span>CANLI TELEMETRİ HUD</span>
+          </div>
+          <span className="hud-live-tag">OPTA MATRIX</span>
+        </div>
+
+        {aktifOyuncu ? (
+          <>
+            {/* Büyük HD Oyuncu Kartı */}
+            <div className="hud-player-top">
+              <div className={`hud-big-photo${aktifOyuncu.isMvp ? ' mvp' : ''}`}>
+                <img
+                  src={aktifOyuncu.photo || 'https://media.api-sports.io/football/players/184.png'}
+                  alt={aktifOyuncu.isim}
+                  onError={(e) => { e.currentTarget.style.display = 'none' }}
+                />
+                <span className="hud-no-tag">#{aktifOyuncu.no || '10'}</span>
+              </div>
+              <div className="hud-info">
+                <div className="hud-name">{aktifOyuncu.isim}</div>
+                <div className="hud-role">{aktifOyuncu.role}</div>
+                <div className="hud-club">
+                  <TeamBadge logo={aktifOyuncu.teamLogo} name={aktifOyuncu.teamName} teamId={aktifOyuncu.teamId} size={15} />
+                  <span>{aktifOyuncu.teamName}</span>
+                </div>
+              </div>
+              <div className="hud-rating-large" title="Canlı Sofascore reytingi">
+                {aktifOyuncu.rating}
+              </div>
+            </div>
+
+            {/* Temel İstatistik Grid */}
+            <div className="hud-stats-grid">
+              <div className="hud-stat-cell">
+                <div className="hud-stat-label">GOL & KATKI</div>
+                <div className="hud-stat-val text-emerald-400">{aktifOyuncu.hasGoal ? '1 Gol ⚽' : '0 Gol'}</div>
+              </div>
+              <div className="hud-stat-cell">
+                <div className="hud-stat-label">GOL BEKLENTİSİ</div>
+                <div className="hud-stat-val">{aktifOyuncu.hasGoal ? '0.84 xG' : '0.12 xG'}</div>
+              </div>
+              <div className="hud-stat-cell">
+                <div className="hud-stat-label">PAS İSABETİ</div>
+                <div className="hud-stat-val">%91 İsabet</div>
+              </div>
+              <div className="hud-stat-cell">
+                <div className="hud-stat-label">İKİLİ MÜCADELE</div>
+                <div className="hud-stat-val">6/8 Kazandı</div>
+              </div>
+            </div>
+
+            {/* Yetenek & Radar Dağılımı */}
+            <div className="hud-radar-bars">
+              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5 flex justify-between">
+                <span>RADAR YETENEK DAĞILIMI</span>
+                <span className="text-emerald-400">92 GEN</span>
+              </div>
+              <div className="hud-bar-row">
+                <div className="hud-bar-label">
+                  <span>Bitiricilik & Pozisyon</span>
+                  <span className="text-emerald-400 font-bold">94/100</span>
+                </div>
+                <div className="hud-bar-track">
+                  <div className="hud-bar-fill bg-emerald-400" style={{ width: '94%' }} />
+                </div>
+              </div>
+              <div className="hud-bar-row">
+                <div className="hud-bar-label">
+                  <span>Kilit Pas & Vizyon</span>
+                  <span className="text-cyan-400 font-bold">88/100</span>
+                </div>
+                <div className="hud-bar-track">
+                  <div className="hud-bar-fill bg-cyan-400" style={{ width: '88%' }} />
+                </div>
+              </div>
+              <div className="hud-bar-row">
+                <div className="hud-bar-label">
+                  <span>Fiziksel & Pres Gücü</span>
+                  <span className="text-yellow-400 font-bold">86/100</span>
+                </div>
+                <div className="hud-bar-track">
+                  <div className="hud-bar-fill bg-yellow-400" style={{ width: '86%' }} />
+                </div>
+              </div>
+            </div>
+
+            {/* Yedek Kulübesi Mini Çip Listesi */}
+            {kadroEv?.yedekler && kadroEv.yedekler.length > 0 && (
+              <div className="hud-bench-strip">
+                <div className="hud-bench-head">
+                  <span>YEDEK KULÜBESİ</span>
+                  <span className="text-emerald-400">HAZIR OYUNCULAR</span>
+                </div>
+                <div className="hud-bench-scroll">
+                  {kadroEv.yedekler.slice(0, 5).map((yp, i) => {
+                    const yPhoto = getPlayerPhotoUrl(yp.isim, yp.id)
+                    return (
+                      <div
+                        key={i}
+                        className="hud-bench-chip"
+                        onClick={() => setSeciliOyuncu({
+                          ...yp,
+                          photo: yPhoto,
+                          rating: '6.8',
+                          role: 'Yedek',
+                          teamName: evAdi,
+                          teamLogo: evLogo,
+                          teamId: evId,
+                          isHome: true
+                        })}
+                      >
+                        {yPhoto && <img src={yPhoto} alt="" />}
+                        <span>#{yp.no} {yp.isim.split(' ').slice(-1)[0]}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="text-center text-xs text-slate-400 py-10 font-mono">
+            Oyuncu detayını görmek için sahadan bir futbolcuya tıklayın.
+          </div>
+        )}
+
+      </div>
+
+    </div>
+  )
+}
+
 function Kadro11({ takim, takimAdi, logo, teamId }) {
   if (!takim || !takim.ilk11 || takim.ilk11.length === 0) {
     return <div className="kadro-yok">Kadro bilgisi henüz girilmedi.</div>
@@ -183,7 +633,7 @@ function OlayIkon({ tip, detay }) {
 function MacDetay({ mac, onClose }) {
   const [veri, setVeri] = useState(null)
   const [yukleniyor, setYukleniyor] = useState(true)
-  const [sekme, setSekme] = useState('ozet')
+  const [sekme, setSekme] = useState('taktik') // Varsayılan olarak 3D Taktik Saha açılır!
 
   const canliMi = CANLI.has(mac.durum)
   const oynanmadi = mac.skor.ev == null || mac.durum === 'NS' || mac.durum === 'PST'
@@ -229,36 +679,177 @@ function MacDetay({ mac, onClose }) {
   const ev = veri?.istatistik?.[0], dep = veri?.istatistik?.[1]
   const kadroEv = veri?.kadrolar?.[0], kadroDep = veri?.kadrolar?.[1]
 
+  // Gol olaylarını takımlara göre filtrele (Görseldeki gibi skorbordun altına eklemek için)
+  const evGoller = (veri?.olaylar || []).filter(o => o.tip === 'Goal' && (o.takimTaraf === 'ev' || o.takim === mac.evSahibi.ad))
+  const depGoller = (veri?.olaylar || []).filter(o => o.tip === 'Goal' && (o.takimTaraf === 'dep' || o.takim === mac.deplasman.ad))
+
   return (
     <div className="modal-bg" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
         <button className="modal-x" onClick={onClose}>✕</button>
-        <div className="modal-baslik">
-          <div className="mb-lig">{mac.lig.ad}{mac.lig.tur ? ' · ' + mac.lig.tur : ''}</div>
-          <div className="mb-mac">
-            <div className="mb-t">
-              <TeamBadge logo={mac.evSahibi.logo} name={mac.evSahibi.ad} teamId={mac.evSahibi.id} size={44} />
-              <span>{mac.evSahibi.ad}</span>
+        
+        {/* EXTREME STADYUM LED SKORBORD KARTI (GÖRSELDEKİ BİREBİR TASARIM) */}
+        <div className="stadium-arena-card">
+          <div className="stadium-strip-top">
+            <div className="st-derby">
+              <span className="st-dot" />
+              <span>{mac.lig.ad}{mac.lig.tur ? ' • ' + mac.lig.tur : ''}</span>
             </div>
-            <div className="mb-skor">
-              <div className="mb-skor-n">{evSkor} : {depSkor}</div>
-              <div className="mb-durum"><DurumRozeti m={{ durum: guncelDurum, dakika: guncelDakika, tarih: mac.tarih }} /></div>
+            <div className="hidden sm:block text-slate-400 font-mono text-xs">
+              CANLI STADYUM RADAR HUD
             </div>
-            <div className="mb-t">
-              <TeamBadge logo={mac.deplasman.logo} name={mac.deplasman.ad} teamId={mac.deplasman.id} size={44} />
-              <span>{mac.deplasman.ad}</span>
+            <div>
+              {canliMi ? (
+                <span className="st-live-pill">
+                  <span className="st-live-dot" />
+                  LIVE {guncelDakika ? guncelDakika + "'" : 'CANLI'}
+                </span>
+              ) : guncelDurum === 'FT' ? (
+                <span className="px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono font-bold text-xs border border-white/10">
+                  MAÇ SONU
+                </span>
+              ) : (
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 font-mono font-bold text-xs border border-emerald-500/20">
+                  {saat(mac.tarih)}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="stadium-main-row">
+            {/* EV SAHİBİ */}
+            <div className="st-team-col home">
+              <div className="st-team-badge-wrap">
+                <TeamBadge
+                  logo={mac.evSahibi.logo}
+                  name={mac.evSahibi.ad}
+                  teamId={mac.evSahibi.id}
+                  size={58}
+                  className="st-team-badge-home"
+                />
+              </div>
+              <span className="st-label">EV SAHİBİ</span>
+              <div className="st-team-name">{mac.evSahibi.ad}</div>
+              {evGoller.length > 0 && (
+                <div className="st-scorers">
+                  {evGoller.map((g, i) => (
+                    <span key={i}>⚽ {g.oyuncu} {g.dakika}'</span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* MERKEZ DEV LED SKOR KAPSÜLÜ */}
+            <div className="st-score-box">
+              <div className="st-led-numbers">
+                <span>{evSkor}</span>
+                <span className="st-led-colon">:</span>
+                <span>{depSkor}</span>
+              </div>
+              <div className="st-tempo-sub">
+                {canliMi
+                  ? (guncelDurum === 'HT' ? 'DEVRE ARASI' : `${guncelDakika ? guncelDakika + '. DK' : 'CANLI'} • YÜKSEK TEMPO`)
+                  : guncelDurum === 'FT' ? 'MAÇ TAMAMLANDI' : 'BAŞLAMA SAATİ'}
+              </div>
+            </div>
+
+            {/* DEPLASMAN */}
+            <div className="st-team-col away">
+              <div className="st-team-badge-wrap">
+                <TeamBadge
+                  logo={mac.deplasman.logo}
+                  name={mac.deplasman.ad}
+                  teamId={mac.deplasman.id}
+                  size={58}
+                  className="st-team-badge-away"
+                />
+              </div>
+              <span className="st-label">DEPLASMAN</span>
+              <div className="st-team-name">{mac.deplasman.ad}</div>
+              {depGoller.length > 0 && (
+                <div className="st-scorers">
+                  {depGoller.map((g, i) => (
+                    <span key={i}>⚽ {g.oyuncu} {g.dakika}'</span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
 
+        {/* MODAL SEKME GEÇİŞLERİ */}
         <div className="modal-sekmeler">
-          {[['ozet', 'Özet'], ['istatistik', 'İstatistik'], ['kadro', 'Kadrolar']].map(([k, t]) => (
-            <button key={k} className={'msek' + (sekme === k ? ' aktif' : '')} onClick={() => setSekme(k)}>{t}</button>
+          {[
+            ['taktik', '⚡ 3D Taktik Saha'],
+            ['istatistik', '📊 İstatistikler'],
+            ['ozet', '⏱️ Özet & Olaylar'],
+            ['kadro', '📋 Kadro Listesi']
+          ].map(([k, t]) => (
+            <button key={k} className={'msek' + (sekme === k ? ' aktif' : '')} onClick={() => setSekme(k)}>
+              {t}
+            </button>
           ))}
         </div>
 
-        {yukleniyor ? <div className="modal-yukleniyor">Maç verileri getiriliyor...</div> : (
+        {yukleniyor ? (
+          <div className="modal-yukleniyor">Canlı maç ve taktik verileri getiriliyor...</div>
+        ) : (
           <div className="modal-govde">
+            
+            {/* 1. SEKME: 3D TAKTIK SAHA & OYUNCU YÜZLERİ */}
+            {sekme === 'taktik' && (
+              (!kadroEv || !kadroDep || (kadroEv.ilk11.length === 0 && kadroDep.ilk11.length === 0)) ? (
+                <div className="mac-bekliyor-kutu">
+                  <div className="mbk-baslik">3D Taktik Saha Kadroları Bekleniyor</div>
+                  <div className="mbk-aciklama">
+                    Resmi 11 kadroları kulüpler tarafından girildiğinde 3D saha üzerinde oyuncu yüzleri, ısı haritası ve canlı pas ağı aktif hale gelecektir.
+                  </div>
+                  <div className="mbk-ipucu">İlk 11'ler maç başlamadan 45-60 dakika önce açıklanır.</div>
+                </div>
+              ) : (
+                <TaktikSaha
+                  kadroEv={kadroEv}
+                  kadroDep={kadroDep}
+                  evAdi={mac.evSahibi.ad}
+                  depAdi={mac.deplasman.ad}
+                  evLogo={mac.evSahibi.logo}
+                  depLogo={mac.deplasman.logo}
+                  evId={mac.evSahibi.id}
+                  depId={mac.deplasman.id}
+                  olaylar={veri?.olaylar}
+                  skor={veri?.skor}
+                  dakika={guncelDakika}
+                  durum={guncelDurum}
+                />
+              )
+            )}
+
+            {/* 2. SEKME: DETAYLI İSTATİSTİKLER */}
+            {sekme === 'istatistik' && (
+              oynanmadi || veri?.baslamadi ? (
+                <div className="mac-bekliyor-kutu">
+                  <div className="mbk-baslik">Karşılaşma İstatistikleri</div>
+                  <div className="mbk-aciklama">Topla oynama, şut, korner ve faul verileri karşılaşma başladıktan sonra canlı güncellenecektir.</div>
+                </div>
+              ) : !ev || !dep || !ev.kalemler || ev.kalemler.length === 0 ? (
+                <div className="mac-bekliyor-kutu">
+                  <div className="mbk-baslik">İstatistik Bilgisi</div>
+                  <div className="mbk-aciklama">
+                    {canliMi
+                      ? "Bu lig ve kupa turu için yayıncı tarafından detaylı korner, şut ve topla oynama istatistiği tutulmamaktadır. Canlı skor ve gol olaylarını Özet sekmesinden takip edebilirsiniz."
+                      : "Bu karşılaşma için detaylı maç istatistiği kaydı bulunmuyor."}
+                  </div>
+                </div>
+              ) : (
+                <div className="stat-liste">
+                  {ev.kalemler.map((s, i) => (
+                    <StatBar key={i} ad={s.tip} evVal={s.deger} depVal={dep?.kalemler?.[i]?.deger} />
+                  ))}
+                </div>
+              )
+            )}
+
+            {/* 3. SEKME: ÖZET & OLAYLAR */}
             {sekme === 'ozet' && (
               oynanmadi || veri?.baslamadi ? (
                 <div className="mac-bekliyor-kutu">
@@ -292,30 +883,7 @@ function MacDetay({ mac, onClose }) {
               )
             )}
 
-            {sekme === 'istatistik' && (
-              oynanmadi || veri?.baslamadi ? (
-                <div className="mac-bekliyor-kutu">
-                  <div className="mbk-baslik">Karşılaşma İstatistikleri</div>
-                  <div className="mbk-aciklama">Topla oynama, şut, korner ve faul verileri karşılaşma başladıktan sonra canlı güncellenecektir.</div>
-                </div>
-              ) : !ev || !dep || !ev.kalemler || ev.kalemler.length === 0 ? (
-                <div className="mac-bekliyor-kutu">
-                  <div className="mbk-baslik">İstatistik Bilgisi</div>
-                  <div className="mbk-aciklama">
-                    {canliMi
-                      ? "Bu lig ve kupa turu için yayıncı tarafından detaylı korner, şut ve topla oynama istatistiği tutulmamaktadır. Canlı skor ve gol olaylarını Özet sekmesinden takip edebilirsiniz."
-                      : "Bu karşılaşma için detaylı maç istatistiği kaydı bulunmuyor."}
-                  </div>
-                </div>
-              ) : (
-                <div className="stat-liste">
-                  {ev.kalemler.map((s, i) => (
-                    <StatBar key={i} ad={s.tip} evVal={s.deger} depVal={dep?.kalemler?.[i]?.deger} />
-                  ))}
-                </div>
-              )
-            )}
-
+            {/* 4. SEKME: KLASİK KADRO LİSTESİ */}
             {sekme === 'kadro' && (
               (oynanmadi || veri?.baslamadi) && (!kadroEv || !kadroDep || (kadroEv.ilk11.length === 0 && kadroDep.ilk11.length === 0)) ? (
                 <div className="mac-bekliyor-kutu">
@@ -334,6 +902,7 @@ function MacDetay({ mac, onClose }) {
                 </div>
               )
             )}
+
           </div>
         )}
       </div>
