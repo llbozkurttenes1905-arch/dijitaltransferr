@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import Scores from './Scores.jsx'
+import ExtremeScouting, { CockpitIcon, RadarIcon } from './ExtremeScouting.jsx'
 import { DILLER, ceviriUret } from './i18n.js'
 
 /* sayı sayma animasyonu */
@@ -145,7 +146,7 @@ function HeatMap({ pozisyon, isim }) {
         : pozisyon === 'Kaleci' ? 'Ceza sahası' : 'Hücum bölgesi'
   return (
     <div className="chart">
-      <h4>🔥 Taktiksel Konum ve Isı Haritası</h4>
+      <h4>Taktiksel Konum ve Isı Haritası</h4>
       <svg className="pitch" viewBox="0 0 100 64">
         <defs>
           <radialGradient id="heat">
@@ -181,7 +182,7 @@ function Radar({ radar, isim, anim }) {
   const ringPts = f => radar.labels.map((_, i) => pt(100 * f, i).join(',')).join(' ')
   return (
     <div className="chart">
-      <h4>📡 Çok Boyutlu Performans Analizi</h4>
+      <h4>Çok Boyutlu Performans Analizi</h4>
       <svg className="radar" viewBox="0 0 250 210">
         {[0.25, 0.5, 0.75, 1].map((f, k) => <polygon key={k} points={ringPts(f)} fill="none" stroke="rgba(255,255,255,.08)" strokeWidth="1" />)}
         {radar.labels.map((_, i) => { const [x, y] = pt(100, i); return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke="rgba(255,255,255,.08)" /> })}
@@ -228,7 +229,7 @@ function TaktikAnalizi({ data }) {
     <div className="card" style={{ marginTop: 'var(--sp-5)', border: '1px solid rgba(16, 185, 129, 0.25)', background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.05), rgba(0, 0, 0, 0.25))' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', marginBottom: '16px', borderBottom: '1px solid var(--line)', paddingBottom: '12px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span style={{ fontSize: '22px' }}>🧭</span>
+          <RadarIcon size={20} color="var(--green)" />
           <div>
             <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--txt)', letterSpacing: '0.2px' }}>
               {h.takim} — TAKTİK VE OYNAYIŞ TARZI ANALİZİ
@@ -250,7 +251,7 @@ function TaktikAnalizi({ data }) {
               color: sekme === 'taktik' ? 'var(--green)' : 'var(--muted)'
             }}
           >
-            ⚽ Taktik Karakter
+            Taktik Karakter
           </button>
           <button
             type="button"
@@ -263,7 +264,7 @@ function TaktikAnalizi({ data }) {
               color: sekme === 'kadro' ? 'var(--green)' : 'var(--muted)'
             }}
           >
-            👥 Tam Kadro Dağılımı
+            Kadro Dağılımı
           </button>
         </div>
       </div>
@@ -297,15 +298,15 @@ function TaktikAnalizi({ data }) {
           {/* Felsefe & Stiller */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '12px', marginBottom: '16px' }}>
             <div style={{ background: 'rgba(255,255,255,0.03)', padding: '12px 14px', borderRadius: '12px', border: '1px solid var(--line)' }}>
-              <div style={{ fontSize: '12px', fontWeight: 700, color: '#34d399', marginBottom: '4px' }}>🎯 OYUN FELSEFESİ</div>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: '#34d399', marginBottom: '4px' }}>OYUN FELSEFESİ</div>
               <div style={{ fontSize: '13px', color: 'var(--txt)', lineHeight: 1.45 }}>{t.felsefe}</div>
             </div>
             <div style={{ background: 'rgba(255,255,255,0.03)', padding: '12px 14px', borderRadius: '12px', border: '1px solid var(--line)' }}>
-              <div style={{ fontSize: '12px', fontWeight: 700, color: '#60a5fa', marginBottom: '4px' }}>⚡ HÜCUM KARAKTERİ & TEMPO</div>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: '#60a5fa', marginBottom: '4px' }}>HÜCUM KARAKTERİ & TEMPO</div>
               <div style={{ fontSize: '13px', color: 'var(--txt)', lineHeight: 1.45 }}>{t.hucumStili} · <i>{t.tempo}</i></div>
             </div>
             <div style={{ background: 'rgba(255,255,255,0.03)', padding: '12px 14px', borderRadius: '12px', border: '1px solid var(--line)' }}>
-              <div style={{ fontSize: '12px', fontWeight: 700, color: '#fbbf24', marginBottom: '4px' }}>🛡️ SAVUNMA VE GEÇİŞ BLOKLARI</div>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: '#fbbf24', marginBottom: '4px' }}>SAVUNMA VE GEÇİŞ BLOKLARI</div>
               <div style={{ fontSize: '13px', color: 'var(--txt)', lineHeight: 1.45 }}>{t.savunmaStili}</div>
             </div>
           </div>
@@ -313,8 +314,8 @@ function TaktikAnalizi({ data }) {
           {/* Güçlü ve Zayıf Yönler */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px' }}>
             <div style={{ background: 'rgba(16, 185, 129, 0.06)', padding: '12px 14px', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.25)' }}>
-              <div style={{ fontSize: '12px', fontWeight: 800, color: '#10b981', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span>🟢</span> GÜÇLÜ YÖNLER (GÜÇLÜ KASLAR)
+              <div style={{ fontSize: '12px', fontWeight: 800, color: '#10b981', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: '#10b981' }} /> GÜÇLÜ YÖNLER (GÜÇLÜ KASLAR)
               </div>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 {t.gucluYonler && t.gucluYonler.map((g, i) => (
@@ -326,13 +327,13 @@ function TaktikAnalizi({ data }) {
             </div>
 
             <div style={{ background: 'rgba(239, 68, 68, 0.06)', padding: '12px 14px', borderRadius: '12px', border: '1px solid rgba(239, 68, 68, 0.25)' }}>
-              <div style={{ fontSize: '12px', fontWeight: 800, color: '#ef4444', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span>🔴</span> DİKKAT EDİLMESİ GEREKEN ZAYIF YÖNLER
+              <div style={{ fontSize: '12px', fontWeight: 800, color: '#ef4444', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: '#ef4444' }} /> DİKKAT EDİLMESİ GEREKEN ZAYIF YÖNLER
               </div>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 {t.zayifYonler && t.zayifYonler.map((z, i) => (
                   <li key={i} style={{ fontSize: '12.5px', color: '#e6edf3', marginBottom: '6px', display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
-                    <span style={{ color: '#ef4444', fontWeight: 800 }}>⚠</span> {z}
+                    <span style={{ color: '#ef4444', fontWeight: 800 }}>!</span> {z}
                   </li>
                 ))}
               </ul>
@@ -345,7 +346,7 @@ function TaktikAnalizi({ data }) {
           {t.kadroDetay ? (
             <>
               <div style={{ background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '10px', border: '1px solid var(--line)' }}>
-                <div style={{ fontSize: '12px', fontWeight: 700, color: '#fbbf24', marginBottom: '8px' }}>🧤 KALECİLER</div>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: '#fbbf24', marginBottom: '8px' }}>KALECİLER</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   {t.kadroDetay.kaleciler && t.kadroDetay.kaleciler.map((p, idx) => (
                     <span key={idx} className="pill" style={{ fontSize: '12px', padding: '4px 8px' }}>{p}</span>
@@ -354,7 +355,7 @@ function TaktikAnalizi({ data }) {
               </div>
 
               <div style={{ background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '10px', border: '1px solid var(--line)' }}>
-                <div style={{ fontSize: '12px', fontWeight: 700, color: '#60a5fa', marginBottom: '8px' }}>🛡️ DEFANS / BEKLER</div>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: '#60a5fa', marginBottom: '8px' }}>DEFANS / BEKLER</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   {t.kadroDetay.defans && t.kadroDetay.defans.map((p, idx) => (
                     <span key={idx} className="pill" style={{ fontSize: '12px', padding: '4px 8px' }}>{p}</span>
@@ -363,7 +364,7 @@ function TaktikAnalizi({ data }) {
               </div>
 
               <div style={{ background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '10px', border: '1px solid var(--line)' }}>
-                <div style={{ fontSize: '12px', fontWeight: 700, color: '#34d399', marginBottom: '8px' }}>⚙️ ORTA SAHA</div>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: '#34d399', marginBottom: '8px' }}>ORTA SAHA</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   {t.kadroDetay.ortasaha && t.kadroDetay.ortasaha.map((p, idx) => (
                     <span key={idx} className="pill" style={{ fontSize: '12px', padding: '4px 8px' }}>{p}</span>
@@ -372,7 +373,7 @@ function TaktikAnalizi({ data }) {
               </div>
 
               <div style={{ background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '10px', border: '1px solid var(--line)' }}>
-                <div style={{ fontSize: '12px', fontWeight: 700, color: '#f87171', marginBottom: '8px' }}>⚡ KANAT & FORVETLER</div>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: '#f87171', marginBottom: '8px' }}>KANAT & FORVETLER</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   {t.kadroDetay.kanat_forvet && t.kadroDetay.kanat_forvet.map((p, idx) => (
                     <span key={idx} className="pill" style={{ fontSize: '12px', padding: '4px 8px', fontWeight: (p.includes('Osimhen') || p.includes('Icardi') || p.includes('Haaland') || p.includes('Mbappé') || p.includes('Kane')) ? 800 : 500 }}>{p}</span>
@@ -395,6 +396,7 @@ function Metric({ t, v, s, c }) { return <div className="metric"><div className=
 
 /* dashboard */
 function Dashboard({ data }) {
+  const [gorunum, setGorunum] = useState('kokpit') // 'kokpit' | 'istatistik'
   const [anim, setAnim] = useState(false)
   useEffect(() => { setAnim(false); const t = setTimeout(() => setAnim(true), 60); return () => clearTimeout(t) }, [data])
   const o = data.oyuncu, h = data.hedef, s = data.sim, U = data.uyum
@@ -402,88 +404,119 @@ function Dashboard({ data }) {
   const esik1 = (data.birim && data.birim.esik1) || 20
   const esik2 = (data.birim && data.birim.esik2) || 30
   const v = U >= 0.80 ? ['MÜKEMMEL UYUM', '#10b981'] : U >= 0.65 ? ['İYİ UYUM', '#34d399'] : U >= 0.50 ? ['ORTA DÜZEY', '#fbbf24'] : ['RİSKLİ', '#ef4444']
+
   return (
     <>
-      <div className="g3">
-        <div className="card">
-          <div className="idrow">
-            {o.foto && <img src={o.foto} alt="" />}
-            <div>
-              <div className="nm">{o.isim}</div>
-              <div className="mt">{o.uyruk || ''} · {o.yas || '?'} yaş · {o.pozisyon || ''}</div>
-              <div className="mt">{o.takim || ''} · {o.lig || ''} {o.sezon || ''}</div>
-            </div>
-          </div>
-          <div className="pills">
-            <span className="pill">{o.gol} gol</span>
-            <span className="pill">{o.asist} asist</span>
-            <span className="pill">{Number(o.ort_rating).toFixed(2)} reyting</span>
-            <span className="pill">{o.ga90} G+A/90</span>
-          </div>
+      {/* Görünüm Geçiş Sekmeleri */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            type="button"
+            className={'usek' + (gorunum === 'kokpit' ? ' aktif' : '')}
+            onClick={() => setGorunum('kokpit')}
+            style={{ display: 'flex', alignItems: 'center', gap: '7px' }}
+          >
+            <CockpitIcon size={15} />
+            <span>Extreme Scouting Kokpiti</span>
+          </button>
+          <button
+            type="button"
+            className={'usek' + (gorunum === 'istatistik' ? ' aktif' : '')}
+            onClick={() => setGorunum('istatistik')}
+            style={{ display: 'flex', alignItems: 'center', gap: '7px' }}
+          >
+            <RadarIcon size={15} />
+            <span>Monte Carlo & İstatistik Derinliği</span>
+          </button>
         </div>
-        <div className="card gaugeCard">
-          <div className="gauge-title">ANA UYUM ÖZETİ</div>
-          <Gauge value={U} />
-          <span className="badge" style={{ background: v[1] + '22', color: v[1], border: '1px solid ' + v[1] + '55' }}>{v[0]}</span>
-        </div>
-        <div className="card">
-          <div className="idrow">
-            {h.logo && <img src={h.logo} alt="" />}
-            <div>
-              <div className="nm">{h.takim}</div>
-              <div className="mt">{h.ulke || ''} · {h.lig || ''} {h.sezon || ''}</div>
-              <div className="mt">Diziliş: {h.dizilis || '—'}</div>
-            </div>
-          </div>
-          <div className="pills">
-            <span className="pill">{h.atilan_gol} gol</span>
-            <span className="pill">{h.gol_basina_mac} gol/maç</span>
-            {(o.grp === 'DEF' || o.grp === 'GK') && (
-              <span className="pill">{h.yenilen_gol} yenilen · {h.yenilen_gol_basina_mac}/maç</span>
-            )}
-          </div>
-          {h.kadro && h.kadro.length > 0 && (
-            <div style={{ marginTop: '12px', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '10px' }}>
-              <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                ⭐ Güncel Kadro & Kilit İsimler:
+      </div>
+
+      {gorunum === 'kokpit' ? (
+        <ExtremeScouting data={data} />
+      ) : (
+        <>
+          <div className="g3">
+            <div className="card">
+              <div className="idrow">
+                {o.foto && <img src={o.foto} alt="" />}
+                <div>
+                  <div className="nm">{o.isim}</div>
+                  <div className="mt">{o.uyruk || ''} · {o.yas || '?'} yaş · {o.pozisyon || ''}</div>
+                  <div className="mt">{o.takim || ''} · {o.lig || ''} {o.sezon || ''}</div>
+                </div>
               </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                {h.kadro.map((k, i) => (
-                  <span key={i} className="pill" style={{ fontSize: '0.70rem', padding: '2px 8px', background: 'rgba(30, 41, 59, 0.7)' }}>{k}</span>
-                ))}
+              <div className="pills">
+                <span className="pill">{o.gol} gol</span>
+                <span className="pill">{o.asist} asist</span>
+                <span className="pill">{Number(o.ort_rating).toFixed(2)} reyting</span>
+                <span className="pill">{o.ga90} G+A/90</span>
               </div>
             </div>
-          )}
-        </div>
-      </div>
+            <div className="card gaugeCard">
+              <div className="gauge-title">ANA UYUM ÖZETİ</div>
+              <Gauge value={U} />
+              <span className="badge" style={{ background: v[1] + '22', color: v[1], border: '1px solid ' + v[1] + '55' }}>{v[0]}</span>
+            </div>
+            <div className="card">
+              <div className="idrow">
+                {h.logo && <img src={h.logo} alt="" />}
+                <div>
+                  <div className="nm">{h.takim}</div>
+                  <div className="mt">{h.ulke || ''} · {h.lig || ''} {h.sezon || ''}</div>
+                  <div className="mt">Diziliş: {h.dizilis || '—'}</div>
+                </div>
+              </div>
+              <div className="pills">
+                <span className="pill">{h.atilan_gol} gol</span>
+                <span className="pill">{h.gol_basina_mac} gol/maç</span>
+                {(o.grp === 'DEF' || o.grp === 'GK') && (
+                  <span className="pill">{h.yenilen_gol} yenilen · {h.yenilen_gol_basina_mac}/maç</span>
+                )}
+              </div>
+              {h.kadro && h.kadro.length > 0 && (
+                <div style={{ marginTop: '12px', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '10px' }}>
+                  <div style={{ fontSize: '0.72rem', fontWeight: 600, color: '#94a3b8', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Güncel Kadro & Kilit İsimler:
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                    {h.kadro.map((k, i) => (
+                      <span key={i} className="pill" style={{ fontSize: '0.70rem', padding: '2px 8px', background: 'rgba(30, 41, 59, 0.7)' }}>{k}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
 
-      <div className="g4">
-        <Metric t={'Beklenen ' + birimAd} v={<CountUp value={s.ga_med} />} s={'aralık ' + s.ga_lo + '–' + s.ga_hi} c="#10b981" />
-        <Metric t="Sakatlık Riski" v={<><CountUp value={s.kacan_ort} dec={1} /> maç</>} s="sezonda (ortalama)" c="#fbbf24" />
-        <Metric t={esik1 + '+ ' + birimAd + ' İhtimali'} v={<>%<CountUp value={s.p20 * 100} /></>} s={esik2 + '+ için %' + Math.round(s.p30 * 100)} c="#34d399" />
-        <Metric t="Sağlamlık" v={<>%<CountUp value={s.saglam * 100} /></>} s="32+ maç oynama" c="#60a5fa" />
-      </div>
+          <div className="g4">
+            <Metric t={'Beklenen ' + birimAd} v={<CountUp value={s.ga_med} />} s={'aralık ' + s.ga_lo + '–' + s.ga_hi} c="#10b981" />
+            <Metric t="Sakatlık Riski" v={<><CountUp value={s.kacan_ort} dec={1} /> maç</>} s="sezonda (ortalama)" c="#fbbf24" />
+            <Metric t={esik1 + '+ ' + birimAd + ' İhtimali'} v={<>%<CountUp value={s.p20 * 100} /></>} s={esik2 + '+ için %' + Math.round(s.p30 * 100)} c="#34d399" />
+            <Metric t="Sağlamlık" v={<>%<CountUp value={s.saglam * 100} /></>} s="32+ maç oynama" c="#60a5fa" />
+          </div>
 
-      <Katki data={data} />
+          <Katki data={data} />
 
-      <TaktikAnalizi data={data} />
+          <TaktikAnalizi data={data} />
 
-      <div className="g2">
-        <HeatMap pozisyon={o.pozisyon} isim={o.isim} />
-        <Radar radar={data.radar} isim={o.isim} anim={anim} />
-      </div>
+          <div className="g2">
+            <HeatMap pozisyon={o.pozisyon} isim={o.isim} />
+            <Radar radar={data.radar} isim={o.isim} anim={anim} />
+          </div>
 
-      <div className="g2">
-        <Bars bilesen={data.bilesen} anim={anim} />
-        <MonteCarlo hist={s.hist} med={s.ga_med} lo={s.ga_lo} hi={s.ga_hi} anim={anim} birimAd={birimAd} />
-      </div>
+          <div className="g2">
+            <Bars bilesen={data.bilesen} anim={anim} />
+            <MonteCarlo hist={s.hist} med={s.ga_med} lo={s.ga_lo} hi={s.ga_hi} anim={anim} birimAd={birimAd} />
+          </div>
 
-      <details className="params">
-        <summary>Hesaplanan parametreler (gerçek veriden)</summary>
-        <p>Temel performans: {data.param.S.toFixed(3)} · dalgalanma: {data.param.sigma[0]}/{data.param.sigma[1]} ·
-          Sakatlık: {data.param.episode} dönem / {data.param.toplam_mac} maç → maç başı %{(data.param.p * 100).toFixed(1)},
-          dönem başına {data.param.lam.toFixed(1)} maç · Medyan performans %{Math.round(s.perf * 100)}</p>
-      </details>
+          <details className="params">
+            <summary>Hesaplanan parametreler (gerçek veriden)</summary>
+            <p>Temel performans: {data.param.S.toFixed(3)} · dalgalanma: {data.param.sigma[0]}/{data.param.sigma[1]} ·
+              Sakatlık: {data.param.episode} dönem / {data.param.toplam_mac} maç → maç başı %{(data.param.p * 100).toFixed(1)},
+              dönem başına {data.param.lam.toFixed(1)} maç · Medyan performans %{Math.round(s.perf * 100)}</p>
+          </details>
+        </>
+      )}
     </>
   )
 }
@@ -492,11 +525,11 @@ function Dashboard({ data }) {
 function Picker({ list, onPick }) {
   return (
     <div className="picker">
-      <h3>🔎 Birden fazla oyuncu bulundu — hangisi?</h3>
+      <h3>Birden fazla oyuncu bulundu — hangisi?</h3>
       <div className="pick-grid">
         {list.map((a, i) => (
           <button className="pick-card" key={a.id} style={{ animationDelay: i * 0.05 + 's' }} onClick={() => onPick(a.id)}>
-            {a.foto ? <img src={a.foto} alt="" /> : <div className="pick-ph">⚽</div>}
+            {a.foto ? <img src={a.foto} alt="" /> : <div className="pick-ph" style={{ fontFamily: "'Sora', sans-serif", fontWeight: 900 }}>DT</div>}
             <div className="pick-n">{a.isim}</div>
             <div className="pick-m">{a.uyruk || '—'}{a.yas ? ' · ' + a.yas + ' yaş' : ''}</div>
           </button>
@@ -612,7 +645,7 @@ export default function App() {
         {sekme === 'skorlar' ? <Scores dil={dil} t={t} /> : (
         <div className="shell">
           <aside className="panel">
-            <div className="brand"><span className="dot">⚽</span> {t('heroBaslik')}</div>
+            <div className="brand"><span className="dot" style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: 'var(--green)' }} /> {t('heroBaslik')}</div>
             <div className="brand-sub">{t('heroAlt')}</div>
             <form className="arama-form" onSubmit={e => { e.preventDefault(); analiz() }}>
               <div className="field">
@@ -685,7 +718,7 @@ export default function App() {
             {loading
               ? <div className="state"><span className="spin" /> {loadMsg}</div>
               : error
-                ? <div className="state err">⚠️ {error}</div>
+                ? <div className="state err">{error}</div>
                 : candidates
                   ? <Picker list={candidates} onPick={runAnalyze} />
                   : data
@@ -695,7 +728,7 @@ export default function App() {
         </div>
         )}
       </div>
-      <div className="imza">⚽ by <b>Enes Bozkurt</b></div>
+      <div className="imza">by <b>Enes Bozkurt</b></div>
     </>
   )
 }

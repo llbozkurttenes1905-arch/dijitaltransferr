@@ -7,6 +7,8 @@ const API_KEY = process.env.API_KEY || "";
 const BASE_APISPORTS = "https://v3.football.api-sports.io";
 const BASE_THESPORTSDB = "https://www.thesportsdb.com/api/v1/json/3";
 
+import { generateExtremeScoutingPackage, findRealPlayerExpert } from "./scoutingEngine.js";
+
 // Önbellek
 const cache = new Map();
 const CACHE_TTL = 1000 * 60 * 60 * 6; // 6 saat
@@ -111,6 +113,19 @@ const TIER_3_TEAMS = new Set(["galatasaray", "fenerbahce", "fenerbahçe", "besik
 
 // Her Oyuncuya Özel Dinamik İstatistik Hesaplama
 function calculateDynamicPlayerStats(pName, teamName, posRaw, age) {
+  const expert = findRealPlayerExpert(pName);
+  if (expert) {
+    return {
+      rating: expert.rating,
+      gol: expert.gol,
+      asist: expert.asist,
+      minutes: expert.minutes,
+      ga90: expert.ga90,
+      injuryEpisodes: 1,
+      missedMatches: Math.round(expert.kacanMac || 2)
+    };
+  }
+
   const normTeam = (teamName || "").toLowerCase().trim();
   const seed = hashStr(pName.toLowerCase());
   const randOffset = (((seed % 100) / 100) * 0.4) - 0.2;
@@ -1141,6 +1156,10 @@ async function analyzePlayerAndTeam(pid, hedefAdi) {
   result.birim = (posGrp === "DEF" || posGrp === "GK")
     ? { ad: "Savunma Puanı", esik1: 15, esik2: 25 }
     : { ad: "Gol+Asist", esik1: 20, esik2: 30 };
+
+  // Ekstrem Taktik & Scouting Kokpiti Paketi (Transfermarkt, Opta Radar, Düello, Deplasman, Moneyball, Sakatlık, FFP)
+  result.ekstrem = generateExtremeScoutingPackage(oyuncu, hedef, teamProfile, pStats, result.sim);
+  result.piyasa = result.ekstrem.piyasa;
 
   setCache(cacheKey, result);
   return result;
