@@ -448,16 +448,19 @@ async function detayGetir(res, fixtureId, query = {}) {
         olaylar = d.e.map(ev => {
           const teamSide = ev[0] === 1 ? "ev" : "dep";
           const dk = ev[1];
-          const oyuncu = ev[3] || "Oyuncu";
+          const oyuncu = ev[3] ? String(ev[3]).replace(/\?/g, 'i').trim() : "Oyuncu";
           const eventCode = ev[4];
           let tip = "Goal";
           let detay = "";
-          let yardimci = "";
+          let yardimci = null;
 
-          if (eventCode === 1) tip = "Goal";
+          if (eventCode === 1) {
+            tip = "Goal";
+            if (ev[5] && ev[5].p) yardimci = String(ev[5].p).replace(/\?/g, 'i').trim();
+          }
           else if (eventCode === 2) { tip = "Card"; detay = "Red Card"; }
           else if (eventCode === 3) { tip = "Card"; detay = "Yellow-Red Card"; }
-          else if (eventCode === 4) { tip = "subst"; detay = "Substitution"; if (ev[5] && ev[5].sub) yardimci = ev[5].sub; }
+          else if (eventCode === 4) { tip = "subst"; detay = "Substitution"; if (ev[5] && ev[5].sub) yardimci = String(ev[5].sub).replace(/\?/g, 'i').trim(); }
           else if (eventCode === 5) { tip = "Card"; detay = "Yellow Card"; }
           else if (eventCode === 6) { tip = "Goal"; detay = "Penalty"; }
           else if (eventCode === 7) { tip = "Goal"; detay = "Own Goal"; }
@@ -474,50 +477,56 @@ async function detayGetir(res, fixtureId, query = {}) {
         });
       }
 
-      // Kadrolar (İlk 11 ve Yedekler)
-      if (d && ((Array.isArray(d.h) && d.h.length > 0) || (Array.isArray(d.a) && d.a.length > 0))) {
-        const homeList = Array.isArray(d.h) ? d.h : [];
-        const awayList = Array.isArray(d.a) ? d.a : [];
+        // Kadrolar (İlk 11 ve Yedekler)
+        if (d && ((Array.isArray(d.h) && d.h.length > 0) || (Array.isArray(d.a) && d.a.length > 0))) {
+          const homeList = Array.isArray(d.h) ? d.h : [];
+          const awayList = Array.isArray(d.a) ? d.a : [];
+          const homeTam11 = homeList.length >= 11;
+          const awayTam11 = awayList.length >= 11;
 
-        const kadroEv = {
-          takim: d.home || "Ev Sahibi",
-          takimLogo: query.homeId ? `https://im.mackolik.com/img/logo/buyuk/${query.homeId}.gif` : "",
-          dizilis: "",
-          ilk11: homeList.slice(0, 11).map(p => ({
-            id: p[0],
-            isim: p[1],
-            no: p[2] || "–",
-            poz: ""
-          })),
-          yedekler: homeList.slice(11).map(p => ({
-            id: p[0],
-            isim: p[1],
-            no: p[2] || "–",
-            poz: "Yedek"
-          }))
-        };
+          const cleanName = (s) => s ? String(s).replace(/\?/g, 'i').trim() : "";
 
-        const kadroDep = {
-          takim: d.away || "Deplasman",
-          takimLogo: query.awayId ? `https://im.mackolik.com/img/logo/buyuk/${query.awayId}.gif` : "",
-          dizilis: "",
-          ilk11: awayList.slice(0, 11).map(p => ({
-            id: p[0],
-            isim: p[1],
-            no: p[2] || "–",
-            poz: ""
-          })),
-          yedekler: awayList.slice(11).map(p => ({
-            id: p[0],
-            isim: p[1],
-            no: p[2] || "–",
-            poz: "Yedek"
-          }))
-        };
+          const kadroEv = {
+            takim: d.home || "Ev Sahibi",
+            takimLogo: query.homeId ? `https://im.mackolik.com/img/logo/buyuk/${query.homeId}.gif` : "",
+            dizilis: "",
+            tam11: homeTam11,
+            ilk11: homeList.slice(0, 11).map(p => ({
+              id: p[0],
+              isim: cleanName(p[1]),
+              no: (p[2] && p[2] !== 0) ? p[2] : "–",
+              poz: ""
+            })),
+            yedekler: homeList.slice(11).map(p => ({
+              id: p[0],
+              isim: cleanName(p[1]),
+              no: (p[2] && p[2] !== 0) ? p[2] : "–",
+              poz: "Yedek"
+            }))
+          };
 
-        kadrolar = [kadroEv, kadroDep];
+          const kadroDep = {
+            takim: d.away || "Deplasman",
+            takimLogo: query.awayId ? `https://im.mackolik.com/img/logo/buyuk/${query.awayId}.gif` : "",
+            dizilis: "",
+            tam11: awayTam11,
+            ilk11: awayList.slice(0, 11).map(p => ({
+              id: p[0],
+              isim: cleanName(p[1]),
+              no: (p[2] && p[2] !== 0) ? p[2] : "–",
+              poz: ""
+            })),
+            yedekler: awayList.slice(11).map(p => ({
+              id: p[0],
+              isim: cleanName(p[1]),
+              no: (p[2] && p[2] !== 0) ? p[2] : "–",
+              poz: "Yedek"
+            }))
+          };
+
+          kadrolar = [kadroEv, kadroDep];
+        }
       }
-    }
   } catch (err) {
     // ignore
   }

@@ -217,6 +217,97 @@ function getPlayerPhotoUrl(isim, id) {
   return ''
 }
 
+// --- RESMİ YAYIN İKONLARI (EMOJİSİZ VE PROFESYONEL SVG) ---
+function PitchIcon({ size = 14, className = '' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <rect x="2" y="3" width="20" height="18" rx="2" />
+      <line x1="12" y1="3" x2="12" y2="21" />
+      <circle cx="12" cy="12" r="4" />
+    </svg>
+  )
+}
+
+function StatsIcon({ size = 14, className = '' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <line x1="18" y1="20" x2="18" y2="10" />
+      <line x1="12" y1="20" x2="12" y2="4" />
+      <line x1="6" y1="20" x2="6" y2="14" />
+    </svg>
+  )
+}
+
+function TimelineIcon({ size = 14, className = '' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </svg>
+  )
+}
+
+function SquadIcon({ size = 14, className = '' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  )
+}
+
+function HeatmapIcon({ size = 13, className = '' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="12" r="5" />
+      <circle cx="12" cy="12" r="1" />
+    </svg>
+  )
+}
+
+function PassNetworkIcon({ size = 13, className = '' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <circle cx="18" cy="5" r="3" />
+      <circle cx="6" cy="12" r="3" />
+      <circle cx="18" cy="19" r="3" />
+      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+    </svg>
+  )
+}
+
+function RatingIcon({ size = 13, className = '' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    </svg>
+  )
+}
+
+function BallIcon({ size = 12, className = '' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <circle cx="12" cy="12" r="10" />
+      <polygon points="12 7 15.5 9.5 14 14 10 14 8.5 9.5 12 7" />
+    </svg>
+  )
+}
+
+function SwapIcon({ size = 13, className = '' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <polyline points="17 1 21 5 17 9" />
+      <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+      <polyline points="7 23 3 19 7 15" />
+      <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+    </svg>
+  )
+}
+
 function PlayerFaceAvatar({ photoUrl, name, number, isHome, isMvp, rating, hasGoal, size = 40, className = '' }) {
   const [imgErr, setImgErr] = useState(false)
   const showPhoto = photoUrl && !imgErr
@@ -230,20 +321,30 @@ function PlayerFaceAvatar({ photoUrl, name, number, isHome, isMvp, rating, hasGo
     .join('')
     .toUpperCase() || '?'
 
+  const numLabel = (number && number !== '–' && number !== 0) ? `#${number}` : (initials || '–')
+
   return (
     <div className={`player-face-circle ${className}`} style={{ width: size, height: size }}>
       {showPhoto ? (
         <img src={photoUrl} alt={name} onError={() => setImgErr(true)} />
       ) : (
-        <div className="player-face-fallback">{initials}</div>
+        <div className="player-face-fallback">
+          <span style={{ fontSize: size > 32 ? '11px' : '9.5px' }}>{numLabel}</span>
+        </div>
       )}
-      {number != null && <span className="pin-no-pill">#{number}</span>}
+      {number != null && number !== '–' && number !== 0 && (
+        <span className="pin-no-pill">#{number}</span>
+      )}
       {rating && (
         <span className={'pin-rating-pill' + (isMvp ? ' gold' : '')}>
           {rating}
         </span>
       )}
-      {hasGoal && <span className="pin-goal-pill">⚽</span>}
+      {hasGoal && (
+        <span className="pin-goal-pill">
+          <BallIcon size={10} />
+        </span>
+      )}
     </div>
   )
 }
@@ -305,7 +406,6 @@ function TaktikSaha({ kadroEv, kadroDep, evAdi, depAdi, evLogo, depLogo, evId, d
 
         const photo = getPlayerPhotoUrl(p.isim, p.id)
         const hasGoal = golculer.has((p.isim || '').toLowerCase().trim())
-        // Gerçekçi reyting üretimi (ilk oyuncular / forvetler daha yüksek)
         const baseRating = (hasGoal ? 8.8 : (7.2 + ((p.id || 1) % 18) / 10)).toFixed(1)
         const isMvp = (isHome && lineIdx === 3 && pIdx === 0) || (hasGoal && pIdx === 0)
 
@@ -333,8 +433,9 @@ function TaktikSaha({ kadroEv, kadroDep, evAdi, depAdi, evLogo, depLogo, evId, d
   const depOyuncular = layoutTakim(kadroDep, false)
   const tumOyuncular = [...evOyuncular, ...depOyuncular]
 
-  // Başlangıçta MVP veya ilk forveti seç
   const aktifOyuncu = seciliOyuncu || tumOyuncular.find(p => p.isMvp) || tumOyuncular[0] || null
+
+  const tamKadroMu = (kadroEv?.ilk11?.length >= 11 && kadroDep?.ilk11?.length >= 11)
 
   return (
     <div className="taktik-wrapper">
@@ -353,26 +454,35 @@ function TaktikSaha({ kadroEv, kadroDep, evAdi, depAdi, evLogo, depLogo, evId, d
             <button
               onClick={() => setShowHeat(!showHeat)}
               className={'taktik-mini-btn' + (showHeat ? ' aktif-heat' : '')}
-              title="Sahanın baskı ve ısı haritasını aç/kapa"
+              title="Isı haritasını aç/kapa"
             >
-              <span>🔥</span> ISI HARİTASI
+              <HeatmapIcon /> <span>ISI HARİTASI</span>
             </button>
             <button
               onClick={() => setShowLasers(!showLasers)}
               className={'taktik-mini-btn' + (showLasers ? ' aktif-laser' : '')}
               title="Pas ve pres lazer ağını aç/kapa"
             >
-              <span>⚡</span> PAS AĞI
+              <PassNetworkIcon /> <span>PAS AĞI</span>
             </button>
             <button
               onClick={() => setShowRatings(!showRatings)}
               className={'taktik-mini-btn' + (showRatings ? ' aktif-rating' : '')}
-              title="Sofascore canlı reytinglerini göster/gizle"
+              title="Canlı reytingleri göster/gizle"
             >
-              <span>⭐</span> REYTİNGLER
+              <RatingIcon /> <span>REYTİNGLER</span>
             </button>
           </div>
         </div>
+
+        {!tamKadroMu && (
+          <div className="kadro-uyari-kutu">
+            <span className="font-mono font-bold uppercase tracking-wider text-[10px] bg-amber-500/20 px-1.5 py-0.5 rounded border border-amber-500/30">BİLGİ</span>
+            <span>
+              Bu karşılaşma için resmi 22 kişilik ilk 11 listesi federasyon tarafından tam açıklanmamış olup sahadaki oyuncular maç olaylarına göre konumlandırılmıştır.
+            </span>
+          </div>
+        )}
 
         {/* 3D Eğimli Perspektif Saha */}
         <div className="pitch-perspective-box">
@@ -406,12 +516,16 @@ function TaktikSaha({ kadroEv, kadroDep, evAdi, depAdi, evLogo, depLogo, evId, d
                 <line x1="17%" y1="38%" x2="30%" y2="50%" stroke="#10b981" strokeWidth="2" className="laser-line-anim" opacity="0.8" />
                 <line x1="30%" y1="50%" x2="43%" y2="40%" stroke="#10b981" strokeWidth="2.2" className="laser-line-anim" opacity="0.9" />
                 <line x1="30%" y1="50%" x2="43%" y2="65%" stroke="#10b981" strokeWidth="1.8" className="laser-line-anim" opacity="0.75" />
-                <line x1="83%" y1="40%" x2="70%" y2="50%" stroke="#06b6d4" strokeWidth="2" className="laser-line-anim" opacity="0.8" />
-                <line x1="70%" y1="50%" x2="57%" y2="45%" stroke="#06b6d4" strokeWidth="2.2" className="laser-line-anim" opacity="0.9" />
+                {depOyuncular.length > 1 && (
+                  <>
+                    <line x1="83%" y1="40%" x2="70%" y2="50%" stroke="#06b6d4" strokeWidth="2" className="laser-line-anim" opacity="0.8" />
+                    <line x1="70%" y1="50%" x2="57%" y2="45%" stroke="#06b6d4" strokeWidth="2.2" className="laser-line-anim" opacity="0.9" />
+                  </>
+                )}
               </svg>
             )}
 
-            {/* OYUNCU PİNLERİ (GERÇEK YÜZLER) */}
+            {/* OYUNCU PİNLERİ (GERÇEK YÜZLER / RESMİ AVATARLAR) */}
             {tumOyuncular.map((p, idx) => {
               const isSelected = aktifOyuncu && aktifOyuncu.isim === p.isim && aktifOyuncu.isHome === p.isHome
               const surname = (p.isim || '').split(' ').slice(-1)[0]
@@ -442,7 +556,8 @@ function TaktikSaha({ kadroEv, kadroDep, evAdi, depAdi, evLogo, depLogo, evId, d
         </div>
 
         <div className="text-[11px] font-mono text-slate-400 text-center mt-2 flex items-center justify-center gap-1.5">
-          <span>💡</span> <span>Herhangi bir <strong>futbolcu yüzüne</strong> tıkla, canlı telemetri ve Opta radarı açılsın.</span>
+          <span className="text-emerald-400 font-bold">[RADAR BİLGİSİ]</span>
+          <span>Sahadaki futbolcuya tıklayarak canlı Opta telemetrisini görüntüleyebilirsiniz.</span>
         </div>
       </div>
 
@@ -461,10 +576,12 @@ function TaktikSaha({ kadroEv, kadroDep, evAdi, depAdi, evLogo, depLogo, evId, d
             {/* Büyük HD Oyuncu Kartı */}
             <div className="hud-player-top">
               <div className={`hud-big-photo${aktifOyuncu.isMvp ? ' mvp' : ''}`}>
-                <img
-                  src={aktifOyuncu.photo || 'https://media.api-sports.io/football/players/184.png'}
-                  alt={aktifOyuncu.isim}
-                  onError={(e) => { e.currentTarget.style.display = 'none' }}
+                <PlayerFaceAvatar
+                  photoUrl={aktifOyuncu.photo}
+                  name={aktifOyuncu.isim}
+                  number={aktifOyuncu.no}
+                  isHome={aktifOyuncu.isHome}
+                  size={56}
                 />
                 <span className="hud-no-tag">#{aktifOyuncu.no || '10'}</span>
               </div>
@@ -476,7 +593,7 @@ function TaktikSaha({ kadroEv, kadroDep, evAdi, depAdi, evLogo, depLogo, evId, d
                   <span>{aktifOyuncu.teamName}</span>
                 </div>
               </div>
-              <div className="hud-rating-large" title="Canlı Sofascore reytingi">
+              <div className="hud-rating-large" title="Canlı reyting">
                 {aktifOyuncu.rating}
               </div>
             </div>
@@ -485,7 +602,16 @@ function TaktikSaha({ kadroEv, kadroDep, evAdi, depAdi, evLogo, depLogo, evId, d
             <div className="hud-stats-grid">
               <div className="hud-stat-cell">
                 <div className="hud-stat-label">GOL & KATKI</div>
-                <div className="hud-stat-val text-emerald-400">{aktifOyuncu.hasGoal ? '1 Gol ⚽' : '0 Gol'}</div>
+                <div className="hud-stat-val text-emerald-400 flex items-center gap-1.5">
+                  {aktifOyuncu.hasGoal ? (
+                    <>
+                      <span>1 Gol</span>
+                      <BallIcon size={12} />
+                    </>
+                  ) : (
+                    <span>0 Gol</span>
+                  )}
+                </div>
               </div>
               <div className="hud-stat-cell">
                 <div className="hud-stat-label">GOL BEKLENTİSİ</div>
@@ -505,7 +631,7 @@ function TaktikSaha({ kadroEv, kadroDep, evAdi, depAdi, evLogo, depLogo, evId, d
             <div className="hud-radar-bars">
               <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5 flex justify-between">
                 <span>RADAR YETENEK DAĞILIMI</span>
-                <span className="text-emerald-400">92 GEN</span>
+                <span className="text-emerald-400">GENEL FORM</span>
               </div>
               <div className="hud-bar-row">
                 <div className="hud-bar-label">
@@ -561,7 +687,7 @@ function TaktikSaha({ kadroEv, kadroDep, evAdi, depAdi, evLogo, depLogo, evId, d
                           isHome: true
                         })}
                       >
-                        {yPhoto && <img src={yPhoto} alt="" />}
+                        <PlayerFaceAvatar photoUrl={yPhoto} name={yp.isim} number={yp.no} isHome={true} size={22} />
                         <span>#{yp.no} {yp.isim.split(' ').slice(-1)[0]}</span>
                       </div>
                     )
@@ -582,10 +708,24 @@ function TaktikSaha({ kadroEv, kadroDep, evAdi, depAdi, evLogo, depLogo, evId, d
   )
 }
 
-function Kadro11({ takim, takimAdi, logo, teamId }) {
+function Kadro11({ takim, takimAdi, logo, teamId, isHome = true }) {
   if (!takim || !takim.ilk11 || takim.ilk11.length === 0) {
-    return <div className="kadro-yok">Kadro bilgisi henüz girilmedi.</div>
+    return (
+      <div className="kadro-col">
+        <div className="kadro-h">
+          <TeamBadge logo={takim?.takimLogo || logo} name={takim?.takim || takimAdi} teamId={teamId} size={18} />
+          {takim?.takim || takimAdi}
+        </div>
+        <div className="kadro-yok">
+          Bu karşılaşma için resmi kadro veya olay kaydı federasyon sisteminde henüz bulunmuyor.
+        </div>
+      </div>
+    )
   }
+
+  const isFull11 = takim.tam11 !== false && takim.ilk11.length >= 11
+  const baslikMetni = isFull11 ? "İlk 11" : `Kayıtlı Maç Kadrosu (${takim.ilk11.length} Oyuncu)`
+
   return (
     <div className="kadro-col">
       <div className="kadro-h">
@@ -593,26 +733,54 @@ function Kadro11({ takim, takimAdi, logo, teamId }) {
         {takim.takim || takimAdi}
         {takim.dizilis ? <span className="kadro-diz">{takim.dizilis}</span> : null}
       </div>
-      <div className="kadro-alt-baslik">İlk 11</div>
+
+      {!isFull11 && (
+        <div className="kadro-uyari-kutu">
+          <span>* Federasyon tarafından resmi 22 kişilik liste girilmediğinde maç olaylarına dahil olan oyuncular listelenir.</span>
+        </div>
+      )}
+
+      <div className="kadro-alt-baslik">{baslikMetni}</div>
       <ul className="kadro-liste">
-        {takim.ilk11.map((p, i) => (
-          <li key={i}>
-            <span className="kadro-no">{p.no && p.no !== 0 ? p.no : (i + 1)}</span>
-            {p.isim}
-            {p.poz ? <span className="kadro-poz">{p.poz}</span> : null}
-          </li>
-        ))}
+        {takim.ilk11.map((p, i) => {
+          const photo = getPlayerPhotoUrl(p.isim, p.id)
+          return (
+            <li key={i} className="kadro-item-card">
+              <div className="kadro-avatar-wrap">
+                <PlayerFaceAvatar photoUrl={photo} name={p.isim} number={p.no} isHome={isHome} size={30} />
+              </div>
+              <div className="kadro-player-info">
+                <div className="kadro-player-name">{p.isim}</div>
+                {p.poz ? <div className="kadro-player-sub">{p.poz}</div> : null}
+              </div>
+              {p.no && p.no !== '–' && p.no !== 0 ? (
+                <span className="kadro-no-badge">#{p.no}</span>
+              ) : null}
+            </li>
+          )
+        })}
       </ul>
+
       {takim.yedekler && takim.yedekler.length > 0 && (
         <>
-          <div className="kadro-alt-baslik" style={{ marginTop: '14px' }}>Yedekler</div>
+          <div className="kadro-alt-baslik" style={{ marginTop: '16px' }}>Yedekler</div>
           <ul className="kadro-liste">
-            {takim.yedekler.map((p, i) => (
-              <li key={i}>
-                <span className="kadro-no">{p.no && p.no !== 0 ? p.no : '–'}</span>
-                {p.isim}
-              </li>
-            ))}
+            {takim.yedekler.map((p, i) => {
+              const photo = getPlayerPhotoUrl(p.isim, p.id)
+              return (
+                <li key={i} className="kadro-item-card">
+                  <div className="kadro-avatar-wrap">
+                    <PlayerFaceAvatar photoUrl={photo} name={p.isim} number={p.no} isHome={isHome} size={30} />
+                  </div>
+                  <div className="kadro-player-info">
+                    <div className="kadro-player-name">{p.isim}</div>
+                  </div>
+                  {p.no && p.no !== '–' && p.no !== 0 ? (
+                    <span className="kadro-no-badge">#{p.no}</span>
+                  ) : null}
+                </li>
+              )
+            })}
           </ul>
         </>
       )}
@@ -622,18 +790,18 @@ function Kadro11({ takim, takimAdi, logo, teamId }) {
 }
 
 function OlayIkon({ tip, detay }) {
-  if (tip === 'Goal') return <span>⚽</span>
+  if (tip === 'Goal') return <BallIcon size={14} />
   if (tip === 'Card') {
     return (detay && detay.includes('Red')) ? <span className="kart-kirmizi" title="Kırmızı Kart" /> : <span className="kart-sari" title="Sarı Kart" />
   }
-  if (tip === 'subst') return <span>⇄</span>
+  if (tip === 'subst') return <SwapIcon size={14} />
   return <span>•</span>
 }
 
 function MacDetay({ mac, onClose }) {
   const [veri, setVeri] = useState(null)
   const [yukleniyor, setYukleniyor] = useState(true)
-  const [sekme, setSekme] = useState('taktik') // Varsayılan olarak 3D Taktik Saha açılır!
+  const [sekme, setSekme] = useState('taktik')
 
   const canliMi = CANLI.has(mac.durum)
   const oynanmadi = mac.skor.ev == null || mac.durum === 'NS' || mac.durum === 'PST'
@@ -659,7 +827,6 @@ function MacDetay({ mac, onClose }) {
 
     yukle()
 
-    // Canlı maç ise her 12 saniyede bir skoru ve olayları güncelle
     let interval = null
     if (canliMi) {
       interval = setInterval(yukle, 12000)
@@ -679,7 +846,6 @@ function MacDetay({ mac, onClose }) {
   const ev = veri?.istatistik?.[0], dep = veri?.istatistik?.[1]
   const kadroEv = veri?.kadrolar?.[0], kadroDep = veri?.kadrolar?.[1]
 
-  // Gol olaylarını takımlara göre filtrele (Görseldeki gibi skorbordun altına eklemek için)
   const evGoller = (veri?.olaylar || []).filter(o => o.tip === 'Goal' && (o.takimTaraf === 'ev' || o.takim === mac.evSahibi.ad))
   const depGoller = (veri?.olaylar || []).filter(o => o.tip === 'Goal' && (o.takimTaraf === 'dep' || o.takim === mac.deplasman.ad))
 
@@ -688,7 +854,7 @@ function MacDetay({ mac, onClose }) {
       <div className="modal" onClick={e => e.stopPropagation()}>
         <button className="modal-x" onClick={onClose}>✕</button>
         
-        {/* EXTREME STADYUM LED SKORBORD KARTI (GÖRSELDEKİ BİREBİR TASARIM) */}
+        {/* EXTREME STADYUM LED SKORBORD KARTI (EMOJİSİZ VE RESMİ DÜZEN) */}
         <div className="stadium-arena-card">
           <div className="stadium-strip-top">
             <div className="st-derby">
@@ -733,7 +899,7 @@ function MacDetay({ mac, onClose }) {
               {evGoller.length > 0 && (
                 <div className="st-scorers">
                   {evGoller.map((g, i) => (
-                    <span key={i}>⚽ {g.oyuncu} {g.dakika}'</span>
+                    <span key={i}><BallIcon size={11} /> {g.oyuncu} {g.dakika}'</span>
                   ))}
                 </div>
               )}
@@ -769,7 +935,7 @@ function MacDetay({ mac, onClose }) {
               {depGoller.length > 0 && (
                 <div className="st-scorers">
                   {depGoller.map((g, i) => (
-                    <span key={i}>⚽ {g.oyuncu} {g.dakika}'</span>
+                    <span key={i}><BallIcon size={11} /> {g.oyuncu} {g.dakika}'</span>
                   ))}
                 </div>
               )}
@@ -777,16 +943,16 @@ function MacDetay({ mac, onClose }) {
           </div>
         </div>
 
-        {/* MODAL SEKME GEÇİŞLERİ */}
+        {/* MODAL SEKME GEÇİŞLERİ (EMOJİSİZ RESMİ SVG BUTONLAR) */}
         <div className="modal-sekmeler">
           {[
-            ['taktik', '⚡ 3D Taktik Saha'],
-            ['istatistik', '📊 İstatistikler'],
-            ['ozet', '⏱️ Özet & Olaylar'],
-            ['kadro', '📋 Kadro Listesi']
-          ].map(([k, t]) => (
+            ['taktik', <><PitchIcon /> <span>3D TAKTİK SAHA</span></>],
+            ['istatistik', <><StatsIcon /> <span>İSTATİSTİKLER</span></>],
+            ['ozet', <><TimelineIcon /> <span>ÖZET & OLAYLAR</span></>],
+            ['kadro', <><SquadIcon /> <span>KADRO LİSTESİ</span></>]
+          ].map(([k, label]) => (
             <button key={k} className={'msek' + (sekme === k ? ' aktif' : '')} onClick={() => setSekme(k)}>
-              {t}
+              {label}
             </button>
           ))}
         </div>
@@ -798,11 +964,11 @@ function MacDetay({ mac, onClose }) {
             
             {/* 1. SEKME: 3D TAKTIK SAHA & OYUNCU YÜZLERİ */}
             {sekme === 'taktik' && (
-              (!kadroEv || !kadroDep || (kadroEv.ilk11.length === 0 && kadroDep.ilk11.length === 0)) ? (
+              (!kadroEv && !kadroDep) || ((!kadroEv || kadroEv.ilk11.length === 0) && (!kadroDep || kadroDep.ilk11.length === 0)) ? (
                 <div className="mac-bekliyor-kutu">
                   <div className="mbk-baslik">3D Taktik Saha Kadroları Bekleniyor</div>
                   <div className="mbk-aciklama">
-                    Resmi 11 kadroları kulüpler tarafından girildiğinde 3D saha üzerinde oyuncu yüzleri, ısı haritası ve canlı pas ağı aktif hale gelecektir.
+                    Resmi 11 kadroları kulüpler tarafından açıklandığında 3D saha üzerinde oyuncu yüzleri, ısı haritası ve canlı pas ağı aktif hale gelecektir.
                   </div>
                   <div className="mbk-ipucu">İlk 11'ler maç başlamadan 45-60 dakika önce açıklanır.</div>
                 </div>
@@ -883,7 +1049,7 @@ function MacDetay({ mac, onClose }) {
               )
             )}
 
-            {/* 4. SEKME: KLASİK KADRO LİSTESİ */}
+            {/* 4. SEKME: KLASİK KADRO LİSTESİ (OYUNCU FOTOĞRAFLARI VE PROFESYONEL AVATARLAR) */}
             {sekme === 'kadro' && (
               (oynanmadi || veri?.baslamadi) && (!kadroEv || !kadroDep || (kadroEv.ilk11.length === 0 && kadroDep.ilk11.length === 0)) ? (
                 <div className="mac-bekliyor-kutu">
@@ -897,8 +1063,8 @@ function MacDetay({ mac, onClose }) {
                 </div>
               ) : (
                 <div className="kadro-grid">
-                  <Kadro11 takim={kadroEv} takimAdi={mac.evSahibi.ad} logo={mac.evSahibi.logo} teamId={mac.evSahibi.id} />
-                  <Kadro11 takim={kadroDep} takimAdi={mac.deplasman.ad} logo={mac.deplasman.logo} teamId={mac.deplasman.id} />
+                  <Kadro11 takim={kadroEv} takimAdi={mac.evSahibi.ad} logo={mac.evSahibi.logo} teamId={mac.evSahibi.id} isHome={true} />
+                  <Kadro11 takim={kadroDep} takimAdi={mac.deplasman.ad} logo={mac.deplasman.logo} teamId={mac.deplasman.id} isHome={false} />
                 </div>
               )
             )}
@@ -906,7 +1072,6 @@ function MacDetay({ mac, onClose }) {
           </div>
         )}
       </div>
-    </div>
   )
 }
 

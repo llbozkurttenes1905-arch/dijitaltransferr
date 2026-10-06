@@ -461,13 +461,24 @@ body{
 .kadro-h{display:flex;align-items:center;gap:8px;font-weight:800;font-size:13px;margin-bottom:10px;}
 .kadro-h img{width:18px;height:18px;object-fit:contain;}
 .kadro-diz{margin-left:auto;color:var(--muted);font-weight:600;font-size:11.5px;}
-.kadro-liste{list-style:none;display:flex;flex-direction:column;gap:7px;}
-.kadro-liste li{display:flex;align-items:center;gap:8px;font-size:12.5px;}
-.kadro-no{background:rgba(255,255,255,.08);border-radius:6px;width:20px;height:20px;display:inline-flex;
-  align-items:center;justify-content:center;font-size:10.5px;font-weight:700;flex-shrink:0;}
+.kadro-liste{list-style:none;display:flex;flex-direction:column;gap:9px;}
+.kadro-item-card{display:flex;align-items:center;gap:10px;padding:7px 10px;background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.07);border-radius:12px;transition:.15s;}
+.kadro-item-card:hover{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.3);transform:translateX(2px);}
+.kadro-avatar-wrap{width:32px;height:32px;border-radius:50%;overflow:hidden;border:1.5px solid rgba(16,185,129,.5);
+  background:#09121a;flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center;box-shadow:0 0 8px rgba(16,185,129,.2);}
+.kadro-avatar-wrap img{width:100%;height:100%;object-fit:cover;}
+.kadro-avatar-fallback{font-family:'Sora',sans-serif;font-weight:900;font-size:11px;color:#cbd5e1;line-height:1;}
+.kadro-player-info{min-width:0;flex:1;}
+.kadro-player-name{font-size:13px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.kadro-player-sub{font-size:10.5px;color:#94a3b8;font-family:'Courier New',monospace;}
+.kadro-no-badge{font-family:'Courier New',monospace;font-size:11px;font-weight:900;color:#34d399;
+  background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);padding:2px 7px;border-radius:6px;flex-shrink:0;}
+.kadro-uyari-kutu{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:12px;
+  padding:10px 14px;margin-bottom:14px;font-size:11.5px;color:#fcd34d;line-height:1.45;display:flex;align-items:flex-start;gap:8px;}
 .kadro-poz{margin-left:auto;color:var(--muted);font-size:10.5px;}
 .kadro-td{margin-top:10px;color:var(--muted);font-size:11.5px;}
-.kadro-yok{color:var(--muted);font-size:12.5px;text-align:center;padding:14px;}
+.kadro-yok{color:var(--muted);font-size:12.5px;text-align:center;padding:18px 12px;background:rgba(255,255,255,.02);border-radius:10px;border:1px dashed rgba(255,255,255,.1);}
 
 .mac-bekliyor-kutu{text-align:center;padding:26px 18px;background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:var(--r-md);margin:10px 0;}
 .mbk-baslik{font-size:14.5px;font-weight:800;color:#fff;margin-bottom:6px;letter-spacing:.3px;}
