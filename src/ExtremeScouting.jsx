@@ -172,7 +172,10 @@ function TacticalBoard({ ilk11, targetName }) {
               <div className="tac-node-circle">
                 <span className="tac-node-no">{p.no}</span>
               </div>
-              <div className="tac-node-name">{p.name.split(' ').pop()}</div>
+              <div className="tac-node-name">
+                <span style={{ color: isTarget ? '#34d399' : '#38bdf8', fontSize: '8.5px', fontWeight: 800, marginRight: '3px' }}>{p.pos}</span>
+                {p.name.split(' ').pop()}
+              </div>
               {isTarget && <span className="tac-node-badge">YENİ TRANSFER</span>}
             </div>
           )

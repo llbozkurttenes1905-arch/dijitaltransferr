@@ -2,7 +2,17 @@
 // Transfermarkt, Wyscout & Opta standartlarında doğrulanmış veriler ve matematiksel simülasyon modelleri.
 
 function sade(t) {
-  return (t || "").normalize("NFKD").replace(new RegExp("[" + String.fromCharCode(768) + "-" + String.fromCharCode(879) + "]", "g"), "");
+  return (t || "")
+    .replace(/ğ/g, "g").replace(/Ğ/g, "G")
+    .replace(/ü/g, "u").replace(/Ü/g, "U")
+    .replace(/ş/g, "s").replace(/Ş/g, "S")
+    .replace(/ı/g, "i").replace(/İ/g, "I")
+    .replace(/ö/g, "o").replace(/Ö/g, "O")
+    .replace(/ç/g, "c").replace(/Ç/g, "C")
+    .normalize("NFKD")
+    .replace(new RegExp("[" + String.fromCharCode(768) + "-" + String.fromCharCode(879) + "]", "g"), "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
 }
 
 function hashStr(s) {
@@ -491,23 +501,179 @@ export function generateHeadToHeadDuel(oyuncu, teamProfile) {
   };
 }
 
+// 7. GERÇEK İLK 11 VERİTABANI (2024/2025 - 2025/2026 KUSURSUZ MEVKİ MAPPING)
+export const TEAM_STARTING_ELEVEN = {
+  fenerbahce: {
+    gk: "Dominik Livaković", rb: "Mert Müldür", cb1: "Alexander Djiku", cb2: "Çağlar Söyüncü", lb: "Jayden Oosterwolde",
+    dm: "Sofyan Amrabat", cm: "Fred", rw: "Dušan Tadić", am: "Sebastian Szymański", lw: "Allan Saint-Maximin", cf: "Youssef En-Nesyri"
+  },
+  galatasaray: {
+    gk: "Fernando Muslera", rb: "Kaan Ayhan", cb1: "Davinson Sánchez", cb2: "Abdülkerim Bardakcı", lb: "Ismail Jakobs",
+    dm: "Lucas Torreira", cm: "Gabriel Sara", rw: "Barış Alper Yılmaz", am: "Dries Mertens", lw: "Yunus Akgün", cf: "Victor Osimhen"
+  },
+  besiktas: {
+    gk: "Mert Günok", rb: "Jonas Svensson", cb1: "Gabriel Paulista", cb2: "Felix Uduokhai", lb: "Arthur Masuaku",
+    dm: "Al-Musrati", cm: "Gedson Fernandes", rw: "Milot Rashica", am: "Rafa Silva", lw: "Semih Kılıçsoy", cf: "Ciro Immobile"
+  },
+  trabzonspor: {
+    gk: "Uğurcan Çakır", rb: "Pedro Malheiro", cb1: "Stefan Savić", cb2: "Stefano Denswil", lb: "Borna Barišić",
+    dm: "Okay Yokuşlu", cm: "Batista Mendy", rw: "Edin Višća", am: "Muhammed Cham", lw: "Denis Drăguș", cf: "Simon Banza"
+  },
+  basaksehir: {
+    gk: "Volkan Babacan", rb: "Ömer Ali Şahiner", cb1: "Léo Duarte", cb2: "Jerome Opoku", lb: "Lucas Lima",
+    dm: "Berat Özdemir", cm: "Miguel Crespo", rw: "Deniz Türüç", am: "Dimitris Pelkas", lw: "Serdar Gürler", cf: "Krzysztof Piątek"
+  },
+  samsunspor: {
+    gk: "Okan Kocuk", rb: "Zeki Yavru", cb1: "Rick van Drongelen", cb2: "Lubomir Satka", lb: "Marc Bola",
+    dm: "Youssef Aït Bennasser", cm: "Olivier Ntcham", rw: "Arbnor Muja", am: "Carlo Holse", lw: "Emre Kılınç", cf: "Marius Mouandilmadji"
+  },
+  eyupspor: {
+    gk: "Berke Özer", rb: "Léo Dubois", cb1: "Robin Yalçın", cb2: "Luccas Claro", lb: "Caner Erkin",
+    dm: "Melih Kabasakal", cm: "Fredrik Midtsjø", rw: "Emre Akbaba", am: "Samu Sáiz", lw: "Ahmed Kutucu", cf: "Mame Thiam"
+  },
+  goztepe: {
+    gk: "Mateusz Lis", rb: "Ogün Bayrak", cb1: "Taha Altıkardeş", cb2: "Héliton", lb: "Djalma Silva",
+    dm: "Doğan Erdoğan", cm: "Isaac Solet", rw: "David Datro Fofana", am: "Kuryu Matsuki", lw: "Rômulo", cf: "Juan"
+  },
+  realmadrid: {
+    gk: "Thibaut Courtois", rb: "Dani Carvajal", cb1: "Antonio Rüdiger", cb2: "Éder Militão", lb: "Ferland Mendy",
+    dm: "Aurélien Tchouaméni", cm: "Federico Valverde", rw: "Rodrygo", am: "Jude Bellingham", lw: "Vinícius Júnior", cf: "Kylian Mbappé"
+  },
+  mancity: {
+    gk: "Ederson", rb: "Kyle Walker", cb1: "Rúben Dias", cb2: "Manuel Akanji", lb: "Joško Gvardiol",
+    dm: "Rodri", cm: "Kevin De Bruyne", rw: "Phil Foden", am: "İlkay Gündoğan", lw: "Jack Grealish", cf: "Erling Haaland"
+  },
+  arsenal: {
+    gk: "David Raya", rb: "Ben White", cb1: "William Saliba", cb2: "Gabriel Magalhães", lb: "Jurriën Timber",
+    dm: "Thomas Partey", cm: "Declan Rice", rw: "Bukayo Saka", am: "Martin Ødegaard", lw: "Gabriel Martinelli", cf: "Kai Havertz"
+  },
+  liverpool: {
+    gk: "Alisson Becker", rb: "Trent Alexander-Arnold", cb1: "Ibrahima Konaté", cb2: "Virgil van Dijk", lb: "Andrew Robertson",
+    dm: "Ryan Gravenberch", cm: "Alexis Mac Allister", rw: "Mohamed Salah", am: "Dominik Szoboszlai", lw: "Luis Díaz", cf: "Diogo Jota"
+  },
+  barcelona: {
+    gk: "Wojciech Szczęsny", rb: "Jules Koundé", cb1: "Pau Cubarsí", cb2: "Iñigo Martínez", lb: "Alejandro Balde",
+    dm: "Marc Casadó", cm: "Pedri", rw: "Lamine Yamal", am: "Dani Olmo", lw: "Raphinha", cf: "Robert Lewandowski"
+  },
+  bayern: {
+    gk: "Manuel Neuer", rb: "Konrad Laimer", cb1: "Dayot Upamecano", cb2: "Kim Min-jae", lb: "Alphonso Davies",
+    dm: "Joshua Kimmich", cm: "Aleksandar Pavlović", rw: "Michael Olise", am: "Jamal Musiala", lw: "Serge Gnabry", cf: "Harry Kane"
+  },
+  inter: {
+    gk: "Yann Sommer", rb: "Denzel Dumfries", cb1: "Benjamin Pavard", cb2: "Alessandro Bastoni", lb: "Federico Dimarco",
+    dm: "Hakan Çalhanoğlu", cm: "Nicolò Barella", rw: "Matteo Darmian", am: "Henrikh Mkhitaryan", lw: "Marcus Thuram", cf: "Lautaro Martínez"
+  },
+  juventus: {
+    gk: "Michele Di Gregorio", rb: "Nicolò Savona", cb1: "Bremer", cb2: "Federico Gatti", lb: "Andrea Cambiaso",
+    dm: "Manuel Locatelli", cm: "Douglas Luiz", rw: "Nicolás González", am: "Teun Koopmeiners", lw: "Kenan Yıldız", cf: "Dušan Vlahović"
+  },
+  milan: {
+    gk: "Mike Maignan", rb: "Emerson Royal", cb1: "Fikayo Tomori", cb2: "Strahinja Pavlović", lb: "Theo Hernández",
+    dm: "Youssouf Fofana", cm: "Tijjani Reijnders", rw: "Christian Pulisic", am: "Ruben Loftus-Cheek", lw: "Rafael Leão", cf: "Álvaro Morata"
+  },
+  psg: {
+    gk: "Gianluigi Donnarumma", rb: "Achraf Hakimi", cb1: "Marquinhos", cb2: "Willian Pacho", lb: "Nuno Mendes",
+    dm: "Vitinha", cm: "João Neves", rw: "Ousmane Dembélé", am: "Warren Zaïre-Emery", lw: "Bradley Barcola", cf: "Gonçalo Ramos"
+  },
+  atletico: {
+    gk: "Jan Oblak", rb: "Nahuel Molina", cb1: "Robin Le Normand", cb2: "José María Giménez", lb: "Reinildo Mandava",
+    dm: "Koke", cm: "Rodrigo De Paul", rw: "Conor Gallagher", am: "Antoine Griezmann", lw: "Alexander Sørloth", cf: "Julián Álvarez"
+  },
+  dortmund: {
+    gk: "Gregor Kobel", rb: "Julian Ryerson", cb1: "Waldemar Anton", cb2: "Nico Schlotterbeck", lb: "Ramy Bensebaini",
+    dm: "Emre Can", cm: "Pascal Groß", rw: "Karim Adeyemi", am: "Julian Brandt", lw: "Jamie Gittens", cf: "Serhou Guirassy"
+  },
+  tottenham: {
+    gk: "Guglielmo Vicario", rb: "Pedro Porro", cb1: "Cristian Romero", cb2: "Micky van de Ven", lb: "Destiny Udogie",
+    dm: "Pape Matar Sarr", cm: "Yves Bissouma", rw: "Brennan Johnson", am: "James Maddison", lw: "Son Heung-min", cf: "Dominic Solanke"
+  },
+  astonvilla: {
+    gk: "Emiliano Martínez", rb: "Matty Cash", cb1: "Ezri Konsa", cb2: "Pau Torres", lb: "Lucas Digne",
+    dm: "Amadou Onana", cm: "Youri Tielemans", rw: "Leon Bailey", am: "Morgan Rogers", lw: "John McGinn", cf: "Ollie Watkins"
+  },
+  napoli: {
+    gk: "Alex Meret", rb: "Giovanni Di Lorenzo", cb1: "Amir Rrahmani", cb2: "Alessandro Buongiorno", lb: "Mathías Olivera",
+    dm: "Stanislav Lobotka", cm: "Frank Anguissa", rw: "Matteo Politano", am: "Scott McTominay", lw: "Khvicha Kvaratskhelia", cf: "Romelu Lukaku"
+  },
+  roma: {
+    gk: "Mile Svilar", rb: "Zeki Çelik", cb1: "Gianluca Mancini", cb2: "Evan Ndicka", lb: "Angeliño",
+    dm: "Bryan Cristante", cm: "Manu Koné", rw: "Matías Soulé", am: "Lorenzo Pellegrini", lw: "Paulo Dybala", cf: "Artem Dovbyk"
+  },
+  chelsea: {
+    gk: "Robert Sánchez", rb: "Malo Gusto", cb1: "Wesley Fofana", cb2: "Levi Colwill", lb: "Marc Cucurella",
+    dm: "Moisés Caicedo", cm: "Enzo Fernández", rw: "Noni Madueke", am: "Cole Palmer", lw: "Pedro Neto", cf: "Nicolas Jackson"
+  },
+  manutd: {
+    gk: "André Onana", rb: "Noussair Mazraoui", cb1: "Matthijs de Ligt", cb2: "Lisandro Martínez", lb: "Diogo Dalot",
+    dm: "Manuel Ugarte", cm: "Kobbie Mainoo", rw: "Alejandro Garnacho", am: "Bruno Fernandes", lw: "Marcus Rashford", cf: "Rasmus Højlund"
+  }
+};
+
+function resolveTeamStartingEleven(targetName, teamProfile) {
+  if (!targetName) return null;
+  const norm = sade(targetName);
+  for (const [k, v] of Object.entries(TEAM_STARTING_ELEVEN)) {
+    const kNorm = sade(k);
+    if (norm.includes(kNorm) || kNorm.includes(norm)) {
+      return { ...v };
+    }
+  }
+  if (teamProfile && teamProfile.ilk11) {
+    return { ...teamProfile.ilk11 };
+  }
+  return null;
+}
+
 // 7. KADRO DEPLASMANI VE TAKIM GÜCÜ DELTA (+4.4 vb.)
 export function generateLineupDisplacement(oyuncu, hedef, teamProfile) {
   const incClean = (teamProfile.incumbentName || "Mevcut As Oyuncu").split("/")[0].trim();
   const dizilis = hedef.dizilis || "4-2-3-1";
-  const kadroList = hedef.kadro && hedef.kadro.length > 0 ? hedef.kadro : [
-    "As Kaleci", "Sağ Bek", "Stoper 1", "Stoper 2", "Sol Bek",
-    "Ön Libero", "Merkez Orta Saha", "Sağ Kanat", "10 Numara", "Sol Kanat", incClean
-  ];
 
-  // Hedef mevkide 11 dizilim şablonu
-  const posMap = {
-    ATT: "1. Forvet / Santrafor",
-    MID: "Merkez Ofansif Orta Saha",
-    DEF: "Merkez Stoper",
-    GK: "1. As Kaleci"
+  // Gerçek Takım 11'ini Çözümle
+  const teamXI = resolveTeamStartingEleven(hedef.takim || hedef.isim, teamProfile) || {
+    gk: "As Kaleci", rb: "Sağ Bek", cb1: "Sağ Stoper", cb2: "Sol Stoper", lb: "Sol Bek",
+    dm: "Ön Libero", cm: "Merkez Orta", rw: "Sağ Kanat", am: "10 Numara", lw: "Sol Kanat", cf: incClean
   };
-  const mevkiAdi = posMap[oyuncu.grp] || "İlk 11 Anahtar Rol";
+
+  // Pozisyon eşleşmesi ve displase edilen oyuncu
+  const isWinger = (oyuncu.pozisyon || "").toLowerCase().includes("kanat") || (oyuncu.pozisyon || "").toLowerCase().includes("winger");
+  const isStriker = oyuncu.grp === "ATT" && !isWinger;
+  const isAttackingMid = oyuncu.grp === "MID" && ((oyuncu.pozisyon || "").toLowerCase().includes("ofansif") || (oyuncu.pozisyon || "").toLowerCase().includes("attacking") || (oyuncu.pozisyon || "").toLowerCase().includes("10"));
+  const isFullback = oyuncu.grp === "DEF" && ((oyuncu.pozisyon || "").toLowerCase().includes("bek") || (oyuncu.pozisyon || "").toLowerCase().includes("back"));
+
+  let targetSlot = "cf";
+  let targetPosLabel = "1. Santrafor / Forvet";
+  let displacedPlayer = teamXI.cf;
+
+  if (isStriker) {
+    targetSlot = "cf";
+    targetPosLabel = "1. Santrafor / Forvet";
+    displacedPlayer = teamXI.cf;
+  } else if (isWinger) {
+    targetSlot = "lw";
+    targetPosLabel = "Sol Kanat Forvet";
+    displacedPlayer = teamXI.lw;
+  } else if (isAttackingMid) {
+    targetSlot = "am";
+    targetPosLabel = "Ofansif Orta Saha (10 Numara)";
+    displacedPlayer = teamXI.am;
+  } else if (oyuncu.grp === "MID") {
+    targetSlot = "cm";
+    targetPosLabel = "Merkez Orta Saha (8 Numara)";
+    displacedPlayer = teamXI.cm;
+  } else if (isFullback) {
+    targetSlot = "lb";
+    targetPosLabel = "Sol Bek";
+    displacedPlayer = teamXI.lb;
+  } else if (oyuncu.grp === "DEF") {
+    targetSlot = "cb2";
+    targetPosLabel = "Merkez Sol Stoper";
+    displacedPlayer = teamXI.cb2;
+  } else if (oyuncu.grp === "GK") {
+    targetSlot = "gk";
+    targetPosLabel = "1. As Kaleci";
+    displacedPlayer = teamXI.gk;
+  }
 
   // Delta puanı (Pozitife duyarlı)
   const diff = (oyuncu.ga90 - teamProfile.incumbentGa90);
@@ -517,54 +683,44 @@ export function generateLineupDisplacement(oyuncu, hedef, teamProfile) {
   const savunmaDelta = Math.max(0.4, Math.min(3.5, Math.round((deltaScore * 0.25) * 10) / 10));
 
   // Taktiksel yorum
-  const taktikYorum = `${hedef.takim} takımının ${dizilis} sisteminde ${oyuncu.isim}, ${incClean} yerine 1. opsiyon olarak monte edilir. Hücum temposunda +%${Math.round(hucumDelta * 3.2)} artış, ön blokta topu geri kazanma süresinde ise ortalama 3.8 saniye düşüş simüle edilmiştir.`;
+  const taktikYorum = `${hedef.takim} takımının ${dizilis} sisteminde ${oyuncu.isim}, ${displacedPlayer} yerine doğrudan ${targetPosLabel} pozisyonuna monte edilir. Hücum temposunda +%${Math.round(hucumDelta * 3.2)} artış, ön blokta topu geri kazanma süresinde ise ortalama 3.8 saniye düşüş simüle edilmiştir.`;
 
-  // 11 kişilik interaktif saha dizilimi
-  let lineup = [];
-  const roles = [
-    { no: 1, pos: "GK", label: "Kaleci", x: 50, y: 88 },
-    { no: 2, pos: "RB", label: "Sağ Bek", x: 86, y: 72 },
-    { no: 3, pos: "CB", label: "Sağ Stoper", x: 62, y: 74 },
-    { no: 4, pos: "CB", label: "Sol Stoper", x: 38, y: 74 },
-    { no: 5, pos: "LB", label: "Sol Bek", x: 14, y: 72 },
-    { no: 6, pos: "DM", label: "Defansif Orta", x: 36, y: 54 },
-    { no: 8, pos: "CM", label: "Merkez Orta", x: 64, y: 54 },
-    { no: 7, pos: "RW", label: "Sağ Kanat", x: 84, y: 34 },
-    { no: 10, pos: "AM", label: "Ofansif Orta", x: 50, y: 36 },
-    { no: 11, pos: "LW", label: "Sol Kanat", x: 16, y: 34 },
-    { no: 9, pos: "CF", label: "Santrafor", x: 50, y: 16 }
+  // 11 Kişilik Kusursuz Koordinatlı Saha Yerleşimi
+  const roleSlots = [
+    { slot: "gk", no: 1, pos: "GK", label: "Kaleci", x: 50, y: 88 },
+    { slot: "rb", no: 2, pos: "RB", label: "Sağ Bek", x: 86, y: 72 },
+    { slot: "cb1", no: 3, pos: "CB", label: "Sağ Stoper", x: 62, y: 74 },
+    { slot: "cb2", no: 4, pos: "CB", label: "Sol Stoper", x: 38, y: 74 },
+    { slot: "lb", no: 5, pos: "LB", label: "Sol Bek", x: 14, y: 72 },
+    { slot: "dm", no: 6, pos: "DM", label: "Ön Libero", x: 36, y: 54 },
+    { slot: "cm", no: 8, pos: "CM", label: "Merkez Orta", x: 64, y: 54 },
+    { slot: "rw", no: 7, pos: "RW", label: "Sağ Kanat", x: 84, y: 34 },
+    { slot: "am", no: 10, pos: "AM", label: "Ofansif Orta", x: 50, y: 36 },
+    { slot: "lw", no: 11, pos: "LW", label: "Sol Kanat", x: 16, y: 34 },
+    { slot: "cf", no: 9, pos: "CF", label: "Santrafor", x: 50, y: 16 }
   ];
 
-  roles.forEach((r, idx) => {
-    let name = kadroList[idx] || `Oyuncu ${r.no}`;
-    let isTarget = false;
-    let isDisplaced = false;
+  const lineup = roleSlots.map(r => {
+    const isTarget = (r.slot === targetSlot);
+    const name = isTarget ? oyuncu.isim : (teamXI[r.slot] || "Oyuncu " + r.no);
+    const isDisplaced = !isTarget && (name.toLowerCase().includes(displacedPlayer.toLowerCase()));
 
-    if (oyuncu.grp === "ATT" && r.pos === "CF") {
-      name = oyuncu.isim;
-      isTarget = true;
-    } else if (oyuncu.grp === "MID" && r.pos === "AM") {
-      name = oyuncu.isim;
-      isTarget = true;
-    } else if (oyuncu.grp === "DEF" && r.pos === "CB" && r.no === 3) {
-      name = oyuncu.isim;
-      isTarget = true;
-    } else if (oyuncu.grp === "GK" && r.pos === "GK") {
-      name = oyuncu.isim;
-      isTarget = true;
-    }
-
-    if (name.toLowerCase().includes(incClean.toLowerCase())) {
-      isDisplaced = true;
-    }
-
-    lineup.push({ ...r, name, isTarget, isDisplaced });
+    return {
+      no: r.no,
+      pos: r.pos,
+      label: r.label,
+      x: r.x,
+      y: r.y,
+      name,
+      isTarget,
+      isDisplaced
+    };
   });
 
   return {
     dizilis,
-    pozisyon: mevkiAdi,
-    kesilenOyuncu: `${incClean} (Yedek / Rotasyon Opsiyonu)`,
+    pozisyon: targetPosLabel,
+    kesilenOyuncu: `${displacedPlayer} (Yedek / Rotasyon Opsiyonu)`,
     deltaSkor: `+${deltaScore}`,
     hucumDelta: `+${hucumDelta}`,
     presDelta: `+${presDelta}`,

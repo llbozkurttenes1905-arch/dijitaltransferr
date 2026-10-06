@@ -50,7 +50,17 @@ async function sdbGet(endpoint) {
 }
 
 function sade(t) {
-  return (t || "").normalize("NFKD").replace(new RegExp("[" + String.fromCharCode(768) + "-" + String.fromCharCode(879) + "]", "g"), "");
+  return (t || "")
+    .replace(/ğ/g, "g").replace(/Ğ/g, "G")
+    .replace(/ü/g, "u").replace(/Ü/g, "U")
+    .replace(/ş/g, "s").replace(/Ş/g, "S")
+    .replace(/ı/g, "i").replace(/İ/g, "I")
+    .replace(/ö/g, "o").replace(/Ö/g, "O")
+    .replace(/ç/g, "c").replace(/Ç/g, "C")
+    .normalize("NFKD")
+    .replace(new RegExp("[" + String.fromCharCode(768) + "-" + String.fromCharCode(879) + "]", "g"), "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
 }
 
 function calculateAge(dateStr) {
@@ -224,7 +234,7 @@ const TEAMS_DATABASE = {
     ],
     anaDizilis: "4-2-3-1",
     altDizilis: "3-4-1-2",
-    kadro: ["Victor Osimhen", "Mauro Icardi", "Michy Batshuayi", "Barış Alper Yılmaz", "Yunus Akgün", "Roland Sallai", "Dries Mertens", "Gabriel Sara", "Lucas Torreira", "Davinson Sánchez", "Abdülkerim Bardakcı", "Victor Nelsson", "Ismail Jakobs", "Elias Jelert", "Kaan Ayhan", "Fernando Muslera"],
+    kadro: ["Victor Osimhen", "Mauro Icardi", "Michy Batshuayi", "Barış Alper Yılmaz", "Yunus Akgün", "Roland Sallai", "Dries Mertens", "Gabriel Sara", "Lucas Torreira", "Hakim Ziyech", "Kerem Demirbay", "Berkan Kutlu", "Eyüp Aydın", "Davinson Sánchez", "Abdülkerim Bardakcı", "Victor Nelsson", "Ismail Jakobs", "Elias Jelert", "Kaan Ayhan", "Metehan Baltacı", "Fernando Muslera", "Günay Güvenç"],
     kadroDetay: {
       kaleciler: ["Fernando Muslera (K)", "Günay Güvenç"],
       defans: ["Davinson Sánchez", "Abdülkerim Bardakcı", "Victor Nelsson", "Ismail Jakobs", "Elias Jelert", "Kaan Ayhan", "Metehan Baltacı"],
@@ -261,12 +271,12 @@ const TEAMS_DATABASE = {
     ],
     anaDizilis: "4-2-3-1",
     altDizilis: "3-5-2",
-    kadro: ["Youssef En-Nesyri", "Edin Džeko", "Dušan Tadić", "Allan Saint-Maximin", "İrfan Can Kahveci", "Sebastian Szymański", "Fred", "Sofyan Amrabat", "Alexander Djiku", "Çağlar Söyüncü", "Jayden Oosterwolde", "Dominik Livaković"],
+    kadro: ["Youssef En-Nesyri", "Edin Džeko", "Dušan Tadić", "Allan Saint-Maximin", "Filip Kostić", "İrfan Can Kahveci", "Sebastian Szymański", "Fred", "Sofyan Amrabat", "İsmail Yüksek", "Mert Hakan Yandaş", "Alexander Djiku", "Çağlar Söyüncü", "Rodrigo Becão", "Jayden Oosterwolde", "Mert Müldür", "Bright Osayi-Samuel", "Levent Mercan", "Oğuz Aydın", "Cenk Tosun", "Cengiz Ünder", "Dominik Livaković", "İrfan Can Eğribayat"],
     kadroDetay: {
       kaleciler: ["Dominik Livaković", "İrfan Can Eğribayat"],
-      defans: ["Alexander Djiku", "Çağlar Söyüncü", "Rodrigo Becão", "Jayden Oosterwolde", "Mert Müldür", "Bright Osayi-Samuel"],
+      defans: ["Alexander Djiku", "Çağlar Söyüncü", "Rodrigo Becão", "Jayden Oosterwolde", "Mert Müldür", "Bright Osayi-Samuel", "Levent Mercan"],
       ortasaha: ["Fred", "Sofyan Amrabat", "Sebastian Szymański", "İsmail Yüksek", "Mert Hakan Yandaş"],
-      kanat_forvet: ["Dušan Tadić", "Allan Saint-Maximin", "İrfan Can Kahveci", "Cengiz Ünder", "Youssef En-Nesyri", "Edin Džeko", "Cenk Tosun"]
+      kanat_forvet: ["Dušan Tadić", "Allan Saint-Maximin", "Filip Kostić", "İrfan Can Kahveci", "Oğuz Aydın", "Cengiz Ünder", "Youssef En-Nesyri", "Edin Džeko", "Cenk Tosun"]
     }
   },
   besiktas: {
@@ -298,11 +308,11 @@ const TEAMS_DATABASE = {
     ],
     anaDizilis: "4-2-3-1",
     altDizilis: "4-3-3",
-    kadro: ["Ciro Immobile", "Semih Kılıçsoy", "Rafa Silva", "Gedson Fernandes", "Milot Rashica", "Ernest Muçi", "Arthur Masuaku", "Gabriel Paulista", "Felix Uduokhai", "Mert Günok"],
+    kadro: ["Ciro Immobile", "Semih Kılıçsoy", "Rafa Silva", "Gedson Fernandes", "João Mário", "Milot Rashica", "Ernest Muçi", "Cher Ndour", "Al-Musrati", "Salih Uçan", "Jean Onana", "Arthur Masuaku", "Gabriel Paulista", "Felix Uduokhai", "Emirhan Topçu", "Jonas Svensson", "Bakhtiyor Zaynutdinov", "Tayyip Talha Sanuç", "Mustafa Erhan Hekimoğlu", "Mert Günok", "Ersin Destanoğlu"],
     kadroDetay: {
       kaleciler: ["Mert Günok", "Ersin Destanoğlu"],
-      defans: ["Gabriel Paulista", "Felix Uduokhai", "Emirhan Topçu", "Arthur Masuaku", "Jonas Svensson"],
-      ortasaha: ["Gedson Fernandes", "Al-Musrati", "Cher Ndour", "Salih Uçan", "Ernest Muçi"],
+      defans: ["Gabriel Paulista", "Felix Uduokhai", "Emirhan Topçu", "Arthur Masuaku", "Jonas Svensson", "Bakhtiyor Zaynutdinov", "Tayyip Talha Sanuç"],
+      ortasaha: ["Gedson Fernandes", "Al-Musrati", "Cher Ndour", "João Mário", "Salih Uçan", "Ernest Muçi"],
       kanat_forvet: ["Rafa Silva", "Milot Rashica", "Semih Kılıçsoy", "Ciro Immobile", "Mustafa Erhan Hekimoğlu"]
     }
   },
@@ -333,12 +343,12 @@ const TEAMS_DATABASE = {
     ],
     anaDizilis: "4-2-3-1",
     altDizilis: "4-3-3",
-    kadro: ["Simon Banza", "Denis Drăguș", "Edin Višća", "Anthony Nwakaeme", "Muhammed Cham", "Batista Mendy", "Okay Yokuşlu", "Stefan Savić", "Stefano Denswil", "Uğurcan Çakır"],
+    kadro: ["Simon Banza", "Denis Drăguș", "Edin Višća", "Anthony Nwakaeme", "Muhammed Cham", "Okay Yokuşlu", "John Lundstram", "Batista Mendy", "Ozan Tufan", "Cihan Çanak", "Enis Destan", "Stefan Savić", "Stefano Denswil", "Arseniy Batagov", "Pedro Malheiro", "Borna Barišić", "Eren Elmalı", "Serdar Saatçı", "Uğurcan Çakır", "Onuralp Çevikkan"],
     kadroDetay: {
       kaleciler: ["Uğurcan Çakır", "Onuralp Çevikkan"],
-      defans: ["Stefan Savić", "Stefano Denswil", "Pedro Malheiro", "Eren Elmalı"],
-      ortasaha: ["Batista Mendy", "Okay Yokuşlu", "John Lundstram", "Muhammed Cham"],
-      kanat_forvet: ["Edin Višća", "Anthony Nwakaeme", "Denis Drăguș", "Simon Banza", "Enis Destan"]
+      defans: ["Stefan Savić", "Stefano Denswil", "Arseniy Batagov", "Pedro Malheiro", "Borna Barišić", "Eren Elmalı", "Serdar Saatçı"],
+      ortasaha: ["Batista Mendy", "Okay Yokuşlu", "John Lundstram", "Ozan Tufan", "Muhammed Cham"],
+      kanat_forvet: ["Edin Višća", "Anthony Nwakaeme", "Denis Drăguș", "Cihan Çanak", "Simon Banza", "Enis Destan"]
     }
   },
   basaksehir: {
@@ -517,7 +527,7 @@ const TEAMS_DATABASE = {
     mid: "Jude Bellingham / Federico Valverde", midGa90: 0.70,
     def: "Antonio Rüdiger / Éder Militão", defGa90: 0.15,
     gk: "Thibaut Courtois", gkGa90: 0.03,
-    kadro: ["Kylian Mbappé", "Vinícius Júnior", "Jude Bellingham", "Rodrygo", "Federico Valverde", "Eduardo Camavinga", "Aurélien Tchouaméni", "Antonio Rüdiger", "Dani Carvajal", "Thibaut Courtois"]
+    kadro: ["Kylian Mbappé", "Vinícius Júnior", "Jude Bellingham", "Rodrygo", "Federico Valverde", "Eduardo Camavinga", "Aurélien Tchouaméni", "Luka Modrić", "Arda Güler", "Brahim Díaz", "Endrick", "Antonio Rüdiger", "Éder Militão", "Dani Carvajal", "Ferland Mendy", "Lucas Vázquez", "Fran García", "Thibaut Courtois", "Andriy Lunin"]
   },
   mancity: {
     isim: "Manchester City",
@@ -528,7 +538,7 @@ const TEAMS_DATABASE = {
     mid: "Kevin De Bruyne / Bernardo Silva / Rodri", midGa90: 0.72,
     def: "Rúben Dias / Joško Gvardiol", defGa90: 0.15,
     gk: "Ederson", gkGa90: 0.03,
-    kadro: ["Erling Haaland", "Phil Foden", "Kevin De Bruyne", "Bernardo Silva", "Rodri", "Jack Grealish", "İlkay Gündoğan", "Rúben Dias", "Joško Gvardiol", "Ederson"]
+    kadro: ["Erling Haaland", "Phil Foden", "Kevin De Bruyne", "Bernardo Silva", "Rodri", "Jack Grealish", "İlkay Gündoğan", "Jérémy Doku", "Savinho", "Mateo Kovačić", "Matheus Nunes", "Rúben Dias", "Joško Gvardiol", "Manuel Akanji", "John Stones", "Kyle Walker", "Nathan Aké", "Ederson", "Stefan Ortega"]
   },
   arsenal: {
     isim: "Arsenal",
@@ -539,7 +549,7 @@ const TEAMS_DATABASE = {
     mid: "Martin Ødegaard / Declan Rice", midGa90: 0.68,
     def: "William Saliba / Gabriel Magalhães", defGa90: 0.14,
     gk: "David Raya", gkGa90: 0.03,
-    kadro: ["Bukayo Saka", "Kai Havertz", "Gabriel Martinelli", "Martin Ødegaard", "Declan Rice", "Thomas Partey", "William Saliba", "Gabriel Magalhães", "David Raya"]
+    kadro: ["Bukayo Saka", "Kai Havertz", "Gabriel Martinelli", "Martin Ødegaard", "Declan Rice", "Mikel Merino", "Thomas Partey", "Leandro Trossard", "Gabriel Jesus", "Raheem Sterling", "Jorginho", "William Saliba", "Gabriel Magalhães", "Jurriën Timber", "Ben White", "Riccardo Calafiori", "Oleksandr Zinchenko", "David Raya", "Neto"]
   },
   liverpool: {
     isim: "Liverpool",
@@ -550,7 +560,7 @@ const TEAMS_DATABASE = {
     mid: "Alexis Mac Allister / Dominik Szoboszlai", midGa90: 0.60,
     def: "Virgil van Dijk / Trent Alexander-Arnold", defGa90: 0.18,
     gk: "Alisson Becker", gkGa90: 0.03,
-    kadro: ["Mohamed Salah", "Luis Díaz", "Darwin Núñez", "Diogo Jota", "Cody Gakpo", "Alexis Mac Allister", "Ryan Gravenberch", "Virgil van Dijk", "Trent Alexander-Arnold", "Alisson Becker"]
+    kadro: ["Mohamed Salah", "Luis Díaz", "Darwin Núñez", "Diogo Jota", "Cody Gakpo", "Federico Chiesa", "Alexis Mac Allister", "Ryan Gravenberch", "Dominik Szoboszlai", "Curtis Jones", "Harvey Elliott", "Wataru Endo", "Virgil van Dijk", "Ibrahima Konaté", "Trent Alexander-Arnold", "Andrew Robertson", "Kostas Tsimikas", "Joe Gomez", "Alisson Becker", "Caoimhín Kelleher"]
   },
   barcelona: {
     isim: "Barcelona",
@@ -561,7 +571,7 @@ const TEAMS_DATABASE = {
     mid: "Raphinha / Dani Olmo / Pedri", midGa90: 0.78,
     def: "Pau Cubarsí / Jules Koundé", defGa90: 0.14,
     gk: "Wojciech Szczęsny", gkGa90: 0.03,
-    kadro: ["Robert Lewandowski", "Lamine Yamal", "Raphinha", "Dani Olmo", "Pedri", "Gavi", "Frenkie de Jong", "Pau Cubarsí", "Jules Koundé", "Alejandro Balde", "Wojciech Szczęsny"]
+    kadro: ["Robert Lewandowski", "Lamine Yamal", "Raphinha", "Dani Olmo", "Pedri", "Gavi", "Frenkie de Jong", "Marc Casadó", "Fermín López", "Ferran Torres", "Ansu Fati", "Pau Cubarsí", "Iñigo Martínez", "Jules Koundé", "Alejandro Balde", "Ronald Araújo", "Andreas Christensen", "Wojciech Szczęsny", "Marc-André ter Stegen", "Iñaki Peña"]
   },
   bayern: {
     isim: "Bayern München",
@@ -572,7 +582,7 @@ const TEAMS_DATABASE = {
     mid: "Jamal Musiala / Michael Olise", midGa90: 0.80,
     def: "Dayot Upamecano / Kim Min-jae", defGa90: 0.12,
     gk: "Manuel Neuer", gkGa90: 0.03,
-    kadro: ["Harry Kane", "Jamal Musiala", "Michael Olise", "Serge Gnabry", "Leroy Sané", "Joshua Kimmich", "Aleksandar Pavlović", "Kim Min-jae", "Dayot Upamecano", "Alphonso Davies", "Manuel Neuer"]
+    kadro: ["Harry Kane", "Jamal Musiala", "Michael Olise", "Serge Gnabry", "Leroy Sané", "Kingsley Coman", "Mathys Tel", "Joshua Kimmich", "Aleksandar Pavlović", "Leon Goretzka", "João Palhinha", "Konrad Laimer", "Kim Min-jae", "Dayot Upamecano", "Alphonso Davies", "Raphaël Guerreiro", "Eric Dier", "Hiroki Ito", "Manuel Neuer", "Sven Ulreich"]
   },
   inter: {
     isim: "Inter Milan",
@@ -583,7 +593,7 @@ const TEAMS_DATABASE = {
     mid: "Nicolò Barella / Hakan Çalhanoğlu", midGa90: 0.58,
     def: "Alessandro Bastoni / Benjamin Pavard", defGa90: 0.14,
     gk: "Yann Sommer", gkGa90: 0.03,
-    kadro: ["Lautaro Martínez", "Marcus Thuram", "Mehdi Taremi", "Nicolò Barella", "Hakan Çalhanoğlu", "Henrikh Mkhitaryan", "Federico Dimarco", "Alessandro Bastoni", "Benjamin Pavard", "Yann Sommer"]
+    kadro: ["Lautaro Martínez", "Marcus Thuram", "Mehdi Taremi", "Marko Arnautović", "Nicolò Barella", "Hakan Çalhanoğlu", "Henrikh Mkhitaryan", "Davide Frattesi", "Piotr Zieliński", "Kristjan Asllani", "Federico Dimarco", "Denzel Dumfries", "Matteo Darmian", "Carlos Augusto", "Alessandro Bastoni", "Benjamin Pavard", "Stefan de Vrij", "Francesco Acerbi", "Yann Bisseck", "Yann Sommer", "Josep Martínez"]
   },
   juventus: {
     isim: "Juventus",
@@ -594,7 +604,7 @@ const TEAMS_DATABASE = {
     mid: "Kenan Yıldız / Teun Koopmeiners", midGa90: 0.55,
     def: "Bremer / Federico Gatti", defGa90: 0.12,
     gk: "Michele Di Gregorio", gkGa90: 0.03,
-    kadro: ["Dušan Vlahović", "Kenan Yıldız", "Nicolás González", "Teun Koopmeiners", "Douglas Luiz", "Manuel Locatelli", "Andrea Cambiaso", "Bremer", "Federico Gatti", "Michele Di Gregorio"]
+    kadro: ["Dušan Vlahović", "Kenan Yıldız", "Nicolás González", "Francisco Conceição", "Teun Koopmeiners", "Douglas Luiz", "Manuel Locatelli", "Khéphren Thuram", "Weston McKennie", "Timothy Weah", "Samuel Mbangula", "Andrea Cambiaso", "Bremer", "Federico Gatti", "Pierre Kalulu", "Nicolò Savona", "Juan Cabal", "Danilo", "Michele Di Gregorio", "Mattia Perin"]
   },
   milan: {
     isim: "AC Milan",
@@ -605,7 +615,7 @@ const TEAMS_DATABASE = {
     mid: "Rafael Leão / Christian Pulisic", midGa90: 0.72,
     def: "Theo Hernández / Fikayo Tomori", defGa90: 0.16,
     gk: "Mike Maignan", gkGa90: 0.03,
-    kadro: ["Álvaro Morata", "Rafael Leão", "Christian Pulisic", "Tammy Abraham", "Tijjani Reijnders", "Youssouf Fofana", "Theo Hernández", "Fikayo Tomori", "Mike Maignan"]
+    kadro: ["Álvaro Morata", "Rafael Leão", "Christian Pulisic", "Tammy Abraham", "Samuel Chukwueze", "Noah Okafor", "Luka Jović", "Tijjani Reijnders", "Youssouf Fofana", "Ruben Loftus-Cheek", "Yunus Musah", "Ismaël Bennacer", "Theo Hernández", "Fikayo Tomori", "Strahinja Pavlović", "Emerson Royal", "Matteo Gabbia", "Malick Thiaw", "Davide Calabria", "Mike Maignan", "Marco Sportiello"]
   },
   psg: {
     isim: "Paris Saint-Germain",
@@ -616,7 +626,7 @@ const TEAMS_DATABASE = {
     mid: "Ousmane Dembélé / Vitinha", midGa90: 0.65,
     def: "Marquinhos / Willian Pacho", defGa90: 0.12,
     gk: "Gianluigi Donnarumma", gkGa90: 0.03,
-    kadro: ["Bradley Barcola", "Ousmane Dembélé", "Gonçalo Ramos", "Randal Kolo Muani", "Vitinha", "João Neves", "Warren Zaïre-Emery", "Marquinhos", "Willian Pacho", "Gianluigi Donnarumma"]
+    kadro: ["Bradley Barcola", "Ousmane Dembélé", "Gonçalo Ramos", "Randal Kolo Muani", "Marco Asensio", "Lee Kang-in", "Vitinha", "João Neves", "Warren Zaïre-Emery", "Fabián Ruiz", "Senny Mayulu", "Marquinhos", "Willian Pacho", "Lucas Beraldo", "Lucas Hernández", "Achraf Hakimi", "Nuno Mendes", "Gianluigi Donnarumma", "Matvey Safonov"]
   },
   chelsea: {
     isim: "Chelsea",
@@ -627,7 +637,7 @@ const TEAMS_DATABASE = {
     mid: "Cole Palmer / Enzo Fernández", midGa90: 0.75,
     def: "Levi Colwill / Marc Cucurella", defGa90: 0.12,
     gk: "Robert Sánchez", gkGa90: 0.03,
-    kadro: ["Nicolas Jackson", "Christopher Nkunku", "Cole Palmer", "Noni Madueke", "Jadon Sancho", "Enzo Fernández", "Moisés Caicedo", "Levi Colwill", "Robert Sánchez"]
+    kadro: ["Nicolas Jackson", "Christopher Nkunku", "Cole Palmer", "Noni Madueke", "Pedro Neto", "Jadon Sancho", "Mykhailo Mudryk", "João Félix", "Enzo Fernández", "Moisés Caicedo", "Roméo Lavia", "Kiernan Dewsbury-Hall", "Levi Colwill", "Wesley Fofana", "Tosin Adarabioyo", "Marc Cucurella", "Malo Gusto", "Reece James", "Robert Sánchez", "Filip Jørgensen"]
   },
   sporting: {
     isim: "Sporting CP",
@@ -638,7 +648,7 @@ const TEAMS_DATABASE = {
     mid: "Pedro Gonçalves / Francisco Trincão", midGa90: 0.68,
     def: "Gonçalo Inácio / Ousmane Diomande", defGa90: 0.12,
     gk: "Franco Israel", gkGa90: 0.03,
-    kadro: ["Viktor Gyökeres", "Pedro Gonçalves", "Francisco Trincão", "Morten Hjulmand", "Hidemasa Morita", "Gonçalo Inácio", "Ousmane Diomande", "Franco Israel"]
+    kadro: ["Viktor Gyökeres", "Pedro Gonçalves", "Francisco Trincão", "Marcus Edwards", "Conrad Harder", "Geovany Quenda", "Morten Hjulmand", "Hidemasa Morita", "Daniel Bragança", "Gonçalo Inácio", "Ousmane Diomande", "Zeno Debast", "Matheus Reis", "Nuno Santos", "Franco Israel", "Vladan Kovačević"]
   },
   benfica: {
     isim: "Benfica",
@@ -1072,7 +1082,7 @@ function runModel(oyuncu, episode, kacan, toplamMac, hedef, rol, N = 5000, macSa
 }
 
 // Analiz Orkestrasyonu
-async function analyzePlayerAndTeam(pid, hedefAdi) {
+export async function analyzePlayerAndTeam(pid, hedefAdi) {
   const cacheKey = `analysis:${pid}:${hedefAdi.toLowerCase()}`;
   const cached = getCache(cacheKey);
   if (cached) return cached;
