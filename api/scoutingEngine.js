@@ -508,8 +508,8 @@ export const TEAM_STARTING_ELEVEN = {
     dm: "Sofyan Amrabat", cm: "Fred", rw: "Dušan Tadić", am: "Sebastian Szymański", lw: "Allan Saint-Maximin", cf: "Youssef En-Nesyri"
   },
   galatasaray: {
-    gk: "Fernando Muslera", rb: "Kaan Ayhan", cb1: "Davinson Sánchez", cb2: "Abdülkerim Bardakcı", lb: "Ismail Jakobs",
-    dm: "Lucas Torreira", cm: "Gabriel Sara", rw: "Barış Alper Yılmaz", am: "Dries Mertens", lw: "Yunus Akgün", cf: "Victor Osimhen"
+    gk: "Uğurcan Çakır", rb: "Wilfried Singo", cb1: "Davinson Sánchez", cb2: "Abdülkerim Bardakcı", lb: "Ismail Jakobs",
+    dm: "Lucas Torreira", cm: "Gabriel Sara", rw: "Leroy Sané", am: "Barış Alper Yılmaz", lw: "Yunus Akgün", cf: "Victor Osimhen"
   },
   besiktas: {
     gk: "Mert Günok", rb: "Jonas Svensson", cb1: "Gabriel Paulista", cb2: "Felix Uduokhai", lb: "Arthur Masuaku",

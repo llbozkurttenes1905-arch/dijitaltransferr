@@ -213,7 +213,7 @@ const TEAMS_DATABASE = {
     att: "Victor Osimhen", attGa90: 0.96, altAtt: "Mauro Icardi / Michy Batshuayi",
     mid: "Gabriel Sara / Lucas Torreira", midGa90: 0.45,
     def: "Davinson Sánchez / Abdülkerim Bardakcı", defGa90: 0.12,
-    gk: "Fernando Muslera / Günay Güvenç", gkGa90: 0.03,
+    gk: "Uğurcan Çakır / Günay Güvenç", gkGa90: 0.03,
     felsefe: "Ön Alanda Boğucu Şok Pres & Hakim Topa Sahip Olma",
     hucumStili: "Ceza sahasına dikine kilit paslar, Osimhen bitiriciliği ve dinamik kanat varyasyonları",
     savunmaStili: "Yüksek savunma çizgisi, Torreira merkezli şok karşı pres ve kompakt hatlar",
@@ -222,10 +222,10 @@ const TEAMS_DATABASE = {
     presSiddeti: "Çok Yüksek (PPDA: 7.8)",
     xgMac: "2.40",
     gucluYonler: [
-      "Ceza sahası içi ölümcül bitiricilik (Victor Osimhen / Mauro Icardi)",
+      "Ceza sahası içi ölümcül bitiricilik (Victor Osimhen)",
       "Ön alanda şok pres ile top kazanma (Torreira & Gabriel Sara)",
-      "Bireysel dribling ile adam eksiltme (Barış Alper & Yunus Akgün)",
-      "Kanat beklerinden ceza sahasına kilit servisler (Jakobs & Jelert)"
+      "Bireysel dribling ile adam eksiltme (Barış Alper & Leroy Sané)",
+      "Kalede elit refleksler ve pasör süpürücü kaleci üstünlüğü (Uğurcan Çakır)"
     ],
     zayifYonler: [
       "Yüksek savunma çizgisi arkasına atılan kontratak topları",
@@ -234,12 +234,12 @@ const TEAMS_DATABASE = {
     ],
     anaDizilis: "4-2-3-1",
     altDizilis: "3-4-1-2",
-    kadro: ["Victor Osimhen", "Mauro Icardi", "Michy Batshuayi", "Barış Alper Yılmaz", "Yunus Akgün", "Roland Sallai", "Dries Mertens", "Gabriel Sara", "Lucas Torreira", "Kerem Demirbay", "Berkan Kutlu", "Eyüp Aydın", "Davinson Sánchez", "Abdülkerim Bardakcı", "Victor Nelsson", "Ismail Jakobs", "Elias Jelert", "Kaan Ayhan", "Metehan Baltacı", "Fernando Muslera", "Günay Güvenç", "Batuhan Şen"],
+    kadro: ["Victor Osimhen", "Barış Alper Yılmaz", "Leroy Sané", "Yunus Akgün", "Roland Sallai", "Deniz Gül", "Rafael Leão", "Gabriel Sara", "Lucas Torreira", "Mario Lemina", "İlkay Gündoğan", "Lesley Ugochukwu", "Eyüp Aydın", "Davinson Sánchez", "Wilfried Singo", "Abdülkerim Bardakcı", "Kaan Ayhan", "Ismail Jakobs", "Eren Elmalı", "El-Chadaille Bitshiabu", "Uğurcan Çakır", "Günay Güvenç", "Jankat Yılmaz"],
     kadroDetay: {
-      kaleciler: ["Fernando Muslera (K)", "Günay Güvenç", "Batuhan Şen"],
-      defans: ["Davinson Sánchez", "Abdülkerim Bardakcı", "Victor Nelsson", "Ismail Jakobs", "Elias Jelert", "Kaan Ayhan", "Metehan Baltacı"],
-      ortasaha: ["Lucas Torreira", "Gabriel Sara", "Kerem Demirbay", "Berkan Kutlu", "Eyüp Aydın"],
-      kanat_forvet: ["Barış Alper Yılmaz", "Yunus Akgün", "Roland Sallai", "Dries Mertens", "Victor Osimhen", "Mauro Icardi", "Michy Batshuayi"]
+      kaleciler: ["Uğurcan Çakır (1. Kaleci)", "Günay Güvenç", "Jankat Yılmaz"],
+      defans: ["Davinson Sánchez", "Wilfried Singo", "Abdülkerim Bardakcı", "Kaan Ayhan", "Ismail Jakobs", "Eren Elmalı", "El-Chadaille Bitshiabu"],
+      ortasaha: ["Lucas Torreira", "Gabriel Sara", "Mario Lemina", "İlkay Gündoğan", "Lesley Ugochukwu", "Eyüp Aydın"],
+      kanat_forvet: ["Barış Alper Yılmaz", "Leroy Sané", "Yunus Akgün", "Roland Sallai", "Deniz Gül", "Rafael Leão", "Victor Osimhen"]
     }
   },
   fenerbahce: {
