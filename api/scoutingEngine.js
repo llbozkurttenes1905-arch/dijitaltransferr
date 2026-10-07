@@ -508,7 +508,7 @@ export const TEAM_STARTING_ELEVEN = {
     dm: "Sofyan Amrabat", cm: "Fred", rw: "Dušan Tadić", am: "Sebastian Szymański", lw: "Allan Saint-Maximin", cf: "Youssef En-Nesyri"
   },
   galatasaray: {
-    gk: "Uğurcan Çakır", rb: "Kaan Ayhan", cb1: "Davinson Sánchez", cb2: "Abdülkerim Bardakcı", lb: "Ismail Jakobs",
+    gk: "Fernando Muslera", rb: "Kaan Ayhan", cb1: "Davinson Sánchez", cb2: "Abdülkerim Bardakcı", lb: "Ismail Jakobs",
     dm: "Lucas Torreira", cm: "Gabriel Sara", rw: "Barış Alper Yılmaz", am: "Dries Mertens", lw: "Yunus Akgün", cf: "Victor Osimhen"
   },
   besiktas: {
@@ -516,7 +516,7 @@ export const TEAM_STARTING_ELEVEN = {
     dm: "Al-Musrati", cm: "Gedson Fernandes", rw: "Milot Rashica", am: "Rafa Silva", lw: "Semih Kılıçsoy", cf: "Ciro Immobile"
   },
   trabzonspor: {
-    gk: "André Onana", rb: "Pedro Malheiro", cb1: "Stefan Savić", cb2: "Stefano Denswil", lb: "Borna Barišić",
+    gk: "Uğurcan Çakır", rb: "Pedro Malheiro", cb1: "Stefan Savić", cb2: "Stefano Denswil", lb: "Borna Barišić",
     dm: "Okay Yokuşlu", cm: "Batista Mendy", rw: "Edin Višća", am: "Muhammed Cham", lw: "Denis Drăguș", cf: "Simon Banza"
   },
   basaksehir: {
