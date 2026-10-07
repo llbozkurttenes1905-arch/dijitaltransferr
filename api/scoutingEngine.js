@@ -803,7 +803,155 @@ export function generateFinancialSimulation(marketVal, tahminiMaasStr) {
   };
 }
 
-// 11. TÜM EKSTREM ANALİZ PAKETİNİ OLUŞTURUCU
+// 11. DİNAMİK TAKTİKSEL ROLLER (Dynamic Tactical Roles)
+export function generateTacticalRoles(posGrp, posName) {
+  const normPos = (posName || "").toLowerCase();
+  const isWinger = normPos.includes("kanat") || normPos.includes("winger");
+
+  if (isWinger) {
+    return [
+      { id: "ters_kanat", baslik: "Ters Ayaklı Kanat Forvet (Inside Forward)", stil: "İçe Kat Etme & Şut Tehdidi", ozellik: "Kanattan ceza sahası yayına dripling ile kat eder, ters ayağıyla uzak köşeye şut arar.", vektor: "Köşeden Ceza Sahasına Çapraz Koşu", uyum: 94 },
+      { id: "klasik_kanat", baslik: "Klasik Çizgi Kanadı (Traditional Winger)", stil: "Çizgiye İnme & Sert Orta", ozellik: "Hızıyla bekin arkasına sarkar, son çizgiye inip penaltı noktasına yerden sert pas çıkarır.", vektor: "Taç Çizgisi Boyunca Dikine Depar", uyum: 88 },
+      { id: "kanat_oyun_kurucu", baslik: "Kanat Oyun Kurucu (Wide Playmaker)", stil: "Merkeze Sızma & Kilit Ara Pas", ozellik: "Kanatta genişliği bekine bırakıp iç koridora girer, 10 numara gibi oyunu yönlendirir.", vektor: "Merkez İkinci Bölgeye Diyagonal", uyum: 90 }
+    ];
+  }
+
+  if (posGrp === "ATT") {
+    return [
+      { id: "komple_forvet", baslik: "Komple Forvet (Complete Forward)", stil: "Bağlantı & Yırtıcı Bitiricilik", ozellik: "Hava topu indirir, kanatlara servis açar, ceza sahası içinde her pozisyonda son vuruş yapar.", vektor: "360° Gezgin ve Kutu İçi", uyum: 95 },
+      { id: "hedef_santrafor", baslik: "Hedef Santrafor (Target Man)", stil: "Fiziksel Duvar & Sırtı Dönük Oyun", ozellik: "Stoperleri yıpratır, uzun topları arkadan gelen orta saha oyuncularına indirir.", vektor: "Ceza Sahası Merkezi ve Ön Direk", uyum: 89 },
+      { id: "firsatci_golcu", baslik: "Fırsatçı Golcü (Poacher)", stil: "Ofsayt Çizgisi & Ceza Sahası Tilkisi", ozellik: "Savunma arkasındaki 1 metrelik boşluğa pusar, seken topları tek vuruşla tamamlar.", vektor: "Savunma Arkası Kör Nokta", uyum: 91 },
+      { id: "sahte_dokuz", baslik: "Sahte 9 (False Nine)", stil: "Derine İnip Alan Yaratma", ozellik: "Merkeze gerileyip stoperleri üzerine çeker, kanat forvetlerin ceza sahasına sızması için alan açar.", vektor: "Orta Sahaya Doğru Geri Çekilme", uyum: 86 }
+    ];
+  }
+
+  if (posGrp === "MID") {
+    return [
+      { id: "ofansif_oyun_kurucu", baslik: "Ofansif Oyun Kurucu (Advanced Playmaker)", stil: "Kilit Ara Pas & Vizyon", ozellik: "Hatlar arası ceplerde topla buluşur, rakip savunmayı bölen öldürücü paslar servis eder.", vektor: "Ceza Sahası Yayı ve Kanat Araları", uyum: 93 },
+      { id: "iki_yonlu", baslik: "İki Yönlü Orta Saha (Box-to-Box)", stil: "Kondisyon & Şok Pres", ozellik: "Kendi ceza sahasından rakip kaleye kadar dikey koridorda durmaksızın pres ve destek üretir.", vektor: "Dikey Koridor ve Ceza Sahası Girişleri", uyum: 91 },
+      { id: "derin_oyun_kurucu", baslik: "Derin Oyun Kurucu (Regista)", stil: "Geriden Oyun Kurma & Tempo Belirleme", ozellik: "Stoperlerin önüne gelip oyunu dinlendirir veya uzun ters diyagonal toplarla yön değiştirir.", vektor: "Savunma Önü ve Merkez Dinlenme", uyum: 88 },
+      { id: "dinamik_kesici", baslik: "Savaşçı Ön Libero (Ball-Winning Midfielder)", stil: "Süpürücü & Top Kazanma", ozellik: "Geçiş hücumlarını faul sınırında şok müdahalelerle keser, ikinci topları toplar.", vektor: "Merkez Blokaj ve Yan Koridor Kademesi", uyum: 92 }
+    ];
+  }
+
+  if (posGrp === "DEF") {
+    return [
+      { id: "pasor_stoper", baslik: "Oyun Kuran Pasör Stoper (Ball-Playing Defender)", stil: "Hat Kıran Paslar & Geriden Çıkış", ozellik: "Pres altında paniklemeden dikine pas çıkarır, gerektiğinde topla orta sahaya kat eder.", vektor: "Orta Çizgiye Doğru İlerleme", uyum: 92 },
+      { id: "kesici_stoper", baslik: "Sert Kesici Stoper (No-Nonsense Centre-Back)", stil: "Fiziksel Üstünlük & Hava Hakimiyeti", ozellik: "Rakip santraforu marke eder, risk almadan kritik anlarda topu tehlike bölgesinden uzaklaştırır.", vektor: "Ceza Sahası Emniyeti", uyum: 90 },
+      { id: "hucumcu_bek", baslik: "Bindirmeci Kanat Beki (Attacking Full-Back)", stil: "Kanat Çizgisine İnme & Kavisli Orta", ozellik: "Önündeki kanat oyuncusuna koridor açar, arka direğe tehlikeli kavisli servisler açar.", vektor: "Taç Çizgisi Boyunca İleri Depar", uyum: 94 }
+    ];
+  }
+
+  return [
+    { id: "supurucu_kaleci", baslik: "Modern Süpürücü Kaleci (Sweeper Keeper)", stil: "Ceza Sahası Dışı Emniyet & Pasörlük", ozellik: "Savunma arkasına atılan sızma toplarına ceza sahası dışına çıkarak ayakla müdahale eder.", vektor: "Ceza Sahası Yayı ve Önü", uyum: 93 },
+    { id: "cizgi_kalecisi", baslik: "Geleneksel Çizgi Kalecisi (Shot Stopper)", stil: "Refleks & Birebir Açı Daraltma", ozellik: "Çizgisinde kalır, ceza sahası içindeki şutlara insanüstü reflekslerle tepki verir.", vektor: "Kale Çizgisi Odaklı", uyum: 89 }
+  ];
+}
+
+// 12. SİNERJİ & PAS AĞI MATRİSİ (Chemistry & Passing Matrix)
+export function generateSynergyMatrix(oyuncu, hedef, teamProfile, lineup) {
+  const partners = [];
+  const teammates = (lineup || []).filter(p => !p.isTarget);
+
+  const mid = teammates.find(p => p.pos === "CM" || p.pos === "AM" || p.pos === "DM") || teammates[5] || teammates[6];
+  const wingerOrAtt = teammates.find(p => p.pos === "RW" || p.pos === "LW" || p.pos === "CF") || teammates[7] || teammates[9];
+  const def = teammates.find(p => p.pos === "LB" || p.pos === "RB" || p.pos === "CB") || teammates[1] || teammates[4];
+
+  if (mid) {
+    partners.push({
+      isim: mid.name,
+      pos: mid.pos,
+      rol: "Orta Saha Bağlantısı & Asist Köprüsü",
+      uyumSkor: 92,
+      aciklama: `${mid.name} ile merkezden dikine pas ve ara pası frekansı. Hatlar arası boşlukları %92 başarıyla değerlendirir.`,
+      sinerjiTipi: "PAS_AGI"
+    });
+  }
+
+  if (wingerOrAtt) {
+    partners.push({
+      isim: wingerOrAtt.name,
+      pos: wingerOrAtt.pos,
+      rol: "Çapraz Koşu & Kanat Kombinasyonu",
+      uyumSkor: 88,
+      aciklama: `${wingerOrAtt.name} ile ceza sahasına kanat varyasyonları ve karşılıklı duvar pası senkronu.`,
+      sinerjiTipi: "HUCUM_BAGI"
+    });
+  }
+
+  if (def) {
+    partners.push({
+      isim: def.name,
+      pos: def.pos,
+      rol: "Geçiş Savunması & Bindirme Tamamlayıcısı",
+      uyumSkor: 85,
+      aciklama: `${def.name} hücuma çıktığında geride bıraktığı kademeyi koruma ve arkaya atılan topları süpürme kimyası.`,
+      sinerjiTipi: "KADEME_GUVENCESI"
+    });
+  }
+
+  return {
+    genelSinerji: 89,
+    kilitOrtak: partners[0] ? partners[0].isim : "Kilit Oyuncu",
+    ortaklar: partners,
+    ozetNot: `${oyuncu.isim}, ${hedef.takim} sisteminde özellikle ${partners[0]?.isim || 'orta saha'} ile yüksek pas senkronizasyonu yakalayarak taktiksel verimi artırır.`
+  };
+}
+
+// 13. DURAN TOP HİYERARŞİSİ (Set-Piece Duty Hierarchy)
+export function generateSetPieceHierarchy(oyuncu, teamProfile, pStats) {
+  const isStriker = oyuncu.grp === "ATT";
+  const rating = Number(pStats.rating || 7.5);
+
+  let penaltiSira = isStriker && rating >= 7.8 ? "1. Sırada (As Penaltıcı)" : "2. Sırada (Alternatif)";
+  let penaltiBasari = isStriker ? "%86" : "%78";
+
+  let frikikSira = rating >= 8.0 ? "1. Sırada (18-24m Doğrudan Şut)" : "Baraj Arkası / Pas Opsiyonu";
+  let frikikStili = rating >= 8.0 ? "Sert Baraj Üstü Kavis" : "Duran Top İndirme";
+
+  let kornerGorev = (oyuncu.grp === "DEF" || (oyuncu.grp === "ATT" && !oyuncu.pozisyon.toLowerCase().includes("kanat")))
+    ? "Ceza Sahası İçi Kafa Tehdidi (Ön/Arka Direk)"
+    : "Kısa Pas / Ceza Sahasına Kavisli Servis";
+
+  let havaGolBeklentisi = (oyuncu.grp === "DEF" || isStriker) ? "+2.8 Gol/Sezon" : "+0.9 Gol/Sezon";
+
+  return {
+    penalti: { sira: penaltiSira, basari: penaltiBasari },
+    frikik: { sira: frikikSira, stil: frikikStili },
+    korner: { gorev: kornerGorev, havaTehdit: havaGolBeklentisi }
+  };
+}
+
+// 14. BASKI & HYPE ENDEKSİ (Fan & Media Pressure Gauge)
+export function generateHypePressureIndex(oyuncu, hedef, pStats) {
+  const rating = Number(pStats.rating || 7.5);
+  const isBigTeam = (hedef.takim || "").toLowerCase().includes("galatasaray") || 
+                    (hedef.takim || "").toLowerCase().includes("fenerbah") || 
+                    (hedef.takim || "").toLowerCase().includes("besiktas") || 
+                    (hedef.takim || "").toLowerCase().includes("trabzon");
+
+  const hypeSkor = Math.min(99, Math.max(72, Math.round(75 + (rating - 7.0) * 15 + (isBigTeam ? 8 : 0))));
+  const baskiTolerans = Math.min(98, Math.max(68, Math.round(72 + (oyuncu.yas >= 25 ? 12 : 5) + (rating >= 8.0 ? 8 : 0))));
+  const derbiStres = Math.min(96, Math.max(70, Math.round(baskiTolerans * 0.94)));
+  const sosyalEtkilesim = isBigTeam ? "+480K Etkileşim / İlk Hafta" : "+120K Etkileşim / İlk Hafta";
+
+  let yorum = "Baskıyı kaldıracak uluslararası mentaliteye ve derbi soğukkanlılığına sahip.";
+  if (baskiTolerans < 78) {
+    yorum = "İlk aylarda yoğun taraftar ve medya baskısına karşı psikolojik adaptasyon desteği önerilir.";
+  } else if (baskiTolerans >= 90) {
+    yorum = "Büyük maçlarda seviye atlayan, taraftar ateşini lehine çeviren elit lider karakter.";
+  }
+
+  return {
+    hypeSkor,
+    baskiTolerans,
+    derbiStres,
+    sosyalEtkilesim,
+    yorum
+  };
+}
+
+// 15. TÜM EKSTREM ANALİZ PAKETİNİ OLUŞTURUCU
 export function generateExtremeScoutingPackage(oyuncu, hedef, teamProfile, pStats, simResult) {
   const piyasa = calculateMarketValueAndContract(oyuncu.isim, oyuncu.yas, pStats.rating, pStats.ga90, oyuncu.grp);
   const optaRadar = calculateOptaRadar(oyuncu.isim, pStats.rating, pStats.ga90, oyuncu.grp);
@@ -813,6 +961,12 @@ export function generateExtremeScoutingPackage(oyuncu, hedef, teamProfile, pStat
   const sakatlik = generateInjuryTelemetry(oyuncu, pStats, simResult);
   const finans = generateFinancialSimulation(piyasa.deger, piyasa.tahminiMaas);
 
+  // Yeni Ekstrem Modüller
+  const roller = generateTacticalRoles(oyuncu.grp, oyuncu.pozisyon);
+  const kimya = generateSynergyMatrix(oyuncu, hedef, teamProfile, deplasman.ilk11);
+  const duranTop = generateSetPieceHierarchy(oyuncu, teamProfile, pStats);
+  const hypeBaski = generateHypePressureIndex(oyuncu, hedef, pStats);
+
   return {
     piyasa,
     optaRadar,
@@ -820,6 +974,10 @@ export function generateExtremeScoutingPackage(oyuncu, hedef, teamProfile, pStat
     deplasman,
     moneyball,
     sakatlik,
-    finans
+    finans,
+    roller,
+    kimya,
+    duranTop,
+    hypeBaski
   };
 }

@@ -99,6 +99,45 @@ export function CheckCircleIcon({ size = 14, color = '#10b981' }) {
   )
 }
 
+export function PressureIcon({ size = 16, color = 'currentColor' }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+      <circle cx="12" cy="12" r="4" fill="currentColor" opacity="0.3" />
+    </svg>
+  )
+}
+
+export function ExportIcon({ size = 16, color = 'currentColor' }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7 10 12 15 17 10" />
+      <line x1="12" y1="15" x2="12" y2="3" />
+    </svg>
+  )
+}
+
+export function TargetIcon({ size = 16, color = 'currentColor' }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="6" />
+      <circle cx="12" cy="12" r="2" />
+    </svg>
+  )
+}
+
+export function LinkIcon({ size = 16, color = 'currentColor' }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+    </svg>
+  )
+}
+
+
 // 6 Eksenli Opta SVG Radarı
 function OptaRadarChart({ optaRadar, playerName }) {
   if (!optaRadar || !optaRadar.labels) return null
@@ -186,7 +225,10 @@ function TacticalBoard({ ilk11, targetName }) {
 }
 
 export default function ExtremeScouting({ data, onSelectAlternative }) {
-  const [aktifModul, setAktifModul] = useState('radar') // 'radar', 'duello', 'deplasman', 'moneyball', 'sakatlik', 'finans'
+  const [aktifModul, setAktifModul] = useState('radar') // 'radar', 'duello', 'deplasman', 'moneyball', 'sakatlik', 'finans', 'baski'
+  const [modalRapor, setModalRapor] = useState(false)
+  const [seciliRol, setSeciliRol] = useState(0)
+
   const o = data.oyuncu
   const h = data.hedef
   const e = data.ekstrem || {}
@@ -196,6 +238,11 @@ export default function ExtremeScouting({ data, onSelectAlternative }) {
   const moneyball = e.moneyball || []
   const sakatlik = e.sakatlik || {}
   const finans = e.finans || {}
+  const roller = e.roller || []
+  const kimya = e.kimya || {}
+  const duranTop = e.duranTop || {}
+  const hypeBaski = e.hypeBaski || {}
+
   const optaRadar = e.optaRadar || {
     labels: ["Hız & Çeviklik", "Bitiricilik", "Pas & Vizyon", "Dribling", "Ön Pres", "Fizik & Hava"],
     oyuncu: [88, 85, 78, 84, 82, 86],
@@ -245,6 +292,16 @@ export default function ExtremeScouting({ data, onSelectAlternative }) {
             <BoltIcon size={13} color="#34d399" />
             <span>KADRO ETKİSİ: <b>{deplasman.deltaSkor || '+4.4'}</b> PUAN</span>
           </div>
+
+          <button
+            type="button"
+            className="ex-export-btn"
+            onClick={() => setModalRapor(true)}
+            style={{ marginTop: '8px' }}
+          >
+            <ExportIcon size={14} />
+            <span>Scouting Dosyasını İndir</span>
+          </button>
         </div>
 
         {/* HEDEF KULÜP KARTI */}
@@ -293,7 +350,7 @@ export default function ExtremeScouting({ data, onSelectAlternative }) {
         </div>
       </div>
 
-      {/* 3. 6 MODÜLLÜ KOKPİT NAVİGASYONU (SIFIR EMOJİ - RESMİ SVG VE METİN) */}
+      {/* 3. 7 MODÜLLÜ KOKPİT NAVİGASYONU (SIFIR EMOJİ - RESMİ SVG VE METİN) */}
       <div className="ex-nav-tabs">
         <button
           type="button"
@@ -347,6 +404,15 @@ export default function ExtremeScouting({ data, onSelectAlternative }) {
         >
           <FinanceIcon size={15} />
           <span>Finans & FFP</span>
+        </button>
+
+        <button
+          type="button"
+          className={'ex-nav-btn' + (aktifModul === 'baski' ? ' aktif' : '')}
+          onClick={() => setAktifModul('baski')}
+        >
+          <PressureIcon size={15} />
+          <span>Baskı & Hype Endeksi</span>
         </button>
       </div>
 
@@ -538,6 +604,114 @@ export default function ExtremeScouting({ data, onSelectAlternative }) {
                 </div>
               </div>
             </div>
+
+            {/* DİNAMİK TAKTİKSEL ROL & VEKTÖR KORİDORU */}
+            {roller && roller.length > 0 && (
+              <div className="ex-sub-box" style={{ gridColumn: '1 / -1', marginTop: '16px' }}>
+                <div className="ex-box-header">
+                  <TargetIcon size={18} color="#38bdf8" />
+                  <div>
+                    <div className="ex-bh-title">DİNAMİK TAKTİKSEL ROL & VEKTÖR KORİDORU</div>
+                    <div className="ex-bh-sub">Oyuncunun bu dizilimde üstlenebileceği roller ve taktiksel etki</div>
+                  </div>
+                </div>
+                <div className="ex-role-container">
+                  <div className="ex-role-chips-wrap">
+                    {roller.map((r, rIdx) => (
+                      <button
+                        key={rIdx}
+                        type="button"
+                        className={'ex-role-chip' + (seciliRol === rIdx ? ' aktif' : '')}
+                        onClick={() => setSeciliRol(rIdx)}
+                      >
+                        <span className="ex-rc-name">{r.baslik || r.rol}</span>
+                        <span className="ex-rc-uyum">%{r.uyum} Uyum</span>
+                      </button>
+                    ))}
+                  </div>
+                  {roller[seciliRol] && (
+                    <div className="ex-role-detail-card">
+                      <div className="ex-rd-header">
+                        <span className="ex-rd-title">{roller[seciliRol].baslik || roller[seciliRol].rol}</span>
+                        <span className="ex-rd-koridor">{roller[seciliRol].vektor || roller[seciliRol].koridor}</span>
+                      </div>
+                      <div className="ex-rd-desc">{roller[seciliRol].ozellik || roller[seciliRol].aciklama}</div>
+                      <div className="ex-rd-stil"><b>Oyun Tarzı:</b> {roller[seciliRol].stil || roller[seciliRol].oyunTarzi}</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* PAS AĞI VE SAHA İÇİ KİMYA SİMÜLATÖRÜ */}
+            {kimya && kimya.ortaklar && kimya.ortaklar.length > 0 && (
+              <div className="ex-sub-box" style={{ gridColumn: '1 / -1', marginTop: '16px' }}>
+                <div className="ex-box-header">
+                  <LinkIcon size={18} color="#a78bfa" />
+                  <div>
+                    <div className="ex-bh-title">PAS AĞI VE SAHA İÇİ KİMYA SİMÜLATÖRÜ</div>
+                    <div className="ex-bh-sub">En yakın hat arkadaşlarıyla beklenen pas uyumu ve saha içi sinerji</div>
+                  </div>
+                </div>
+                <div className="ex-synergy-grid">
+                  {kimya.ortaklar.map((p, pIdx) => (
+                    <div key={pIdx} className="ex-syn-card">
+                      <div className="ex-syn-head">
+                        <span className="ex-syn-name">{p.isim}</span>
+                        <span className="ex-syn-pos">{p.pozisyon}</span>
+                      </div>
+                      <div className="ex-syn-pct-wrap">
+                        <span className="ex-syn-pct-val" style={{ color: p.pasUyumu >= 85 ? '#34d399' : '#38bdf8' }}>
+                          %{p.pasUyumu}
+                        </span>
+                        <span className="ex-syn-pct-lbl">PAS UYUMU</span>
+                      </div>
+                      <div className="ex-syn-type">{p.sinerjiTipi}</div>
+                      <div className="ex-syn-desc">{p.aciklama}</div>
+                    </div>
+                  ))}
+                </div>
+                {kimya.ozet && (
+                  <div className="ex-coach-note" style={{ marginTop: '12px' }}>
+                    <div className="ex-cn-label">KİMYA ANALİZİ DİREKTİFİ</div>
+                    <div className="ex-cn-text">{kimya.ozet}</div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* DURAN TOP VE ROL DAĞILIMI HİYERARŞİSİ */}
+            {duranTop && duranTop.penalti && (
+              <div className="ex-sub-box" style={{ gridColumn: '1 / -1', marginTop: '16px' }}>
+                <div className="ex-box-header">
+                  <BoltIcon size={18} color="#f59e0b" />
+                  <div>
+                    <div className="ex-bh-title">DURAN TOP VE ROL DAĞILIMI HİYERARŞİSİ</div>
+                    <div className="ex-bh-sub">Penaltı, frikik, korner önceliği ve hava topu xG tehdidi</div>
+                  </div>
+                </div>
+                <div className="ex-sp-grid">
+                  <div className="ex-sp-card">
+                    <div className="ex-sp-type">PENALTI KULLANICISI</div>
+                    <div className="ex-sp-priority">{duranTop.penalti.sira || duranTop.penalti.oncelik || '1. Sırada'}</div>
+                    <div className="ex-sp-conv">Başarı / Güven: {duranTop.penalti.basari || duranTop.penalti.donusum || '%85'}</div>
+                    <div className="ex-sp-desc">Baskı anında yüksek soğukkanlılık ile ilk tercih.</div>
+                  </div>
+                  <div className="ex-sp-card">
+                    <div className="ex-sp-type">DİREKT SERBEST VURUŞ (FRİKİK)</div>
+                    <div className="ex-sp-priority">{duranTop.frikik?.sira || duranTop.frikik?.oncelik || '1. Sırada'}</div>
+                    <div className="ex-sp-conv">Vuruş Stili: {duranTop.frikik?.stil || duranTop.frikik?.donusum || 'Baraj Üstü Kavis'}</div>
+                    <div className="ex-sp-desc">Tehlikeli frikik bölgelerinde doğrudan kaleyi düşünen profil.</div>
+                  </div>
+                  <div className="ex-sp-card">
+                    <div className="ex-sp-type">KORNER & YAN TOPLAR</div>
+                    <div className="ex-sp-priority">{duranTop.korner?.gorev || duranTop.korner?.oncelik || 'Ceza Sahası Tehdidi'}</div>
+                    <div className="ex-sp-conv">Hava Tehdidi: {duranTop.korner?.havaTehdit || '+2.5 Gol/Sezon'}</div>
+                    <div className="ex-sp-desc">Duran top setlerinde birincil hava hedefi veya servis noktası.</div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -730,7 +904,124 @@ export default function ExtremeScouting({ data, onSelectAlternative }) {
             </div>
           </div>
         )}
+
+        {/* MODÜL 7: BASKI VE TARAFTAR HYPE ENDEKSİ */}
+        {aktifModul === 'baski' && (
+          <div className="ex-card">
+            <div className="ex-box-header">
+              <PressureIcon size={18} color="#ec4899" />
+              <div>
+                <div className="ex-bh-title">BASKI VE TARAFTAR HYPE ENDEKSİ</div>
+                <div className="ex-bh-sub">
+                  Sosyal medya etkisi, derbi stres toleransı ve tribün beklenti simülasyonu
+                </div>
+              </div>
+            </div>
+
+            <div className="ex-pressure-grid">
+              <div className="ex-press-card">
+                <div className="ex-press-label">MEDYA & TARAFTAR HYPE SKORU</div>
+                <div className="ex-press-val" style={{ color: '#ec4899' }}>
+                  {hypeBaski.hypeSkor || 85}/100
+                </div>
+                <div className="ex-press-sub">{hypeBaski.hypeKategori || 'Çılgın Karşılama Beklentisi'}</div>
+              </div>
+
+              <div className="ex-press-card">
+                <div className="ex-press-label">BASKI TOLERANSI & DİRENÇ</div>
+                <div className="ex-press-val" style={{ color: '#38bdf8' }}>
+                  %{hypeBaski.baskiTolerans || 84}
+                </div>
+                <div className="ex-press-sub">Yüksek Beklentiye Karşı Dayanıklılık</div>
+              </div>
+
+              <div className="ex-press-card">
+                <div className="ex-press-label">DERBİ & TANSİYON PSİKOLOJİSİ</div>
+                <div className="ex-press-val" style={{ color: '#f59e0b' }}>
+                  %{hypeBaski.derbiStres || 82}
+                </div>
+                <div className="ex-press-sub">Büyük Maç Mentalitesi</div>
+              </div>
+
+              <div className="ex-press-card">
+                <div className="ex-press-label">TAHMİNİ VİRAL ETKİLEŞİM</div>
+                <div className="ex-press-val" style={{ color: '#10b981' }}>
+                  {hypeBaski.sosyalEtkilesim || '1.2M'}
+                </div>
+                <div className="ex-press-sub">İlk 48 Saatlik Sosyal Hacim</div>
+              </div>
+            </div>
+
+            <div className="ex-coach-note" style={{ marginTop: '16px' }}>
+              <div className="ex-cn-label">SCOUT VE PSİKOLOJİK DİREKTİF</div>
+              <div className="ex-cn-text">
+                {hypeBaski.yorum || `${o.isim}, taraftar baskısı altında oyun disiplinini kaybetmeyen, yüksek reaksiyon ve liderlik karakteri barındıran bir zihinsel profile sahiptir.`}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* 5. RESMİ SCOUTING DOSYASI & YÖNETİM RAPORU MODALİ */}
+      {modalRapor && (
+        <div className="ex-modal-overlay" onClick={() => setModalRapor(false)}>
+          <div className="ex-dossier-card" onClick={(e) => e.stopPropagation()}>
+            <div className="ex-dossier-header">
+              <div className="ex-dh-title-wrap">
+                <div className="ex-dh-badge">RESMİ KULÜP YÖNETİM RAPORU</div>
+                <h2>{o.isim} — TRANSFER DOSYASI</h2>
+                <div className="ex-dh-meta">
+                  <span>Hedef Kulüp: <b>{h.takim}</b></span>
+                  <span>Tarih: <b>{new Date().toLocaleDateString('tr-TR')}</b></span>
+                  <span>Scout Onayı: <b style={{ color: '#10b981' }}>ONAYLANDI</b></span>
+                </div>
+              </div>
+              <button type="button" className="ex-dh-close" onClick={() => setModalRapor(false)}>×</button>
+            </div>
+
+            <div className="ex-dossier-body">
+              <div className="ex-dossier-section">
+                <h3>1. OYUNCU VE KADRO ETKİSİ</h3>
+                <p><b>{o.isim}</b> ({o.yas} yaş, {o.pozisyon}, {o.takim}) — {h.takim} taktiksel sistemine <b>%{uyumSkor}</b> oranında mükemmel uyum sağlamaktadır. Sahaya monte edildiğinde takım gücünü net <b>{deplasman.deltaSkor || '+4.4'} puan</b> artırması beklenmektedir.</p>
+              </div>
+
+              <div className="ex-dossier-section">
+                <h3>2. MALİ VE FFP DEĞERLENDİRMESİ</h3>
+                <p>Öngörülen Bonservis: <b>{finans.bonservis || 75}M €</b> ({finans.taksitYil || 3} taksit x {finans.taksitTutar || '25M €'}). Yıllık net maaş: <b>{finans.yillikNetMaas || '10M €'}</b>. Kulüp FFP durumu: <b>{finans.ffpDurum || 'GÜVENLİ LİMİT'}</b>.</p>
+              </div>
+
+              <div className="ex-dossier-section">
+                <h3>3. MEDİKAL VE SAKATLIK RİSKİ</h3>
+                <p>Risk Oranı: <b>%{sakatlik.riskYuzde || 14} ({sakatlik.riskSeviye || 'Düşük'})</b>. Beklenen maç kaçırma tahmini: <b>{sakatlik.kacanMacOrt || 2.8} maç/sezon</b>. Dayanıklılık endeksi: <b>%{sakatlik.saglamlikEndeks || 89}</b>.</p>
+              </div>
+
+              <div className="ex-dossier-section">
+                <h3>4. TAKTİKSEL KİMYA & BASKI TOLERANSI</h3>
+                <p>{deplasman.taktikYorum || 'Sisteme yüksek uyum göstererek hücum gücünü doğrudan artıracaktır.'} Medya & taraftar hype skoru: <b>{hypeBaski.hypeSkor || 85}/100</b>, derbi stres direnci: <b>%{hypeBaski.derbiStres || 82}</b>.</p>
+              </div>
+            </div>
+
+            <div className="ex-dossier-actions">
+              <button
+                type="button"
+                className="ex-export-btn"
+                onClick={() => window.print()}
+              >
+                <ExportIcon size={14} />
+                <span>Yazdır / PDF Olarak Kaydet</span>
+              </button>
+              <button
+                type="button"
+                className="ex-export-btn"
+                style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)' }}
+                onClick={() => setModalRapor(false)}
+              >
+                Kapat
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
