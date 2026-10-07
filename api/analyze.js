@@ -213,7 +213,7 @@ const TEAMS_DATABASE = {
     att: "Victor Osimhen", attGa90: 0.96, altAtt: "Mauro Icardi / Michy Batshuayi",
     mid: "Gabriel Sara / Lucas Torreira", midGa90: 0.45,
     def: "Davinson Sánchez / Abdülkerim Bardakcı", defGa90: 0.12,
-    gk: "Uğurcan Çakır / Fernando Muslera", gkGa90: 0.03,
+    gk: "Uğurcan Çakır / Günay Güvenç", gkGa90: 0.03,
     felsefe: "Ön Alanda Boğucu Şok Pres & Hakim Topa Sahip Olma",
     hucumStili: "Ceza sahasına dikine kilit paslar, Osimhen bitiriciliği ve dinamik kanat varyasyonları",
     savunmaStili: "Yüksek savunma çizgisi, Torreira merkezli şok karşı pres ve kompakt hatlar",
@@ -225,7 +225,7 @@ const TEAMS_DATABASE = {
       "Ceza sahası içi ölümcül bitiricilik (Victor Osimhen / Mauro Icardi)",
       "Ön alanda şok pres ile top kazanma (Torreira & Gabriel Sara)",
       "Bireysel dribling ile adam eksiltme (Barış Alper & Yunus Akgün)",
-      "Kalede elit refleksler ve pasör süpürücü kaleci üstünlüğü (Uğurcan Çakır & Muslera)"
+      "Kalede elit refleksler ve pasör süpürücü kaleci üstünlüğü (Uğurcan Çakır)"
     ],
     zayifYonler: [
       "Yüksek savunma çizgisi arkasına atılan kontratak topları",
@@ -234,9 +234,9 @@ const TEAMS_DATABASE = {
     ],
     anaDizilis: "4-2-3-1",
     altDizilis: "3-4-1-2",
-    kadro: ["Victor Osimhen", "Mauro Icardi", "Michy Batshuayi", "Barış Alper Yılmaz", "Yunus Akgün", "Roland Sallai", "Leroy Sané", "Dries Mertens", "Gabriel Sara", "Lucas Torreira", "Hakim Ziyech", "Kerem Demirbay", "Berkan Kutlu", "Eyüp Aydın", "Davinson Sánchez", "Abdülkerim Bardakcı", "Wilfried Singo", "Ismail Jakobs", "Kaan Ayhan", "Metehan Baltacı", "Uğurcan Çakır", "Fernando Muslera", "Günay Güvenç"],
+    kadro: ["Victor Osimhen", "Mauro Icardi", "Michy Batshuayi", "Barış Alper Yılmaz", "Yunus Akgün", "Roland Sallai", "Leroy Sané", "Dries Mertens", "Gabriel Sara", "Lucas Torreira", "Hakim Ziyech", "Kerem Demirbay", "Berkan Kutlu", "Eyüp Aydın", "Davinson Sánchez", "Abdülkerim Bardakcı", "Wilfried Singo", "Ismail Jakobs", "Kaan Ayhan", "Metehan Baltacı", "Uğurcan Çakır", "Günay Güvenç", "Batuhan Şen"],
     kadroDetay: {
-      kaleciler: ["Uğurcan Çakır (1. Kaleci)", "Fernando Muslera (K)", "Günay Güvenç"],
+      kaleciler: ["Uğurcan Çakır (1. Kaleci)", "Günay Güvenç", "Batuhan Şen"],
       defans: ["Davinson Sánchez", "Abdülkerim Bardakcı", "Wilfried Singo", "Ismail Jakobs", "Kaan Ayhan", "Metehan Baltacı"],
       ortasaha: ["Lucas Torreira", "Gabriel Sara", "Kerem Demirbay", "Berkan Kutlu", "Eyüp Aydın"],
       kanat_forvet: ["Barış Alper Yılmaz", "Yunus Akgün", "Roland Sallai", "Leroy Sané", "Dries Mertens", "Hakim Ziyech", "Victor Osimhen", "Mauro Icardi", "Michy Batshuayi"]
