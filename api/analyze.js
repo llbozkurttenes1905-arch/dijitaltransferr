@@ -234,12 +234,12 @@ const TEAMS_DATABASE = {
     ],
     anaDizilis: "4-2-3-1",
     altDizilis: "3-4-1-2",
-    kadro: ["Victor Osimhen", "Mauro Icardi", "Michy Batshuayi", "Barış Alper Yılmaz", "Yunus Akgün", "Roland Sallai", "Leroy Sané", "Dries Mertens", "Gabriel Sara", "Lucas Torreira", "Hakim Ziyech", "Kerem Demirbay", "Berkan Kutlu", "Eyüp Aydın", "Davinson Sánchez", "Abdülkerim Bardakcı", "Wilfried Singo", "Ismail Jakobs", "Kaan Ayhan", "Metehan Baltacı", "Uğurcan Çakır", "Günay Güvenç", "Batuhan Şen"],
+    kadro: ["Victor Osimhen", "Mauro Icardi", "Michy Batshuayi", "Barış Alper Yılmaz", "Yunus Akgün", "Leroy Sané", "Noa Lang", "Roland Sallai", "Dries Mertens", "Gabriel Sara", "Lucas Torreira", "Kerem Demirbay", "Berkan Kutlu", "Eyüp Aydın", "Davinson Sánchez", "Abdülkerim Bardakcı", "Wilfried Singo", "Ismail Jakobs", "Kaan Ayhan", "Metehan Baltacı", "Uğurcan Çakır", "Günay Güvenç", "Batuhan Şen"],
     kadroDetay: {
       kaleciler: ["Uğurcan Çakır (1. Kaleci)", "Günay Güvenç", "Batuhan Şen"],
       defans: ["Davinson Sánchez", "Abdülkerim Bardakcı", "Wilfried Singo", "Ismail Jakobs", "Kaan Ayhan", "Metehan Baltacı"],
       ortasaha: ["Lucas Torreira", "Gabriel Sara", "Kerem Demirbay", "Berkan Kutlu", "Eyüp Aydın"],
-      kanat_forvet: ["Barış Alper Yılmaz", "Yunus Akgün", "Roland Sallai", "Leroy Sané", "Dries Mertens", "Hakim Ziyech", "Victor Osimhen", "Mauro Icardi", "Michy Batshuayi"]
+      kanat_forvet: ["Barış Alper Yılmaz", "Yunus Akgün", "Leroy Sané", "Noa Lang", "Roland Sallai", "Dries Mertens", "Victor Osimhen", "Mauro Icardi", "Michy Batshuayi"]
     }
   },
   fenerbahce: {
