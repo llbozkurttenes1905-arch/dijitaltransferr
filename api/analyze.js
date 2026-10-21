@@ -5,9 +5,11 @@
 
 const API_KEY = process.env.API_KEY || "";
 const BASE_APISPORTS = "https://v3.football.api-sports.io";
-const BASE_THESPORTSDB = "https://www.thesportsdb.com/api/v1/json/3";
+const BASE_THESPORTSDB = process.env.THESPORTSDB_KEY
+  ? `https://www.thesportsdb.com/api/v1/json/${process.env.THESPORTSDB_KEY}`
+  : "https://www.thesportsdb.com/api/v1/json/123";
 
-import { generateExtremeScoutingPackage, findRealPlayerExpert } from "./scoutingEngine.js";
+import { generateExtremeScoutingPackage, findRealPlayerExpert, REAL_PLAYERS_EXPERT_DB } from "./scoutingEngine.js";
 
 // Önbellek
 const cache = new Map();
@@ -959,9 +961,10 @@ async function searchPlayers(isim) {
   const cached = getCache(cKey);
   if (cached) return cached;
 
+  let adaylar = [];
   const sdbData = await sdbGet(`searchplayers.php?p=${encodeURIComponent(clean)}`);
   if (sdbData && sdbData.player && sdbData.player.length > 0) {
-    const adaylar = sdbData.player.slice(0, 6).map(p => ({
+    adaylar = sdbData.player.slice(0, 6).map(p => ({
       id: p.idPlayer,
       isim: p.strPlayer,
       foto: p.strCutout || p.strThumb || "",
@@ -970,6 +973,29 @@ async function searchPlayers(isim) {
       takim: p.strTeam || "",
       pozisyon: trPoz(p.strPosition)
     }));
+  }
+
+  // Yerel expert veritabanından tamamla (hızlı ve kesintisiz arama)
+  const qNorm = sade(clean.toLowerCase());
+  for (const [k, d] of Object.entries(REAL_PLAYERS_EXPERT_DB)) {
+    const dNorm = sade(d.isim.toLowerCase());
+    if (dNorm.includes(qNorm) || qNorm.includes(dNorm) || k.includes(qNorm)) {
+      if (!adaylar.some(x => sade(x.isim.toLowerCase()) === dNorm)) {
+        adaylar.push({
+          id: `local_${k}`,
+          isim: d.isim,
+          foto: d.foto || "",
+          uyruk: d.uyruk || "Arjantin",
+          yas: d.yas || 27,
+          takim: d.takim || "Kulüp",
+          pozisyon: d.pozisyon || "Forvet"
+        });
+      }
+    }
+  }
+
+  if (adaylar.length > 0) {
+    adaylar = adaylar.slice(0, 8);
     setCache(cKey, adaylar);
     return adaylar;
   }
@@ -1087,20 +1113,31 @@ export async function analyzePlayerAndTeam(pid, hedefAdi) {
   const cached = getCache(cacheKey);
   if (cached) return cached;
 
-  // TheSportsDB'den oyuncu profili
-  const sdbPlayer = await sdbGet(`lookupplayer.php?id=${pid}`);
-  const pRaw = sdbPlayer && sdbPlayer.players && sdbPlayer.players[0];
+  let pRaw = null;
+  let localExpert = null;
+
+  if (typeof pid === "string" && pid.startsWith("local_")) {
+    const key = pid.replace("local_", "");
+    localExpert = REAL_PLAYERS_EXPERT_DB[key] || findRealPlayerExpert(key);
+  } else {
+    const sdbPlayer = await sdbGet(`lookupplayer.php?id=${pid}`);
+    pRaw = sdbPlayer && sdbPlayer.players && sdbPlayer.players[0];
+  }
+
+  if (!pRaw && !localExpert) {
+    localExpert = findRealPlayerExpert(pid);
+  }
 
   const cleanHedef = hedefAdi.trim();
   const sdbTeam = await sdbGet(`searchteams.php?t=${encodeURIComponent(cleanHedef)}`);
   const tRaw = sdbTeam && sdbTeam.teams && sdbTeam.teams[0];
 
-  const pName = pRaw ? pRaw.strPlayer : "Futbolcu";
-  const pAge = pRaw ? calculateAge(pRaw.dateBorn) : 27;
-  const pFoto = pRaw ? (pRaw.strCutout || pRaw.strThumb || "") : "";
-  const pNat = pRaw ? trUlke(pRaw.strNationality) : "Türkiye";
-  const pTeam = pRaw ? (pRaw.strTeam || "Mevcut Kulüp") : "Mevcut Kulüp";
-  const posRaw = pRaw ? (pRaw.strPosition || "Forward") : "Forward";
+  const pName = pRaw ? pRaw.strPlayer : (localExpert ? localExpert.isim : (typeof pid === "string" ? pid : "Futbolcu"));
+  const pAge = pRaw ? calculateAge(pRaw.dateBorn) : (localExpert && localExpert.yas ? localExpert.yas : 27);
+  const pFoto = pRaw ? (pRaw.strCutout || pRaw.strThumb || "") : (localExpert && localExpert.foto ? localExpert.foto : "");
+  const pNat = pRaw ? trUlke(pRaw.strNationality) : (localExpert && localExpert.uyruk ? localExpert.uyruk : "Arjantin");
+  const pTeam = pRaw ? (pRaw.strTeam || "Mevcut Kulüp") : (localExpert && localExpert.takim ? localExpert.takim : "Mevcut Kulüp");
+  const posRaw = pRaw ? (pRaw.strPosition || "Forward") : (localExpert && localExpert.pozisyon ? localExpert.pozisyon : "Forward");
   const posName = trPoz(posRaw);
   const posGrp = (posName === "Defans") ? "DEF" : (posName === "Kaleci") ? "GK" : (posName === "Orta Saha") ? "MID" : "ATT";
 
