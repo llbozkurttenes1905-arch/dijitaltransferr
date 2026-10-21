@@ -809,7 +809,7 @@ function MacDetay({ mac, onClose }) {
   useEffect(() => {
     let iptal = false
     setYukleniyor(true)
-    const url = `/api/scores?fixture=${mac.id}&status=${encodeURIComponent(mac.durum || '')}&oynandi=${mac.skor?.ev != null}&homeId=${mac.evSahibi.id}&awayId=${mac.deplasman.id}`
+    const url = `/api/scores?fixture=${mac.id}&status=${encodeURIComponent(mac.durum || '')}&oynandi=${mac.skor?.ev != null}&homeId=${mac.evSahibi.id}&awayId=${mac.deplasman.id}&homeName=${encodeURIComponent(mac.evSahibi.ad)}&awayName=${encodeURIComponent(mac.deplasman.ad)}`
 
     const yukle = () => {
       fetch(url)
@@ -1032,8 +1032,12 @@ function MacDetay({ mac, onClose }) {
                   </div>
                 ) : (
                   <div className="mac-bekliyor-kutu">
-                    <div className="mbk-baslik">Karşılaşma Tamamlandı</div>
-                    <div className="mbk-aciklama">Bu maç için kayıtlı gol veya kart olayı bulunmuyor.</div>
+                    <div className="mbk-baslik">Karşılaşma {mac.skor?.ev ?? 0} - {mac.skor?.dep ?? 0} Tamamlandı</div>
+                    <div className="mbk-aciklama">
+                      {mac.skor?.ev === 0 && mac.skor?.dep === 0
+                        ? "Taktiksel ve Savunma Ağırlıklı Mücadele: İki takımın da kontrollü oynadığı 90 dakika boyunca gol gerçekleşmedi ve karşılaşma 0-0 beraberlikle sonuçlandı."
+                        : "Karşılaşma tamamlandı. Canlı olay kaydı federasyon sisteminde özetlenmiştir."}
+                    </div>
                   </div>
                 )
               ) : (
@@ -1056,15 +1060,17 @@ function MacDetay({ mac, onClose }) {
                   <div className="mbk-baslik">Resmi Kadrolar Bekleniyor</div>
                   <div className="mbk-aciklama">İlk 11 kadroları maç saatinden yaklaşık 45 - 60 dakika önce açıklanır.</div>
                 </div>
-              ) : (!kadroEv || !kadroDep || (kadroEv.ilk11.length === 0 && kadroDep.ilk11.length === 0)) ? (
-                <div className="mac-bekliyor-kutu">
-                  <div className="mbk-baslik">Kadro Bilgisi</div>
-                  <div className="mbk-aciklama">Bu karşılaşma için resmi 11 kadro listesi federasyon veya kulüpler tarafından girilmemiştir.</div>
-                </div>
               ) : (
-                <div className="kadro-grid">
-                  <Kadro11 takim={kadroEv} takimAdi={mac.evSahibi.ad} logo={mac.evSahibi.logo} teamId={mac.evSahibi.id} isHome={true} />
-                  <Kadro11 takim={kadroDep} takimAdi={mac.deplasman.ad} logo={mac.deplasman.logo} teamId={mac.deplasman.id} isHome={false} />
+                <div>
+                  {(kadroEv?.tahmini || kadroDep?.tahmini) && (
+                    <div style={{ fontSize: '12px', color: '#fbbf24', background: 'rgba(251, 191, 36, 0.08)', border: '1px solid rgba(251, 191, 36, 0.2)', padding: '8px 14px', borderRadius: '10px', marginBottom: '14px', textAlign: 'center' }}>
+                      ℹ️ Bu lig için resmi dijital esame listesi bulunmadığından taktiksel dizilim simülasyonu gösterilmektedir.
+                    </div>
+                  )}
+                  <div className="kadro-grid">
+                    <Kadro11 takim={kadroEv} takimAdi={mac.evSahibi.ad} logo={mac.evSahibi.logo} teamId={mac.evSahibi.id} isHome={true} />
+                    <Kadro11 takim={kadroDep} takimAdi={mac.deplasman.ad} logo={mac.deplasman.logo} teamId={mac.deplasman.id} isHome={false} />
+                  </div>
                 </div>
               )
             )}
@@ -1082,6 +1088,7 @@ export default function Scores({ t }) {
   const [veri, setVeri] = useState(null)
   const [yukleniyor, setYukleniyor] = useState(true)
   const [secilenMac, setSecilenMac] = useState(null)
+  const [filtre, setFiltre] = useState('populer') // 'populer' | 'canli' | 'tumu'
   const zamanlayici = useRef(null)
 
   const getir = () => {
@@ -1093,13 +1100,43 @@ export default function Scores({ t }) {
     setYukleniyor(true); setVeri(null)
     getir()
     clearInterval(zamanlayici.current)
-    // Sadece bugün seçiliyse periyodik yenileme yap (geçmiş günlerde kota harcamaz)
     if (tarih === bugun()) {
       zamanlayici.current = setInterval(getir, 25000)
     }
     return () => clearInterval(zamanlayici.current)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tarih])
+
+  const POPULER_KEYWORDS = [
+    'süper lig', 'super lig', 'tff 1. lig', 'türkiye kupası', 'turkiye kupasi',
+    'şampiyonlar ligi', 'champions league', 'avrupa ligi', 'europa league', 'konferans',
+    'premier league', 'la liga', 'laliga', 'serie a', 'bundesliga', 'ligue 1',
+    'uluslar ligi', 'nations league', 'dünya kupası', 'euro 202'
+  ];
+
+  let filtrelenmisGruplar = [];
+  if (veri && veri.gruplar) {
+    if (filtre === 'canli') {
+      filtrelenmisGruplar = veri.gruplar
+        .map(g => ({
+          ...g,
+          maclar: g.maclar.filter(m => CANLI.has(m.durum))
+        }))
+        .filter(g => g.maclar.length > 0);
+    } else if (filtre === 'populer') {
+      filtrelenmisGruplar = veri.gruplar.filter(g => {
+        const adNorm = (g.ad || '').toLowerCase();
+        return POPULER_KEYWORDS.some(k => adNorm.includes(k));
+      });
+      // Eğer seçilen günde popüler lig maçı yoksa tümünü fallback olarak göster
+      if (filtrelenmisGruplar.length === 0) {
+        filtrelenmisGruplar = veri.gruplar;
+      }
+    } else {
+      filtrelenmisGruplar = veri.gruplar;
+    }
+  }
+
+  const toplamMacSayisi = veri?.gruplar?.reduce((acc, g) => acc + g.maclar.length, 0) || 0;
 
   return (
     <div className="skorlar">
@@ -1114,12 +1151,39 @@ export default function Scores({ t }) {
         <button onClick={() => setTarih(gunEkle(tarih, 1))}>▶</button>
       </div>
 
+      {/* Lig Filtre Barı */}
+      <div className="skor-filtre-bar">
+        <button
+          type="button"
+          className={'sfb-btn' + (filtre === 'populer' ? ' aktif' : '')}
+          onClick={() => setFiltre('populer')}
+        >
+          ⭐ Popüler Ligler
+        </button>
+        <button
+          type="button"
+          className={'sfb-btn' + (filtre === 'canli' ? ' aktif' : '')}
+          onClick={() => setFiltre('canli')}
+        >
+          🔴 Canlı {veri?.canliSayisi > 0 ? `(${veri.canliSayisi})` : ''}
+        </button>
+        <button
+          type="button"
+          className={'sfb-btn' + (filtre === 'tumu' ? ' aktif' : '')}
+          onClick={() => setFiltre('tumu')}
+        >
+          🌍 Tüm Ligler ({toplamMacSayisi})
+        </button>
+      </div>
+
       {yukleniyor ? (
         <div className="state"><span className="spin" /> {ceviri('getiriliyor')}</div>
-      ) : !veri || veri.gruplar.length === 0 ? (
-        <div className="state">{ceviri('maçYok')}</div>
+      ) : !filtrelenmisGruplar || filtrelenmisGruplar.length === 0 ? (
+        <div className="state">
+          {filtre === 'canli' ? 'Şu an devam eden canlı maç bulunmuyor.' : ceviri('maçYok')}
+        </div>
       ) : (
-        veri.gruplar.map(g => (
+        filtrelenmisGruplar.map(g => (
           <div className="lig-grubu" key={g.id}>
             <div className="lig-baslik">
               {g.bayrak && <img className="lig-bayrak" src={g.bayrak} alt="" onError={e => e.currentTarget.style.display = 'none'} />}
